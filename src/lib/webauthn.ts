@@ -4,9 +4,10 @@ import { Web3Modal } from '@web3modal/standalone';
 
 const STORAGE_KEY = 'algorand_private_key';
 
-// Initialize Web3Modal with project ID
+// Initialize Web3Modal with project ID and required configuration
 const web3Modal = new Web3Modal({
   projectId: import.meta.env.VITE_WALLET_CONNECT_PROJECT_ID || '',
+  walletConnectVersion: 2,  // Required version
   standaloneChains: ['algorand']
 });
 
@@ -157,12 +158,12 @@ export const processWalletConnectUrl = async (wcUrl: string): Promise<boolean> =
   try {
     console.log("Processing WalletConnect URL:", wcUrl);
     
-    // Connect using Web3Modal
-    const connection = await web3Modal.connect({
+    // Open modal for connection
+    await web3Modal.openModal({
       uri: wcUrl
     });
 
-    console.log("WalletConnect connection established:", connection);
+    console.log("WalletConnect connection established");
     return true;
   } catch (error) {
     console.error("Error processing WalletConnect URL:", error);
