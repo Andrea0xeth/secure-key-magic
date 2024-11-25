@@ -12,7 +12,7 @@ const generateAlgorandAddress = (publicKeyBytes: Uint8Array): string => {
     const account = algosdk.generateAccount();
     // In a real implementation, you would derive the address from the WebAuthn public key
     // This is just a demo that returns a valid Algorand address
-    return account.addr;
+    return account.addr.toString();
   } catch (error) {
     console.error("Error generating Algorand address:", error);
     throw error;
@@ -62,10 +62,10 @@ export const registerPasskey = async (): Promise<AuthenticationResult | null> =>
 
     // Generate a demo Algorand address
     const demoAccount = algosdk.generateAccount();
-    console.log("Generated Algorand address:", demoAccount.addr);
+    console.log("Generated Algorand address:", demoAccount.addr.toString());
 
     return {
-      address: demoAccount.addr,
+      address: demoAccount.addr.toString(),
       publicKey: "demo_public_key"
     };
   } catch (error) {
@@ -97,10 +97,10 @@ export const authenticateWithPasskey = async (): Promise<AuthenticationResult | 
 
     // Generate a demo Algorand address
     const demoAccount = algosdk.generateAccount();
-    console.log("Authenticated with Algorand address:", demoAccount.addr);
+    console.log("Authenticated with Algorand address:", demoAccount.addr.toString());
 
     return {
-      address: demoAccount.addr,
+      address: demoAccount.addr.toString(),
       publicKey: "demo_public_key"
     };
   } catch (error) {
