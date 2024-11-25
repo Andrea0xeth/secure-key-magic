@@ -1,6 +1,6 @@
 import { SignClient } from '@walletconnect/sign-client';
 
-let signClient: typeof SignClient | null = null;
+let signClient: SignClient | null = null;
 
 export async function initSignClient() {
   if (!signClient) {
