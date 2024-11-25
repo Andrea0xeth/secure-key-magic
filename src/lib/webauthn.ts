@@ -21,10 +21,24 @@ const generateAlgorandAddress = (publicKeyBytes: Uint8Array): string => {
 
 export const registerPasskey = async (): Promise<AuthenticationResult | null> => {
   try {
+    // Check if browser supports WebAuthn
     if (!window.PublicKeyCredential) {
+      console.error("WebAuthn is not supported in this browser");
       toast({
         title: "Error",
         description: "WebAuthn is not supported in this browser",
+        variant: "destructive",
+      });
+      return null;
+    }
+
+    // Check if the device has a platform authenticator
+    const available = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
+    if (!available) {
+      console.error("No platform authenticator available");
+      toast({
+        title: "Error",
+        description: "Your device doesn't support biometric authentication",
         variant: "destructive",
       });
       return null;
@@ -49,16 +63,27 @@ export const registerPasskey = async (): Promise<AuthenticationResult | null> =>
         alg: -7 // ES256
       }],
       timeout: 60000,
-      attestation: "direct",
+      attestation: "none",
       authenticatorSelection: {
         authenticatorAttachment: "platform",
+        requireResidentKey: true,
+        residentKey: "required",
         userVerification: "required",
       },
     };
 
+    console.log("Starting credential creation with options:", createCredentialOptions);
+
     const credential = await navigator.credentials.create({
       publicKey: createCredentialOptions
     }) as PublicKeyCredential;
+
+    if (!credential) {
+      console.error("Failed to create credential");
+      throw new Error("Failed to create credential");
+    }
+
+    console.log("Credential created successfully:", credential);
 
     // Generate a demo Algorand address
     const demoAccount = algosdk.generateAccount();
@@ -72,7 +97,7 @@ export const registerPasskey = async (): Promise<AuthenticationResult | null> =>
     console.error("Error registering passkey:", error);
     toast({
       title: "Registration Failed",
-      description: "Failed to register passkey. Please try again.",
+      description: "Failed to register passkey. Please ensure you have biometric authentication enabled.",
       variant: "destructive",
     });
     return null;
