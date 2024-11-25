@@ -6,15 +6,26 @@ export interface AuthenticationResult {
   publicKey: string;
 }
 
-// Helper function to generate Algorand address from public key
-const generateAlgorandAddress = (publicKeyBytes: Uint8Array): string => {
+const STORAGE_KEY = 'algorand_private_key';
+
+// Helper function to get or create Algorand account
+const getOrCreateAlgorandAccount = (): algosdk.Account => {
   try {
+    // Check if we have a stored private key
+    const storedKey = localStorage.getItem(STORAGE_KEY);
+    if (storedKey) {
+      console.log("Using existing Algorand account");
+      return algosdk.mnemonicToSecretKey(storedKey);
+    }
+
+    // If no stored key, generate a new one
+    console.log("Generating new Algorand account");
     const account = algosdk.generateAccount();
-    // In a real implementation, you would derive the address from the WebAuthn public key
-    // This is just a demo that returns a valid Algorand address
-    return account.addr.toString();
+    // Store the mnemonic (private key) in localStorage
+    localStorage.setItem(STORAGE_KEY, algosdk.secretKeyToMnemonic(account.sk));
+    return account;
   } catch (error) {
-    console.error("Error generating Algorand address:", error);
+    console.error("Error managing Algorand account:", error);
     throw error;
   }
 };
@@ -85,13 +96,13 @@ export const registerPasskey = async (): Promise<AuthenticationResult | null> =>
 
     console.log("Credential created successfully:", credential);
 
-    // Generate a demo Algorand address
-    const demoAccount = algosdk.generateAccount();
-    console.log("Generated Algorand address:", demoAccount.addr.toString());
+    // Get or create Algorand account
+    const account = getOrCreateAlgorandAccount();
+    console.log("Using Algorand address:", account.addr.toString());
 
     return {
-      address: demoAccount.addr.toString(),
-      publicKey: "demo_public_key"
+      address: account.addr.toString(),
+      publicKey: algosdk.encodeAddress(account.addr)
     };
   } catch (error) {
     console.error("Error registering passkey:", error);
@@ -120,13 +131,13 @@ export const authenticateWithPasskey = async (): Promise<AuthenticationResult | 
       publicKey: getCredentialOptions
     });
 
-    // Generate a demo Algorand address
-    const demoAccount = algosdk.generateAccount();
-    console.log("Authenticated with Algorand address:", demoAccount.addr.toString());
+    // Get existing Algorand account
+    const account = getOrCreateAlgorandAccount();
+    console.log("Authenticated with Algorand address:", account.addr.toString());
 
     return {
-      address: demoAccount.addr.toString(),
-      publicKey: "demo_public_key"
+      address: account.addr.toString(),
+      publicKey: algosdk.encodeAddress(account.addr)
     };
   } catch (error) {
     console.error("Error authenticating with passkey:", error);
