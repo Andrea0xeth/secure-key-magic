@@ -122,11 +122,11 @@ export const registerPasskey = async (): Promise<AuthenticationResult | null> =>
 
     // Get or create Algorand account
     const account = getOrCreateAlgorandAccount();
-    console.log("Using Algorand address:", account.addr.toString());
+    console.log("Using Algorand address:", account.addr);
 
     return {
-      address: account.addr.toString(),
-      publicKey: algosdk.encodeAddress(account.addr)
+      address: account.addr,
+      publicKey: account.addr // Since addr is already a string, we don't need encodeAddress
     };
   } catch (error) {
     console.error("Error registering passkey:", error);
@@ -157,11 +157,11 @@ export const authenticateWithPasskey = async (): Promise<AuthenticationResult | 
 
     // Get existing Algorand account
     const account = getOrCreateAlgorandAccount();
-    console.log("Authenticated with Algorand address:", account.addr.toString());
+    console.log("Authenticated with Algorand address:", account.addr);
 
     return {
-      address: account.addr.toString(),
-      publicKey: algosdk.encodeAddress(account.addr)
+      address: account.addr,
+      publicKey: account.addr // Since addr is already a string, we don't need encodeAddress
     };
   } catch (error) {
     console.error("Error authenticating with passkey:", error);
