@@ -2,8 +2,8 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
-import { registerPasskey, authenticateWithPasskey, processWalletConnectUrl, type AuthenticationResult } from "@/lib/webauthn";
-import { Shield, Link } from "lucide-react";
+import { registerPasskey, authenticateWithPasskey, processWalletConnectUrl, exportPrivateKey, type AuthenticationResult } from "@/lib/webauthn";
+import { Shield, Link, Download } from "lucide-react";
 import { PasskeySection } from "@/components/PasskeySection";
 
 const Index = () => {
@@ -37,35 +37,34 @@ const Index = () => {
     }
   };
 
-  const handleWalletConnectUrl = async () => {
-    if (!wcUrl) {
-      console.log("Error: No WalletConnect URL provided");
+  const handleExportKey = () => {
+    try {
+      const privateKey = exportPrivateKey();
+      
+      // Create a blob with the private key
+      const blob = new Blob([privateKey], { type: 'text/plain' });
+      const url = window.URL.createObjectURL(blob);
+      
+      // Create a temporary link and trigger download
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'algorand-private-key.txt';
+      document.body.appendChild(a);
+      a.click();
+      
+      // Cleanup
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+
+      toast({
+        title: "Success",
+        description: "Private key exported successfully",
+      });
+    } catch (error) {
       toast({
         title: "Error",
-        description: "Please enter a WalletConnect URL",
+        description: "Failed to export private key",
         variant: "destructive",
-      });
-      return;
-    }
-
-    if (!authResult) {
-      console.log("Error: No authentication result found");
-      toast({
-        title: "Error",
-        description: "Please authenticate with your passkey first",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    console.log("Processing WalletConnect URL:", wcUrl);
-    console.log("Using authenticated address:", authResult.address);
-    
-    const success = await processWalletConnectUrl(wcUrl, authResult.address);
-    if (success) {
-      toast({
-        title: "WalletConnect",
-        description: "Connection initiated successfully",
       });
     }
   };
@@ -124,6 +123,14 @@ const Index = () => {
                       Connect
                     </Button>
                   </div>
+                  <Button
+                    onClick={handleExportKey}
+                    variant="outline"
+                    className="w-full"
+                  >
+                    <Download className="mr-2 h-4 w-4" />
+                    Export Private Key
+                  </Button>
                   <Button
                     variant="outline"
                     onClick={() => setAuthResult(null)}

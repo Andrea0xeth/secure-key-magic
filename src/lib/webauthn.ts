@@ -22,6 +22,14 @@ const getOrCreateAlgorandAccount = (): algosdk.Account => {
   }
 };
 
+export const exportPrivateKey = (): string => {
+  const storedKey = localStorage.getItem(STORAGE_KEY);
+  if (!storedKey) {
+    throw new Error("No private key found");
+  }
+  return storedKey;
+};
+
 export interface AuthenticationResult {
   address: string;
   publicKey: string;
