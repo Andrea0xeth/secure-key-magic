@@ -1,6 +1,8 @@
 import { toast } from "@/hooks/use-toast";
 import * as algosdk from "algosdk";
 import { Web3Modal } from '@web3modal/standalone';
+import { SignClient } from '@walletconnect/sign-client';
+import { SessionTypes } from '@walletconnect/types';
 
 const STORAGE_KEY = 'algorand_private_key';
 
@@ -29,6 +31,23 @@ const getOrCreateAlgorandAccount = (): algosdk.Account => {
     throw error;
   }
 };
+
+let signClient: SignClient | null = null;
+
+async function initSignClient() {
+  if (!signClient) {
+    signClient = await SignClient.init({
+      projectId: import.meta.env.VITE_WALLET_CONNECT_PROJECT_ID,
+      metadata: {
+        name: 'Algorand Passkeys',
+        description: 'Secure Algorand authentication using passkeys',
+        url: window.location.host,
+        icons: ['https://walletconnect.com/walletconnect-logo.png']
+      }
+    });
+  }
+  return signClient;
+}
 
 export interface AuthenticationResult {
   address: string;
@@ -169,9 +188,46 @@ export const processWalletConnectUrl = async (wcUrl: string, address: string): P
       return false;
     }
 
-    // Here we would use the address to establish the connection
-    // This is a placeholder for the actual WalletConnect connection logic
-    console.log("Establishing connection with address:", address);
+    const client = await initSignClient();
+    
+    // Parse the URI
+    const { uri, approval } = await client.connect({
+      pairingTopic: wcUrl,
+      requiredNamespaces: {
+        algorand: {
+          methods: [
+            'algorand_signTransaction',
+            'algorand_signTxnGroup',
+          ],
+          chains: ['algorand:mainnet'],
+          events: ['accountsChanged']
+        }
+      }
+    });
+
+    console.log("Pairing with dApp...");
+    
+    // Approve the session with our address
+    const session = await approval();
+    console.log("Session established:", session);
+
+    // Update the session with our address
+    await client.update({
+      topic: session.topic,
+      namespaces: {
+        algorand: {
+          accounts: [`algorand:mainnet:${address}`],
+          methods: [
+            'algorand_signTransaction',
+            'algorand_signTxnGroup',
+          ],
+          events: ['accountsChanged']
+        }
+      }
+    });
+
+    console.log("Session updated with address:", address);
+    
     toast({
       title: "Connection Status",
       description: "Connected with address: " + address,
