@@ -12,8 +12,10 @@ const Index = () => {
   const { toast } = useToast();
 
   const handleRegister = async () => {
+    console.log("Starting passkey registration...");
     const result = await registerPasskey();
     if (result) {
+      console.log("Passkey registration successful:", result);
       setAuthResult(result);
       toast({
         title: "Registration Successful",
@@ -23,8 +25,10 @@ const Index = () => {
   };
 
   const handleAuthenticate = async () => {
+    console.log("Starting passkey authentication...");
     const result = await authenticateWithPasskey();
     if (result) {
+      console.log("Passkey authentication successful:", result);
       setAuthResult(result);
       toast({
         title: "Authentication Successful",
@@ -35,6 +39,7 @@ const Index = () => {
 
   const handleWalletConnectUrl = async () => {
     if (!wcUrl) {
+      console.log("Error: No WalletConnect URL provided");
       toast({
         title: "Error",
         description: "Please enter a WalletConnect URL",
@@ -44,6 +49,7 @@ const Index = () => {
     }
 
     if (!authResult) {
+      console.log("Error: No authentication result found");
       toast({
         title: "Error",
         description: "Please authenticate with your passkey first",
@@ -53,10 +59,34 @@ const Index = () => {
     }
 
     console.log("Processing WalletConnect URL:", wcUrl);
-    toast({
-      title: "WalletConnect",
-      description: "Processing connection request...",
-    });
+    console.log("Using authenticated address:", authResult.address);
+    
+    try {
+      // Here we'll parse and validate the WalletConnect URL
+      const isValidWcUrl = wcUrl.startsWith('wc:');
+      if (!isValidWcUrl) {
+        console.error("Invalid WalletConnect URL format");
+        toast({
+          title: "Error",
+          description: "Invalid WalletConnect URL format. Must start with 'wc:'",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      console.log("WalletConnect URL is valid, attempting connection...");
+      toast({
+        title: "WalletConnect",
+        description: "Processing connection request...",
+      });
+    } catch (error) {
+      console.error("WalletConnect error:", error);
+      toast({
+        title: "Connection Failed",
+        description: "Failed to process WalletConnect URL",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -113,14 +143,14 @@ const Index = () => {
                       Connect
                     </Button>
                   </div>
+                  <Button
+                    variant="outline"
+                    onClick={() => setAuthResult(null)}
+                    className="w-full"
+                  >
+                    Disconnect Passkey
+                  </Button>
                 </div>
-                <Button
-                  variant="outline"
-                  onClick={() => setAuthResult(null)}
-                  className="w-full mt-4"
-                >
-                  Disconnect Passkey
-                </Button>
               </div>
             </div>
           )}
