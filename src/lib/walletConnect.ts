@@ -3,18 +3,25 @@ import { SignClient } from '@walletconnect/sign-client';
 let signClient: SignClient | null = null;
 
 export async function initSignClient() {
-  if (!signClient) {
-    signClient = await SignClient.init({
-      projectId: import.meta.env.VITE_WALLET_CONNECT_PROJECT_ID,
-      metadata: {
-        name: 'Algorand Passkeys',
-        description: 'Secure Algorand authentication using passkeys',
-        url: window.location.host,
-        icons: ['https://walletconnect.com/walletconnect-logo.png']
-      }
-    });
+  try {
+    if (!signClient) {
+      console.log("Initializing SignClient...");
+      signClient = await SignClient.init({
+        projectId: import.meta.env.VITE_WALLET_CONNECT_PROJECT_ID,
+        metadata: {
+          name: 'Algorand Passkeys',
+          description: 'Secure Algorand authentication using passkeys',
+          url: window.location.host,
+          icons: ['https://walletconnect.com/walletconnect-logo.png']
+        }
+      });
+      console.log("SignClient initialized successfully");
+    }
+    return signClient;
+  } catch (error) {
+    console.error("Error initializing SignClient:", error);
+    throw error;
   }
-  return signClient;
 }
 
 export async function connectWithWalletConnect(wcUrl: string, address: string): Promise<boolean> {
@@ -34,8 +41,9 @@ export async function connectWithWalletConnect(wcUrl: string, address: string): 
     // Extract the URI without query parameters
     const uri = wcUrl.split('?')[0];
     
+    console.log("Attempting to connect with URI:", uri);
+
     const { uri: connectionUri, approval } = await client.connect({
-      uri,
       requiredNamespaces: {
         algorand: {
           methods: [
@@ -45,30 +53,36 @@ export async function connectWithWalletConnect(wcUrl: string, address: string): 
           chains: ['algorand:mainnet'],
           events: ['accountsChanged']
         }
-      }
+      },
+      pairingTopic: uri.split(':')[1]
     });
 
     console.log("Pairing with dApp...");
     
-    const session = await approval();
-    console.log("Session established:", session);
+    try {
+      const session = await approval();
+      console.log("Session established:", session);
 
-    await client.update({
-      topic: session.topic,
-      namespaces: {
-        algorand: {
-          accounts: [`algorand:mainnet:${address}`],
-          methods: [
-            'algorand_signTransaction',
-            'algorand_signTxnGroup',
-          ],
-          events: ['accountsChanged']
+      await client.update({
+        topic: session.topic,
+        namespaces: {
+          algorand: {
+            accounts: [`algorand:mainnet:${address}`],
+            methods: [
+              'algorand_signTransaction',
+              'algorand_signTxnGroup',
+            ],
+            events: ['accountsChanged']
+          }
         }
-      }
-    });
+      });
 
-    console.log("Session updated with address:", address);
-    return true;
+      console.log("Session updated with address:", address);
+      return true;
+    } catch (approvalError) {
+      console.error("Error during session approval:", approvalError);
+      throw approvalError;
+    }
   } catch (error) {
     console.error("Error in WalletConnect connection:", error);
     throw error;
