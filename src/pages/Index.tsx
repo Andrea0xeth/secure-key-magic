@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
-import { registerPasskey, authenticateWithPasskey, type AuthenticationResult } from "@/lib/webauthn";
+import { registerPasskey, authenticateWithPasskey, processWalletConnectUrl, type AuthenticationResult } from "@/lib/webauthn";
 import { Shield, Link } from "lucide-react";
 import { PasskeySection } from "@/components/PasskeySection";
 
@@ -61,30 +61,11 @@ const Index = () => {
     console.log("Processing WalletConnect URL:", wcUrl);
     console.log("Using authenticated address:", authResult.address);
     
-    try {
-      // Here we'll parse and validate the WalletConnect URL
-      const isValidWcUrl = wcUrl.startsWith('wc:');
-      if (!isValidWcUrl) {
-        console.error("Invalid WalletConnect URL format");
-        toast({
-          title: "Error",
-          description: "Invalid WalletConnect URL format. Must start with 'wc:'",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      console.log("WalletConnect URL is valid, attempting connection...");
+    const success = await processWalletConnectUrl(wcUrl);
+    if (success) {
       toast({
         title: "WalletConnect",
-        description: "Processing connection request...",
-      });
-    } catch (error) {
-      console.error("WalletConnect error:", error);
-      toast({
-        title: "Connection Failed",
-        description: "Failed to process WalletConnect URL",
-        variant: "destructive",
+        description: "Connection initiated successfully",
       });
     }
   };

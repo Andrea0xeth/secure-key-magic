@@ -7,7 +7,7 @@ const STORAGE_KEY = 'algorand_private_key';
 // Initialize Web3Modal with project ID and required configuration
 const web3Modal = new Web3Modal({
   projectId: import.meta.env.VITE_WALLET_CONNECT_PROJECT_ID || '',
-  walletConnectVersion: 2,  // Required version
+  walletConnectVersion: 2,
   standaloneChains: ['algorand']
 });
 
@@ -158,9 +158,32 @@ export const processWalletConnectUrl = async (wcUrl: string): Promise<boolean> =
   try {
     console.log("Processing WalletConnect URL:", wcUrl);
     
-    // Open modal for connection
+    if (!wcUrl.startsWith('wc:')) {
+      console.error("Invalid WalletConnect URL format");
+      toast({
+        title: "Error",
+        description: "Invalid WalletConnect URL format. Must start with 'wc:'",
+        variant: "destructive",
+      });
+      return false;
+    }
+
+    // Open modal with the WalletConnect URI
     await web3Modal.openModal({
-      uri: wcUrl
+      uri: wcUrl,
+      standaloneChains: ['algorand']
+    });
+
+    // Subscribe to connection events
+    web3Modal.subscribeModal(async (state) => {
+      console.log("Modal state changed:", state);
+      if (!state.open) {
+        console.log("Modal closed");
+        toast({
+          title: "Connection Status",
+          description: "WalletConnect modal closed",
+        });
+      }
     });
 
     console.log("WalletConnect connection established");
@@ -169,7 +192,7 @@ export const processWalletConnectUrl = async (wcUrl: string): Promise<boolean> =
     console.error("Error processing WalletConnect URL:", error);
     toast({
       title: "Connection Failed",
-      description: "Failed to process WalletConnect URL",
+      description: "Failed to process WalletConnect URL: " + (error as Error).message,
       variant: "destructive",
     });
     return false;
