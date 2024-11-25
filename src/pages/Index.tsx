@@ -32,17 +32,17 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white dark:from-gray-900 dark:to-gray-800">
+    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white dark:from-gray-900 dark:to-gray-800">
       <div className="container max-w-2xl pt-16 pb-8 animate-fade-in">
         <div className="text-center mb-12">
           <div className="flex justify-center mb-6">
-            <Shield className="h-16 w-16 text-primary" />
+            <Shield className="h-16 w-16 text-blue-500" />
           </div>
-          <h1 className="text-4xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-primary to-purple-400">
-            ETH Passkeys
+          <h1 className="text-4xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-blue-400">
+            Algorand Passkeys
           </h1>
           <p className="text-lg text-gray-600 dark:text-gray-300">
-            Secure Ethereum authentication using passkeys
+            Secure Algorand authentication using passkeys
           </p>
         </div>
 
@@ -52,7 +52,7 @@ const Index = () => {
               <div className="text-center space-y-4">
                 <Button
                   onClick={handleRegister}
-                  className="w-full bg-primary hover:bg-primary/90 text-white"
+                  className="w-full bg-blue-500 hover:bg-blue-600 text-white"
                 >
                   <KeyRound className="mr-2 h-4 w-4" />
                   Register New Passkey
@@ -80,14 +80,14 @@ const Index = () => {
           ) : (
             <div className="space-y-6 text-center">
               <div className="flex justify-center">
-                <Wallet className="h-12 w-12 text-success" />
+                <Wallet className="h-12 w-12 text-green-500" />
               </div>
               <div>
                 <h2 className="text-xl font-semibold mb-2">Connected</h2>
                 <p className="text-sm text-muted-foreground mb-4">
-                  Your Ethereum address:
+                  Your Algorand address:
                 </p>
-                <code className="px-4 py-2 bg-gray-100 dark:bg-gray-800 rounded-lg text-sm">
+                <code className="px-4 py-2 bg-gray-100 dark:bg-gray-800 rounded-lg text-sm break-all">
                   {authResult.address}
                 </code>
               </div>

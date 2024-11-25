@@ -1,9 +1,23 @@
 import { toast } from "@/components/ui/use-toast";
+import * as algosdk from "algosdk";
 
 export interface AuthenticationResult {
   address: string;
   publicKey: string;
 }
+
+// Helper function to generate Algorand address from public key
+const generateAlgorandAddress = (publicKeyBytes: Uint8Array): string => {
+  try {
+    const account = algosdk.generateAccount();
+    // In a real implementation, you would derive the address from the WebAuthn public key
+    // This is just a demo that returns a valid Algorand address
+    return account.addr;
+  } catch (error) {
+    console.error("Error generating Algorand address:", error);
+    throw error;
+  }
+};
 
 export const registerPasskey = async (): Promise<AuthenticationResult | null> => {
   try {
@@ -16,14 +30,13 @@ export const registerPasskey = async (): Promise<AuthenticationResult | null> =>
       return null;
     }
 
-    // This is a simplified version - in production you'd need to implement proper challenge generation
     const challenge = new Uint8Array(32);
     crypto.getRandomValues(challenge);
 
     const createCredentialOptions: PublicKeyCredentialCreationOptions = {
       challenge,
       rp: {
-        name: "ETH Passkeys Demo",
+        name: "Algorand Passkeys Demo",
         id: window.location.hostname,
       },
       user: {
@@ -47,10 +60,12 @@ export const registerPasskey = async (): Promise<AuthenticationResult | null> =>
       publicKey: createCredentialOptions
     }) as PublicKeyCredential;
 
-    // In a real implementation, you'd derive an Ethereum address from the credential
-    // This is just a placeholder
+    // Generate a demo Algorand address
+    const demoAccount = algosdk.generateAccount();
+    console.log("Generated Algorand address:", demoAccount.addr);
+
     return {
-      address: "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
+      address: demoAccount.addr,
       publicKey: "demo_public_key"
     };
   } catch (error) {
@@ -80,9 +95,12 @@ export const authenticateWithPasskey = async (): Promise<AuthenticationResult | 
       publicKey: getCredentialOptions
     });
 
-    // In a real implementation, you'd verify the assertion and return the associated Ethereum address
+    // Generate a demo Algorand address
+    const demoAccount = algosdk.generateAccount();
+    console.log("Authenticated with Algorand address:", demoAccount.addr);
+
     return {
-      address: "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
+      address: demoAccount.addr,
       publicKey: "demo_public_key"
     };
   } catch (error) {
