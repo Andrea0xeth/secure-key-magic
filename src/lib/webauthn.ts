@@ -32,7 +32,7 @@ const getOrCreateAlgorandAccount = (): algosdk.Account => {
   }
 };
 
-let signClient: SignClient | null = null;
+let signClient: typeof SignClient | null = null;
 
 async function initSignClient() {
   if (!signClient) {
