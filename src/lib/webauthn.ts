@@ -56,7 +56,6 @@ export const disconnectPeraWallet = async () => {
 
 export const registerPasskey = async (): Promise<AuthenticationResult | null> => {
   try {
-    // Check if browser supports WebAuthn
     if (!window.PublicKeyCredential) {
       console.error("WebAuthn is not supported in this browser");
       toast({
@@ -67,7 +66,6 @@ export const registerPasskey = async (): Promise<AuthenticationResult | null> =>
       return null;
     }
 
-    // Check if the device has a platform authenticator
     const available = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
     if (!available) {
       console.error("No platform authenticator available");
@@ -82,6 +80,10 @@ export const registerPasskey = async (): Promise<AuthenticationResult | null> =>
     const challenge = new Uint8Array(32);
     crypto.getRandomValues(challenge);
 
+    // Generate a random user ID
+    const userId = new Uint8Array(16);
+    crypto.getRandomValues(userId);
+
     const createCredentialOptions: PublicKeyCredentialCreationOptions = {
       challenge,
       rp: {
@@ -89,9 +91,9 @@ export const registerPasskey = async (): Promise<AuthenticationResult | null> =>
         id: window.location.hostname,
       },
       user: {
-        id: Uint8Array.from("DEMO_USER_ID", c => c.charCodeAt(0)),
-        name: "demo@example.com",
-        displayName: "Demo User",
+        id: userId,
+        name: `user-${Array.from(userId).map(b => b.toString(16).padStart(2, '0')).join('')}`,
+        displayName: "Algorand User",
       },
       pubKeyCredParams: [{
         type: "public-key",
