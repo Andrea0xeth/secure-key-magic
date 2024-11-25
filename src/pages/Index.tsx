@@ -61,7 +61,7 @@ const Index = () => {
     console.log("Processing WalletConnect URL:", wcUrl);
     console.log("Using authenticated address:", authResult.address);
     
-    const success = await processWalletConnectUrl(wcUrl);
+    const success = await processWalletConnectUrl(wcUrl, authResult.address);
     if (success) {
       toast({
         title: "WalletConnect",
