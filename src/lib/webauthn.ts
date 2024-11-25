@@ -1,14 +1,14 @@
 import { toast } from "@/hooks/use-toast";
 import * as algosdk from "algosdk";
-import { PeraWalletConnect } from "@perawallet/connect";
-
-export interface AuthenticationResult {
-  address: string;
-  publicKey: string;
-}
+import { Web3Modal } from '@web3modal/standalone';
 
 const STORAGE_KEY = 'algorand_private_key';
-const peraWallet = new PeraWalletConnect();
+
+// Initialize Web3Modal with project ID
+const web3Modal = new Web3Modal({
+  projectId: import.meta.env.VITE_WALLET_CONNECT_PROJECT_ID || '',
+  standaloneChains: ['algorand']
+});
 
 // Helper function to get or create Algorand account
 const getOrCreateAlgorandAccount = (): algosdk.Account => {
@@ -29,30 +29,10 @@ const getOrCreateAlgorandAccount = (): algosdk.Account => {
   }
 };
 
-export const connectToPeraWallet = async (): Promise<string[]> => {
-  try {
-    const accounts = await peraWallet.connect();
-    console.log("Connected to Pera Wallet:", accounts);
-    return accounts;
-  } catch (error) {
-    console.error("Error connecting to Pera Wallet:", error);
-    toast({
-      title: "Connection Failed",
-      description: "Failed to connect to Pera Wallet",
-      variant: "destructive",
-    });
-    return [];
-  }
-};
-
-export const disconnectPeraWallet = async () => {
-  try {
-    await peraWallet.disconnect();
-    console.log("Disconnected from Pera Wallet");
-  } catch (error) {
-    console.error("Error disconnecting from Pera Wallet:", error);
-  }
-};
+export interface AuthenticationResult {
+  address: string;
+  publicKey: string;
+}
 
 export const registerPasskey = async (): Promise<AuthenticationResult | null> => {
   try {
@@ -80,7 +60,6 @@ export const registerPasskey = async (): Promise<AuthenticationResult | null> =>
     const challenge = new Uint8Array(32);
     crypto.getRandomValues(challenge);
 
-    // Generate a random user ID
     const userId = new Uint8Array(16);
     crypto.getRandomValues(userId);
 
@@ -97,7 +76,7 @@ export const registerPasskey = async (): Promise<AuthenticationResult | null> =>
       },
       pubKeyCredParams: [{
         type: "public-key",
-        alg: -7 // ES256
+        alg: -7
       }],
       timeout: 60000,
       attestation: "none",
@@ -122,7 +101,6 @@ export const registerPasskey = async (): Promise<AuthenticationResult | null> =>
 
     console.log("Credential created successfully:", credential);
 
-    // Get or create Algorand account
     const account = getOrCreateAlgorandAccount();
     console.log("Using Algorand address:", account.addr);
 
@@ -157,7 +135,6 @@ export const authenticateWithPasskey = async (): Promise<AuthenticationResult | 
       publicKey: getCredentialOptions
     });
 
-    // Get existing Algorand account
     const account = getOrCreateAlgorandAccount();
     console.log("Authenticated with Algorand address:", account.addr);
 
@@ -176,18 +153,24 @@ export const authenticateWithPasskey = async (): Promise<AuthenticationResult | 
   }
 };
 
-export const signTransaction = async (transaction: algosdk.Transaction): Promise<Uint8Array | null> => {
+export const processWalletConnectUrl = async (wcUrl: string): Promise<boolean> => {
   try {
-    const signedTxn = await peraWallet.signTransaction([[{ txn: transaction }]]);
-    console.log("Transaction signed successfully");
-    return signedTxn[0];
+    console.log("Processing WalletConnect URL:", wcUrl);
+    
+    // Connect using Web3Modal
+    const connection = await web3Modal.connect({
+      uri: wcUrl
+    });
+
+    console.log("WalletConnect connection established:", connection);
+    return true;
   } catch (error) {
-    console.error("Error signing transaction:", error);
+    console.error("Error processing WalletConnect URL:", error);
     toast({
-      title: "Signing Failed",
-      description: "Failed to sign transaction with Pera Wallet",
+      title: "Connection Failed",
+      description: "Failed to process WalletConnect URL",
       variant: "destructive",
     });
-    return null;
+    return false;
   }
 };
