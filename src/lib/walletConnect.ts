@@ -1,6 +1,6 @@
 import { SignClient } from '@walletconnect/sign-client';
 
-let signClient: typeof SignClient | null = null;
+let signClient: SignClient | null = null;
 
 export async function initSignClient() {
   if (!signClient) {
@@ -27,6 +27,9 @@ export async function connectWithWalletConnect(wcUrl: string, address: string): 
     }
 
     const client = await initSignClient();
+    if (!client) {
+      throw new Error("Failed to initialize SignClient");
+    }
     
     // Extract the URI without query parameters
     const uri = wcUrl.split('?')[0];
