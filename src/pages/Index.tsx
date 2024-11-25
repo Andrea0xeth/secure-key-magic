@@ -2,11 +2,12 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
-import { registerPasskey, authenticateWithPasskey, type AuthenticationResult } from "@/lib/webauthn";
+import { registerPasskey, authenticateWithPasskey, type AuthenticationResult, connectToPeraWallet, disconnectPeraWallet } from "@/lib/webauthn";
 import { KeyRound, Shield, Wallet } from "lucide-react";
 
 const Index = () => {
   const [authResult, setAuthResult] = useState<AuthenticationResult | null>(null);
+  const [peraAddress, setPeraAddress] = useState<string | null>(null);
   const { toast } = useToast();
 
   const handleRegister = async () => {
@@ -29,6 +30,26 @@ const Index = () => {
         description: "You've been authenticated successfully!",
       });
     }
+  };
+
+  const handlePeraConnect = async () => {
+    const accounts = await connectToPeraWallet();
+    if (accounts.length > 0) {
+      setPeraAddress(accounts[0]);
+      toast({
+        title: "Wallet Connected",
+        description: "Successfully connected to Pera Wallet!",
+      });
+    }
+  };
+
+  const handlePeraDisconnect = async () => {
+    await disconnectPeraWallet();
+    setPeraAddress(null);
+    toast({
+      title: "Wallet Disconnected",
+      description: "Disconnected from Pera Wallet",
+    });
   };
 
   return (
@@ -78,26 +99,55 @@ const Index = () => {
               </div>
             </div>
           ) : (
-            <div className="space-y-6 text-center">
-              <div className="flex justify-center">
-                <Wallet className="h-12 w-12 text-green-500" />
+            <div className="space-y-6">
+              <div className="text-center">
+                <div className="flex justify-center">
+                  <Wallet className="h-12 w-12 text-green-500" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-semibold mb-2">Connected</h2>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Your Algorand address:
+                  </p>
+                  <code className="px-4 py-2 bg-gray-100 dark:bg-gray-800 rounded-lg text-sm break-all">
+                    {authResult.address}
+                  </code>
+                </div>
+                <div className="mt-6">
+                  {!peraAddress ? (
+                    <Button
+                      onClick={handlePeraConnect}
+                      className="w-full bg-blue-500 hover:bg-blue-600 text-white"
+                    >
+                      <Wallet className="mr-2 h-4 w-4" />
+                      Connect Pera Wallet
+                    </Button>
+                  ) : (
+                    <div className="space-y-4">
+                      <p className="text-sm text-muted-foreground">
+                        Pera Wallet connected:
+                      </p>
+                      <code className="px-4 py-2 bg-gray-100 dark:bg-gray-800 rounded-lg text-sm break-all block">
+                        {peraAddress}
+                      </code>
+                      <Button
+                        onClick={handlePeraDisconnect}
+                        variant="outline"
+                        className="w-full"
+                      >
+                        Disconnect Pera Wallet
+                      </Button>
+                    </div>
+                  )}
+                </div>
+                <Button
+                  variant="outline"
+                  onClick={() => setAuthResult(null)}
+                  className="w-full mt-4"
+                >
+                  Disconnect Passkey
+                </Button>
               </div>
-              <div>
-                <h2 className="text-xl font-semibold mb-2">Connected</h2>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Your Algorand address:
-                </p>
-                <code className="px-4 py-2 bg-gray-100 dark:bg-gray-800 rounded-lg text-sm break-all">
-                  {authResult.address}
-                </code>
-              </div>
-              <Button
-                variant="outline"
-                onClick={() => setAuthResult(null)}
-                className="w-full"
-              >
-                Disconnect
-              </Button>
             </div>
           )}
         </Card>

@@ -1,5 +1,6 @@
-import { toast } from "@/components/ui/use-toast";
+import { toast } from "@/hooks/use-toast";
 import * as algosdk from "algosdk";
+import { PeraWalletConnect } from "@perawallet/connect";
 
 export interface AuthenticationResult {
   address: string;
@@ -7,26 +8,49 @@ export interface AuthenticationResult {
 }
 
 const STORAGE_KEY = 'algorand_private_key';
+const peraWallet = new PeraWalletConnect();
 
 // Helper function to get or create Algorand account
 const getOrCreateAlgorandAccount = (): algosdk.Account => {
   try {
-    // Check if we have a stored private key
     const storedKey = localStorage.getItem(STORAGE_KEY);
     if (storedKey) {
       console.log("Using existing Algorand account");
       return algosdk.mnemonicToSecretKey(storedKey);
     }
 
-    // If no stored key, generate a new one
     console.log("Generating new Algorand account");
     const account = algosdk.generateAccount();
-    // Store the mnemonic (private key) in localStorage
     localStorage.setItem(STORAGE_KEY, algosdk.secretKeyToMnemonic(account.sk));
     return account;
   } catch (error) {
     console.error("Error managing Algorand account:", error);
     throw error;
+  }
+};
+
+export const connectToPeraWallet = async (): Promise<string[]> => {
+  try {
+    const accounts = await peraWallet.connect();
+    console.log("Connected to Pera Wallet:", accounts);
+    return accounts;
+  } catch (error) {
+    console.error("Error connecting to Pera Wallet:", error);
+    toast({
+      title: "Connection Failed",
+      description: "Failed to connect to Pera Wallet",
+      variant: "destructive",
+    });
+    return [];
+  }
+};
+
+export const disconnectPeraWallet = async () => {
+  try {
+    await peraWallet.disconnect();
+    console.log("Disconnected from Pera Wallet");
+  } catch (error) {
+    console.error("Error disconnecting from Pera Wallet:", error);
   }
 };
 
@@ -144,6 +168,22 @@ export const authenticateWithPasskey = async (): Promise<AuthenticationResult | 
     toast({
       title: "Authentication Failed",
       description: "Failed to authenticate with passkey. Please try again.",
+      variant: "destructive",
+    });
+    return null;
+  }
+};
+
+export const signTransaction = async (transaction: algosdk.Transaction): Promise<Uint8Array | null> => {
+  try {
+    const signedTxn = await peraWallet.signTransaction([[{ txn: transaction }]]);
+    console.log("Transaction signed successfully");
+    return signedTxn[0];
+  } catch (error) {
+    console.error("Error signing transaction:", error);
+    toast({
+      title: "Signing Failed",
+      description: "Failed to sign transaction with Pera Wallet",
       variant: "destructive",
     });
     return null;
