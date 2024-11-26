@@ -25,10 +25,13 @@ export function handleTransactionRequest(params: any) {
       throw new Error("Failed to decode transaction");
     }
 
-    const txnType = getTransactionType(decodedTxn);
-    console.log("Transaction type:", txnType);
+    if (!decodedTxn.snd) {
+      throw new Error("Transaction must have a sender address");
+    }
 
-    let txn: algosdk.Transaction;
+    const senderAddr = algosdk.encodeAddress(decodedTxn.snd);
+    console.log("Sender address:", senderAddr);
+
     const suggestedParams: algosdk.SuggestedParams = {
       fee: decodedTxn.fee || 1000,
       firstRound: decodedTxn.fv || 0,
@@ -38,21 +41,31 @@ export function handleTransactionRequest(params: any) {
       flatFee: true
     };
 
+    let txn: algosdk.Transaction;
+    const txnType = getTransactionType(decodedTxn);
+    console.log("Transaction type:", txnType);
+
     switch (txnType) {
       case "pay":
+        if (!decodedTxn.rcv) {
+          throw new Error("Payment transaction must have a receiver address");
+        }
         txn = new algosdk.Transaction({
           type: algosdk.TransactionType.pay,
-          from: algosdk.encodeAddress(decodedTxn.snd!),
-          to: algosdk.encodeAddress(decodedTxn.rcv!),
+          from: senderAddr,
+          to: algosdk.encodeAddress(decodedTxn.rcv),
           amount: decodedTxn.amt || 0,
           ...suggestedParams
         });
         break;
 
       case "axfer":
+        if (!decodedTxn.arcv && !decodedTxn.rcv) {
+          throw new Error("Asset transfer must have a receiver address");
+        }
         txn = new algosdk.Transaction({
           type: algosdk.TransactionType.axfer,
-          from: algosdk.encodeAddress(decodedTxn.snd!),
+          from: senderAddr,
           to: algosdk.encodeAddress(decodedTxn.arcv || decodedTxn.rcv!),
           assetIndex: decodedTxn.xaid!,
           amount: decodedTxn.aamt || 0,
@@ -63,24 +76,25 @@ export function handleTransactionRequest(params: any) {
       case "acfg":
         txn = new algosdk.Transaction({
           type: algosdk.TransactionType.acfg,
-          from: algosdk.encodeAddress(decodedTxn.snd!),
-          assetIndex: decodedTxn.caid,
+          from: senderAddr,
           assetTotal: decodedTxn.apar?.t,
           assetDecimals: decodedTxn.apar?.dc,
           assetDefaultFrozen: decodedTxn.apar?.df,
           assetUnitName: decodedTxn.apar?.un,
           assetName: decodedTxn.apar?.an,
           assetURL: decodedTxn.apar?.au,
-          assetMetadataHash: decodedTxn.apar?.am ? new Uint8Array(Buffer.from(decodedTxn.apar.am)) : undefined,
           ...suggestedParams
         });
         break;
 
       case "afrz":
+        if (!decodedTxn.fadd) {
+          throw new Error("Freeze transaction must have a freeze address");
+        }
         txn = new algosdk.Transaction({
           type: algosdk.TransactionType.afrz,
-          from: algosdk.encodeAddress(decodedTxn.snd!),
-          freezeAccount: algosdk.encodeAddress(decodedTxn.fadd!),
+          from: senderAddr,
+          freezeAccount: algosdk.encodeAddress(decodedTxn.fadd),
           assetIndex: decodedTxn.faid!,
           freezeState: decodedTxn.afrz!,
           ...suggestedParams
@@ -90,9 +104,8 @@ export function handleTransactionRequest(params: any) {
       case "appl":
         txn = new algosdk.Transaction({
           type: algosdk.TransactionType.appl,
-          from: algosdk.encodeAddress(decodedTxn.snd!),
+          from: senderAddr,
           appIndex: decodedTxn.apid || 0,
-          appOnComplete: decodedTxn.apan || 0,
           appArgs: decodedTxn.apaa,
           appAccounts: decodedTxn.apat?.map(addr => algosdk.encodeAddress(addr)),
           appForeignApps: decodedTxn.apfa,
@@ -103,14 +116,6 @@ export function handleTransactionRequest(params: any) {
 
       default:
         throw new Error(`Unsupported transaction type: ${txnType}`);
-    }
-
-    if (decodedTxn.note) {
-      txn.note = decodedTxn.note;
-    }
-
-    if (decodedTxn.grp) {
-      txn.group = decodedTxn.grp;
     }
 
     console.log("Created Algorand transaction object:", txn);

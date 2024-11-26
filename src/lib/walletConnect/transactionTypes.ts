@@ -20,7 +20,7 @@ export interface DecodedAlgorandTransaction {
   // Asset Config specific
   caid?: number;
   apar?: {
-    t: number;
+    t?: number;
     dc?: number;
     df?: boolean;
     un?: string;
