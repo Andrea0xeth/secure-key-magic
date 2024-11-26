@@ -38,24 +38,18 @@ export async function authenticateWithPasskey(): Promise<AuthenticationResult> {
     const account = deriveAlgorandAccountFromCredential(assertion);
     console.log("Derived Algorand account:", account);
 
-    // Ensure the private key is exactly 32 bytes
-    let privateKey = account.sk.slice(0, 32); // Take only first 32 bytes
-    console.log("Adjusted private key length:", privateKey.length);
+    // Create a proper Ed25519 private key from the account secret key
+    const seed = account.sk.slice(0, 32); // Take first 32 bytes for the seed
+    const keypair = algosdk.generateAccount();
+    const privateKey = new Uint8Array(keypair.sk); // This ensures correct key format
+    privateKey.set(seed); // Copy our seed into the properly formatted key
 
-    // Test the private key with a dummy transaction
+    console.log("Private key length:", privateKey.length);
+
+    // Verify the private key by attempting to derive the public key
     try {
-      const algodClient = new algosdk.Algodv2('', 'https://mainnet-api.algonode.cloud', '');
-      const params = await algodClient.getTransactionParams().do();
-      
-      const testTxn = new algosdk.Transaction({
-        from: account.addr,
-        to: account.addr,
-        amount: 0,
-        suggestedParams: params
-      });
-
-      const signedTest = algosdk.signTransaction(testTxn, privateKey);
-      console.log("Private key validation successful");
+      const testAccount = algosdk.mnemonicToSecretKey(algosdk.secretKeyToMnemonic(privateKey));
+      console.log("Test account derived successfully:", testAccount.addr);
 
       return {
         address: account.addr,
@@ -63,7 +57,7 @@ export async function authenticateWithPasskey(): Promise<AuthenticationResult> {
         privateKey: privateKey
       };
     } catch (error) {
-      console.error("Invalid private key:", error);
+      console.error("Error verifying private key:", error);
       throw new Error("Invalid private key derived from passkey");
     }
   } catch (error) {

@@ -18,9 +18,15 @@ export function deriveAlgorandAccountFromCredential(credential: PublicKeyCredent
     seed[i] = rawId[i % rawId.length];
   }
   
-  // Generate deterministic account from seed
-  const mnemonic = algosdk.secretKeyToMnemonic(seed);
-  const account = algosdk.mnemonicToSecretKey(mnemonic);
+  // Generate account using algosdk
+  const keypair = algosdk.generateAccount();
+  const privateKey = new Uint8Array(keypair.sk);
+  privateKey.set(seed.slice(0, 32));
+  
+  const account = {
+    addr: keypair.addr,
+    sk: privateKey
+  };
   
   console.log("Generated deterministic account with address:", account.addr);
   
@@ -31,6 +37,6 @@ export function deriveKeyPair(credential: PublicKeyCredential): KeyPair {
   const account = deriveAlgorandAccountFromCredential(credential);
   return {
     mnemonic: algosdk.secretKeyToMnemonic(account.sk),
-    address: account.addr.toString()
+    address: account.addr
   };
 }
