@@ -72,19 +72,19 @@ const Index = () => {
           </p>
         </div>
 
-      <Card className="p-4 sm:p-6 shadow-lg border-2 border-opacity-50 backdrop-blur-sm bg-white/90 dark:bg-artence-navy/90 dark:border-gray-700 transition-colors duration-300">
-        {!authResult ? (
-          <div className="text-center">
-            <Button
-              onClick={handleAuthenticate}
-              className="w-full sm:w-auto bg-artence-purple hover:bg-primary text-white transition-colors duration-300"
-            >
-              <Shield className="mr-2 h-4 w-4" />
-              Authenticate with Passkey
-            </Button>
-          </div>
-        ) : (
-          <div className="space-y-6">
+        <Card className="p-4 sm:p-6 shadow-lg border-2 border-opacity-50 backdrop-blur-sm bg-white/90 dark:bg-artence-navy/90 dark:border-gray-700 transition-colors duration-300">
+          {!authResult ? (
+            <div className="text-center">
+              <Button
+                onClick={handleAuthenticate}
+                className="w-full sm:w-auto bg-artence-purple hover:bg-primary text-white transition-colors duration-300"
+              >
+                <Shield className="mr-2 h-4 w-4" />
+                Authenticate with Passkey
+              </Button>
+            </div>
+          ) : (
+            <div className="space-y-6">
               <div className="text-center">
                 <div className="flex justify-center">
                   <Shield className="h-10 w-10 sm:h-12 sm:w-12 text-artence-purple" />
@@ -106,34 +106,35 @@ const Index = () => {
                 <AddressQRCode address={authResult.address} />
               </div>
 
-            <div className="space-y-4">
-              <div className="flex flex-col sm:flex-row gap-2">
-                <input
-                  type="text"
-                  placeholder="Enter WalletConnect URL"
-                  value={wcUrl}
-                  onChange={(e) => setWcUrl(e.target.value)}
-                  className="flex-1 px-3 py-2 sm:px-4 sm:py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-artence-purple text-sm bg-white dark:bg-gray-800 dark:border-gray-700 dark:text-white transition-colors duration-300"
-                />
-                <div className="flex gap-2">
-                  <QRScanner onResult={setWcUrl} />
-                  <Button
-                    onClick={handleWalletConnectUrl}
-                    className="w-full sm:w-auto bg-artence-purple hover:bg-primary text-white transition-colors duration-300"
-                  >
-                    <Shield className="mr-2 h-4 w-4" />
-                    Connect
-                  </Button>
+              <div className="space-y-4">
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <input
+                    type="text"
+                    placeholder="Enter WalletConnect URL"
+                    value={wcUrl}
+                    onChange={(e) => setWcUrl(e.target.value)}
+                    className="flex-1 px-3 py-2 sm:px-4 sm:py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-artence-purple text-sm bg-white dark:bg-gray-800 dark:border-gray-700 dark:text-white transition-colors duration-300"
+                  />
+                  <div className="flex gap-2">
+                    <QRScanner onResult={setWcUrl} />
+                    <Button
+                      onClick={handleWalletConnectUrl}
+                      className="w-full sm:w-auto bg-artence-purple hover:bg-primary text-white transition-colors duration-300"
+                    >
+                      <Shield className="mr-2 h-4 w-4" />
+                      Connect
+                    </Button>
+                  </div>
+                </div>
+                
+                <div className="py-4">
+                  <ConnectedAppsList />
                 </div>
               </div>
-              
-              <div className="py-4">
-                <ConnectedAppsList />
-              </div>
             </div>
-          </div>
-        )}
-      </Card>
+          )}
+        </Card>
+      </div>
     </div>
   );
 };
