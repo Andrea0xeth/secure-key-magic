@@ -25,25 +25,31 @@ export const QRScanner = ({ onResult }: QRScannerProps) => {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  const handleScan = (result: { getText(): string } | null) => {
-    if (result) {
-      try {
-        const text = result.getText();
-        console.log("QR Scan result:", text);
-        
-        if (text.startsWith('wc:')) {
-          console.log("Valid WalletConnect URL detected");
-          onResult(text);
-          setOpen(false);
-          toast({
-            title: "QR Code Detected",
-            description: "WalletConnect URL found and processed",
-          });
-        }
-      } catch (error) {
-        console.error("Error processing QR code:", error);
+  const handleScan = (result: any) => {
+    console.log("Scanning attempt...", result);
+    
+    if (result?.text) {
+      console.log("QR Code detected with text:", result.text);
+      
+      if (result.text.startsWith('wc:')) {
+        console.log("Valid WalletConnect URL detected");
+        onResult(result.text);
+        setOpen(false);
+        toast({
+          title: "QR Code Detected",
+          description: "WalletConnect URL found and processed",
+        });
       }
     }
+  };
+
+  const handleError = (error: any) => {
+    console.error("QR Scanner error:", error);
+    toast({
+      title: "Scanner Error",
+      description: "There was an error with the QR scanner",
+      variant: "destructive",
+    });
   };
 
   if (!isMobile) {
@@ -67,8 +73,9 @@ export const QRScanner = ({ onResult }: QRScannerProps) => {
           <QrReader
             constraints={{ facingMode: 'environment' }}
             onResult={handleScan}
+            onError={handleError}
             className="w-full h-full"
-            scanDelay={500}
+            scanDelay={300}
           />
         </div>
       </DialogContent>
