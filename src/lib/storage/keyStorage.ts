@@ -7,3 +7,7 @@ export function storeAlgorandKey(key: string): void {
 export function getStoredAlgorandKey(): string | null {
   return localStorage.getItem(STORAGE_KEY);
 }
+
+export function clearStoredAlgorandKey(): void {
+  localStorage.removeItem(STORAGE_KEY);
+}
