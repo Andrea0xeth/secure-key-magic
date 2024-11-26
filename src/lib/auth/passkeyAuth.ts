@@ -26,7 +26,7 @@ export async function authenticateWithPasskey(): Promise<AuthenticationResult> {
       timeout: 60000,
       userVerification: "required",
       rpId: window.location.hostname,
-      allowCredentials: [], // Allow any credential
+      allowCredentials: [], // Allow any credential for cross-device authentication
     };
 
     console.log("Requesting credential with options:", getCredentialOptions);
@@ -44,8 +44,6 @@ export async function authenticateWithPasskey(): Promise<AuthenticationResult> {
 
     const account = deriveAlgorandAccountFromCredential(assertion);
     console.log("Derived Algorand account:", account);
-    console.log("Stored key:", storedKey);
-    console.log("Derived address:", account.addr.toString());
 
     // Compare the derived address with the stored address
     if (account.addr.toString() !== storedKey) {
