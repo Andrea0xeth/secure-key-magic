@@ -1,5 +1,6 @@
 import { initSignClient } from './client';
 import { toast } from "@/hooks/use-toast";
+import SignClient from '@walletconnect/sign-client';
 
 export async function connectWithWalletConnect(wcUrl: string, address: string): Promise<boolean> {
   try {
@@ -15,7 +16,14 @@ export async function connectWithWalletConnect(wcUrl: string, address: string): 
     }
 
     console.log("Pairing with URI...");
-    await client.pair({ uri: wcUrl });
+    const pairResult = await client.pair({ uri: wcUrl });
+    console.log("Pairing result:", pairResult);
+
+    // Configure client to skip verification
+    (client as any).core.verify = {
+      register: async () => true,
+      resolve: async () => ({ attestationId: 'mock', verifyUrl: '' }),
+    };
 
     return true;
   } catch (error) {

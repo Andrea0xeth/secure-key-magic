@@ -62,11 +62,11 @@ export const TransactionDialog = ({ isOpen, onClose, transaction, onSign }: Tran
   };
 
   const txnDetails = {
-    type: transaction.type || algosdk.TransactionType.pay,
-    from: transaction.from.publicKey ? algosdk.encodeAddress(transaction.from.publicKey) : '',
-    to: transaction.to ? algosdk.encodeAddress(transaction.to.publicKey) : '',
-    amount: formatAlgoAmount(transaction.amount || 0),
-    fee: formatAlgoAmount(transaction.fee),
+    type: transaction.type,
+    from: algosdk.encodeAddress(transaction.snd || new Uint8Array()),
+    to: algosdk.encodeAddress(transaction.rcv || new Uint8Array()),
+    amount: formatAlgoAmount(transaction.amt || BigInt(0)),
+    fee: formatAlgoAmount(transaction.fee || 0),
     group: transaction.group ? Buffer.from(transaction.group).toString('base64') : undefined
   };
 

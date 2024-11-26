@@ -16,24 +16,6 @@ export interface DecodedAlgorandTransaction {
 
 export type TransactionCallback = (transaction: algosdk.Transaction) => void;
 
-export interface SessionProposal {
-  id: number;
-  params: {
-    id: number;
-    requiredNamespaces: {
-      algorand?: {
-        methods: string[];
-        chains: string[];
-        events: string[];
-      };
-    };
-    request?: {
-      method: string;
-      params: any[];
-    };
-  };
-}
-
 export interface WalletConnectSession {
   topic: string;
   peer: {
