@@ -6,7 +6,7 @@ let signClient: SignClient | null = null;
 export async function initSignClient(): Promise<SignClient> {
   try {
     if (!signClient) {
-      console.log("Initializing SignClient...");
+      console.log("Initializing SignClient with config:", WALLET_CONNECT_CONFIG);
       signClient = await SignClient.init(WALLET_CONNECT_CONFIG);
       console.log("SignClient initialized successfully");
     }

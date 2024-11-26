@@ -10,20 +10,17 @@ export async function connectWithWalletConnect(wcUrl: string, address: string): 
     }
 
     const client = await initSignClient();
-    console.log("Pairing with URI...");
+    console.log("Attempting to pair with URI...");
     
-    const pairings = await client.pair({ uri: wcUrl });
-    const topic = pairings.topic;
-
-    await client.connect({
-      pairingTopic: topic,
+    const { uri, approval } = await client.connect({
       requiredNamespaces: {
         algorand: {
           methods: ['algo_signTxn'],
           chains: ['algorand:wGHE2Pwdvd7S12BL5FaOP20EGYesN73k'],
           events: ['accountsChanged']
         }
-      }
+      },
+      pairingTopic: wcUrl.split('@')[0].substring(3)
     });
 
     console.log("Connection successful");
