@@ -46,7 +46,7 @@ export function handleTransactionRequest(params: any) {
       firstRound: decodedTxn.fv || 0,
       lastRound: decodedTxn.lv || 0,
       genesisID: decodedTxn.gen || '',
-      genesisHash: decodedTxn.gh ? Buffer.from(decodedTxn.gh).toString('base64') : '',
+      genesisHash: decodedTxn.gh ? new Uint8Array(Buffer.from(decodedTxn.gh)) : new Uint8Array(32),
       flatFee: true
     };
 
@@ -55,62 +55,48 @@ export function handleTransactionRequest(params: any) {
     // Handle different transaction types
     switch (decodedTxn.type) {
       case 'pay':
-        transaction = algosdk.makePaymentTxnWithSuggestedParams(
-          fromAddress,
-          toAddress,
-          decodedTxn.amt || 0,
-          undefined,
-          undefined,
-          suggestedParams
-        );
-        break;
-
-      case 'axfer': // Asset Transfer
-        transaction = algosdk.makeAssetTransferTxnWithSuggestedParams(
-          fromAddress,
-          toAddress,
-          undefined,
-          undefined,
-          decodedTxn.amt || 0,
-          undefined,
-          decodedTxn.xaid || 0, // Asset ID
-          suggestedParams
-        );
-        break;
-
-      case 'acfg': // Asset Configuration
-        transaction = algosdk.makeAssetCreateTxnWithSuggestedParams(
-          fromAddress,
-          undefined,
-          decodedTxn.t || 0, // Total supply
-          decodedTxn.dc || 0, // Decimals
-          false, // Default frozen
-          undefined, // Manager address
-          undefined, // Reserve address
-          undefined, // Freeze address
-          undefined, // Clawback address
-          decodedTxn.un || '', // Unit name
-          decodedTxn.an || '', // Asset name
-          undefined, // URL
-          undefined, // Metadata hash
-          suggestedParams
-        );
-        break;
-
-      case 'afrz': // Asset Freeze
-        transaction = algosdk.makeAssetFreezeTxnWithSuggestedParams(
-          fromAddress,
-          undefined,
-          decodedTxn.faid || 0, // Asset ID
-          toAddress,
-          decodedTxn.afrz || false,
-          suggestedParams
-        );
-        break;
-
-      case 'appl': // Application Call
-        transaction = algosdk.makeApplicationCallTxnFromObject({
+        transaction = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
           from: fromAddress,
+          to: toAddress,
+          amount: decodedTxn.amt || 0,
+          suggestedParams
+        });
+        break;
+
+      case 'axfer':
+        transaction = algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
+          from: fromAddress,
+          to: toAddress,
+          amount: decodedTxn.amt || 0,
+          assetIndex: decodedTxn.xaid || 0,
+          suggestedParams
+        });
+        break;
+
+      case 'acfg':
+        transaction = algosdk.makeAssetCreateTxnWithSuggestedParamsFromObject({
+          from: fromAddress,
+          total: decodedTxn.t || 0,
+          decimals: decodedTxn.dc || 0,
+          defaultFrozen: false,
+          unitName: decodedTxn.un || '',
+          assetName: decodedTxn.an || '',
+          suggestedParams
+        });
+        break;
+
+      case 'afrz':
+        transaction = algosdk.makeAssetFreezeTxnWithSuggestedParamsFromObject({
+          from: fromAddress,
+          assetIndex: decodedTxn.faid || 0,
+          freezeTarget: toAddress,
+          freezeState: decodedTxn.afrz || false,
+          suggestedParams
+        });
+        break;
+
+      case 'appl':
+        transaction = algosdk.makeApplicationCallTxnFromObject({
           suggestedParams,
           appIndex: decodedTxn.apid || 0,
           onComplete: decodedTxn.apan || 0,
@@ -118,26 +104,26 @@ export function handleTransactionRequest(params: any) {
           accounts: decodedTxn.apat || [],
           foreignApps: decodedTxn.apfa || [],
           foreignAssets: decodedTxn.apas || [],
+          sender: fromAddress
         });
         break;
 
       default:
         console.log("Unknown transaction type, defaulting to payment transaction");
-        transaction = algosdk.makePaymentTxnWithSuggestedParams(
-          fromAddress,
-          toAddress,
-          decodedTxn.amt || 0,
-          undefined,
-          undefined,
+        transaction = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
+          from: fromAddress,
+          to: toAddress,
+          amount: decodedTxn.amt || 0,
           suggestedParams
-        );
+        });
     }
     
+    const txnObj = transaction.get_obj_for_encoding();
     console.log("Created transaction object:", {
-      txnType: transaction.type,
-      sender: transaction.from,
-      receiver: transaction.to,
-      amount: transaction.amount
+      txnType: txnObj.type,
+      sender: algosdk.encodeAddress(txnObj.snd),
+      receiver: txnObj.rcv ? algosdk.encodeAddress(txnObj.rcv) : undefined,
+      amount: txnObj.amt
     });
 
     if (transactionCallback) {

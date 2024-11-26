@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { authenticateWithPasskey } from "@/lib/webauthn";
 import { useToast } from "@/components/ui/use-toast";
 import * as algosdk from "algosdk";
-import type { AlgorandTransaction } from "@/lib/walletConnect/types";
+import { AlgorandTransaction } from "@/lib/walletConnect/types";
 
 interface TransactionDialogProps {
   isOpen: boolean;
