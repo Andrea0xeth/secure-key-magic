@@ -26,36 +26,34 @@ export function handleTransactionRequest(params: any) {
       throw new Error("Invalid transaction parameters");
     }
 
-    const senderAddr = (decodedTxn as any).snd ? algosdk.encodeAddress((decodedTxn as any).snd) : null;
-    const receiverAddr = (decodedTxn as any).rcv ? algosdk.encodeAddress((decodedTxn as any).rcv) : null;
+    const senderAddress = (decodedTxn as any).snd ? algosdk.encodeAddress((decodedTxn as any).snd) : null;
+    const receiverAddress = (decodedTxn as any).rcv ? algosdk.encodeAddress((decodedTxn as any).rcv) : null;
 
-    if (!senderAddr) {
+    if (!senderAddress) {
       console.error("Sender address is missing in transaction");
       throw new Error("Sender address must not be null or undefined");
     }
 
-    console.log("Creating transaction with sender:", senderAddr, "receiver:", receiverAddr);
+    console.log("Creating transaction with sender:", senderAddress, "receiver:", receiverAddress);
 
-    const suggestedParams = {
+    const txnParams = {
+      type: (decodedTxn as any).type || 'pay',
       fee: (decodedTxn as any).fee || 1000,
       firstRound: (decodedTxn as any).fv || 0,
       lastRound: (decodedTxn as any).lv || 0,
       genesisID: (decodedTxn as any).gen || '',
       genesisHash: (decodedTxn as any).gh || '',
-      flatFee: true
+      note: (decodedTxn as any).note,
+      group: (decodedTxn as any).grp,
+      from: senderAddress,
+      to: receiverAddress || senderAddress,
+      amount: (decodedTxn as any).amt || 0,
     };
 
-    console.log("Suggested parameters:", suggestedParams);
-
-    const txn = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
-      from: senderAddr,
-      to: receiverAddr || senderAddr,
-      amount: (decodedTxn as any).amt || 0,
-      suggestedParams: suggestedParams,
-      note: (decodedTxn as any).note,
-    });
-
+    console.log("Transaction parameters:", txnParams);
+    const txn = new algosdk.Transaction(txnParams);
     console.log("Created Algorand transaction object:", txn);
+    
     transactionCallback(txn);
   } catch (error) {
     console.error("Error handling transaction request:", error);
