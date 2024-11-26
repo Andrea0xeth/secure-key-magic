@@ -9,7 +9,7 @@ export interface TransactionRequest {
 }
 
 export interface DecodedAlgorandTransaction {
-  type?: 'pay' | string;
+  type?: 'pay' | 'axfer' | 'acfg' | 'afrz' | 'appl' | string;
   snd?: Uint8Array;
   rcv?: Uint8Array;
   amt?: number;
@@ -19,16 +19,19 @@ export interface DecodedAlgorandTransaction {
   note?: Uint8Array;
   gen?: string;
   gh?: string;
-}
-
-export interface AlgorandTransaction {
-  type: algosdk.TransactionType;
-  from: string;
-  to: string;
-  amount: number | bigint;
-  fee: number;
-  group?: Uint8Array;
-  signTxn: (privateKey: Uint8Array) => Uint8Array;
+  xaid?: number; // Asset ID for asset transfer
+  afrz?: boolean; // Asset freeze state
+  faid?: number; // Frozen asset ID
+  apid?: number; // Application ID
+  apan?: number; // Application on complete
+  apaa?: Uint8Array[]; // Application arguments
+  apat?: string[]; // Application accounts
+  apfa?: number[]; // Foreign applications
+  apas?: number[]; // Foreign assets
+  t?: number; // Asset total supply
+  dc?: number; // Asset decimals
+  un?: string; // Asset unit name
+  an?: string; // Asset name
 }
 
 export type SignClientType = InstanceType<typeof SignClient>;
