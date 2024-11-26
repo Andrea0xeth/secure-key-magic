@@ -1,4 +1,5 @@
 import { SignClient } from '@walletconnect/sign-client';
+import type { SignClientTypes } from '@walletconnect/types';
 
 let signClient: SignClient | null = null;
 
@@ -15,6 +16,12 @@ export async function initSignClient() {
           icons: ['https://walletconnect.com/walletconnect-logo.png']
         }
       });
+
+      // Set up event listeners
+      signClient.on('session_proposal', async (proposal) => {
+        console.log('Received session proposal:', proposal);
+      });
+
       console.log("SignClient initialized successfully");
     }
     return signClient;
@@ -41,7 +48,20 @@ export async function connectWithWalletConnect(wcUrl: string, address: string): 
     console.log("Attempting to pair with URI:", wcUrl);
 
     try {
-      const { approval } = await client.pair({ uri: wcUrl });
+      const { uri, approval } = await client.connect({
+        requiredNamespaces: {
+          algorand: {
+            methods: [
+              'algorand_signTransaction',
+              'algorand_signTxnGroup',
+            ],
+            chains: ['algorand:mainnet'],
+            events: ['accountsChanged']
+          }
+        },
+        pairingTopic: wcUrl.split('?')[0].split('@')[0].replace('wc:', '')
+      });
+
       console.log("Pairing with dApp...");
       
       const session = await approval();
