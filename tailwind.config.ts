@@ -48,6 +48,7 @@ export default {
           purple: "#9b87f5",
           dark: "#1A1F2C",
           light: "#F1F0FB",
+          navy: "#161B33", // Added the new navy color
         },
       },
       fontFamily: {
