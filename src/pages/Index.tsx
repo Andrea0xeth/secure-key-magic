@@ -7,8 +7,13 @@ import { disconnectWalletConnect } from "@/lib/walletConnect";
 import { Shield, Link, Download, LogOut } from "lucide-react";
 import { PasskeySection } from "@/components/PasskeySection";
 import { ConnectedAppsList } from "@/components/ConnectedAppsList";
+import { AddressQRCode } from "@/components/AddressQRCode";
+import { AlgoBalance } from "@/components/AlgoBalance";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
-const Index = () => {
+const queryClient = new QueryClient();
+
+const IndexContent = () => {
   const [authResult, setAuthResult] = useState<AuthenticationResult | null>(null);
   const [wcUrl, setWcUrl] = useState<string>("");
   const { toast } = useToast();
@@ -76,20 +81,16 @@ const Index = () => {
   const handleExportKey = async () => {
     try {
       const privateKey = await exportPrivateKey();
-      
       if (privateKey) {
         const blob = new Blob([privateKey], { type: 'text/plain' });
         const url = window.URL.createObjectURL(blob);
-        
         const a = document.createElement('a');
         a.href = url;
         a.download = 'algorand-private-key.txt';
         document.body.appendChild(a);
         a.click();
-        
         window.URL.revokeObjectURL(url);
         document.body.removeChild(a);
-
         toast({
           title: "Success",
           description: "Private key exported successfully",
@@ -153,12 +154,18 @@ const Index = () => {
                 </div>
                 <div>
                   <h2 className="text-xl font-semibold mb-2">Connected</h2>
+                  <div className="flex justify-center mb-4">
+                    <AlgoBalance address={authResult.address} />
+                  </div>
                   <p className="text-sm text-muted-foreground mb-4">
                     Your Algorand address:
                   </p>
                   <code className="px-4 py-2 bg-gray-100 dark:bg-gray-800 rounded-lg text-sm break-all block">
                     {authResult.address}
                   </code>
+                  <div className="mt-4">
+                    <AddressQRCode address={authResult.address} />
+                  </div>
                 </div>
                 <div className="mt-6 space-y-4">
                   <div className="flex gap-2">
@@ -214,6 +221,14 @@ const Index = () => {
         </Card>
       </div>
     </div>
+  );
+};
+
+const Index = () => {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <IndexContent />
+    </QueryClientProvider>
   );
 };
 

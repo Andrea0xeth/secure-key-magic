@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { LogOut } from "lucide-react";
 import { disconnectWalletConnect } from "@/lib/walletConnect";
 import { useToast } from "@/components/ui/use-toast";
+import { useQuery } from "@tanstack/react-query";
 
 interface ConnectedApp {
   name: string;
@@ -10,33 +11,23 @@ interface ConnectedApp {
 }
 
 export const ConnectedAppsList = () => {
-  const [connectedApps, setConnectedApps] = useState<ConnectedApp[]>([]);
   const { toast } = useToast();
 
-  useEffect(() => {
-    const fetchConnectedApps = async () => {
-      try {
-        // Get the SignClient instance
-        const SignClient = (await import('@walletconnect/sign-client')).default;
-        const client = await SignClient.init({
-          projectId: import.meta.env.VITE_WALLET_CONNECT_PROJECT_ID,
-        });
-
-        // Get all active sessions
-        const sessions = client.session.values;
-        const apps = sessions.map(session => ({
-          name: session.peer.metadata.name,
-          topic: session.topic
-        }));
-
-        setConnectedApps(apps);
-      } catch (error) {
-        console.error("Error fetching connected apps:", error);
-      }
-    };
-
-    fetchConnectedApps();
-  }, []);
+  const { data: connectedApps = [], refetch } = useQuery({
+    queryKey: ['connectedApps'],
+    queryFn: async () => {
+      const SignClient = (await import('@walletconnect/sign-client')).default;
+      const client = await SignClient.init({
+        projectId: import.meta.env.VITE_WALLET_CONNECT_PROJECT_ID,
+      });
+      const sessions = client.session.values;
+      return sessions.map(session => ({
+        name: session.peer.metadata.name,
+        topic: session.topic
+      }));
+    },
+    refetchInterval: 5000, // Refresh every 5 seconds
+  });
 
   const handleDisconnect = async (topic: string) => {
     try {
@@ -53,7 +44,7 @@ export const ConnectedAppsList = () => {
         }
       });
 
-      setConnectedApps(prev => prev.filter(app => app.topic !== topic));
+      refetch();
       
       toast({
         title: "Disconnected",
@@ -69,7 +60,7 @@ export const ConnectedAppsList = () => {
     }
   };
 
-  if (connectedApps.length === 0) {
+  if (!connectedApps?.length) {
     return (
       <div className="text-sm text-muted-foreground text-center">
         No connected dApps
