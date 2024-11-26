@@ -38,9 +38,9 @@ export const TransactionDialog = ({ isOpen, onClose, transaction, onSign }: Tran
         return;
       }
 
-      console.log("Successfully authenticated, signing transaction");
-      const signedTxn = transaction.signTxn(new Uint8Array(32));
-      onSign(signedTxn);
+      console.log("Successfully authenticated, signing transaction with private key");
+      const signedTxn = algosdk.signTransaction(transaction, authResult.privateKey);
+      onSign(signedTxn.blob);
       
       toast({
         title: "Transaction Signed",

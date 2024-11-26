@@ -35,3 +35,7 @@ export interface DecodedTransaction {
   type?: string;
   grp?: Uint8Array;
 }
+
+export interface AlgorandTransaction extends algosdk.Transaction {
+  signTxn: (privateKey: Uint8Array) => Uint8Array;
+}

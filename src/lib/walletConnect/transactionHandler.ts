@@ -35,19 +35,19 @@ export function handleTransactionRequest(params: any) {
       throw new Error("Sender address must not be null or undefined");
     }
 
-    // Create a proper Algorand transaction object with required fields
-    const txn = new algosdk.Transaction({
-      from: senderAddress,
-      to: receiverAddress || senderAddress, // fallback to sender if receiver is not specified
-      amount: (decodedTxn as any).amt || 0,
-      fee: (decodedTxn as any).fee || 1000, // default minimum fee
-      firstRound: (decodedTxn as any).fv || 0,
-      lastRound: (decodedTxn as any).lv || 0,
-      genesisHash: (decodedTxn as any).gh || '',
-      genesisID: (decodedTxn as any).gen || '',
+    // Create transaction object
+    const txn = algosdk.Transaction.from_obj_for_encoding({
+      snd: algosdk.decodeAddress(senderAddress).publicKey,
+      rcv: receiverAddress ? algosdk.decodeAddress(receiverAddress).publicKey : algosdk.decodeAddress(senderAddress).publicKey,
+      amt: (decodedTxn as any).amt || 0,
+      fee: (decodedTxn as any).fee || 1000,
+      fv: (decodedTxn as any).fv || 0,
+      lv: (decodedTxn as any).lv || 0,
+      gh: (decodedTxn as any).gh || '',
+      gen: (decodedTxn as any).gen || '',
       type: (decodedTxn as any).type || 'pay',
       note: (decodedTxn as any).note,
-      group: (decodedTxn as any).grp,
+      grp: (decodedTxn as any).grp,
     });
 
     console.log("Created Algorand transaction object:", txn);
