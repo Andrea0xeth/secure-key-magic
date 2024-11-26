@@ -22,12 +22,45 @@ const getOrCreateAlgorandAccount = (): algosdk.Account => {
   }
 };
 
-export const exportPrivateKey = (): string => {
-  const storedKey = localStorage.getItem(STORAGE_KEY);
-  if (!storedKey) {
-    throw new Error("No private key found");
+export const exportPrivateKey = async (): Promise<string | null> => {
+  try {
+    const challenge = new Uint8Array(32);
+    crypto.getRandomValues(challenge);
+
+    const getCredentialOptions: PublicKeyCredentialRequestOptions = {
+      challenge,
+      timeout: 60000,
+      userVerification: "required",
+      rpId: window.location.hostname,
+    };
+
+    const assertion = await navigator.credentials.get({
+      publicKey: getCredentialOptions
+    });
+
+    if (!assertion) {
+      toast({
+        title: "Verification Failed",
+        description: "Passkey verification is required to export the private key",
+        variant: "destructive",
+      });
+      return null;
+    }
+
+    const storedKey = localStorage.getItem(STORAGE_KEY);
+    if (!storedKey) {
+      throw new Error("No private key found");
+    }
+    return storedKey;
+  } catch (error) {
+    console.error("Error exporting private key:", error);
+    toast({
+      title: "Export Failed",
+      description: "Failed to verify passkey or export private key",
+      variant: "destructive",
+    });
+    return null;
   }
-  return storedKey;
 };
 
 export interface AuthenticationResult {

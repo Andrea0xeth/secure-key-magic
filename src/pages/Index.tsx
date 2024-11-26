@@ -74,26 +74,28 @@ const Index = () => {
     }
   };
 
-  const handleExportKey = () => {
+  const handleExportKey = async () => {
     try {
-      const privateKey = exportPrivateKey();
+      const privateKey = await exportPrivateKey();
       
-      const blob = new Blob([privateKey], { type: 'text/plain' });
-      const url = window.URL.createObjectURL(blob);
-      
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'algorand-private-key.txt';
-      document.body.appendChild(a);
-      a.click();
-      
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
+      if (privateKey) {
+        const blob = new Blob([privateKey], { type: 'text/plain' });
+        const url = window.URL.createObjectURL(blob);
+        
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'algorand-private-key.txt';
+        document.body.appendChild(a);
+        a.click();
+        
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
 
-      toast({
-        title: "Success",
-        description: "Private key exported successfully",
-      });
+        toast({
+          title: "Success",
+          description: "Private key exported successfully",
+        });
+      }
     } catch (error) {
       toast({
         title: "Error",
