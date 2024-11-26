@@ -27,7 +27,7 @@ export function setupSessionHandlers(client: SignClientType, callback: Transacti
             fee: (decodedTxn as any).fee || 0,
             group: (decodedTxn as any).grp,
             signTxn: (key: Uint8Array) => {
-              const txn = algosdk.Transaction.fromObject(decodedTxn as algosdk.TransactionParams);
+              const txn = algosdk.Transaction.from_obj_for_encoding(decodedTxn as algosdk.TransactionParams);
               const signedTxn = txn.signTxn(key);
               return signedTxn;
             }
