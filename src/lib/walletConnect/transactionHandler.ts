@@ -21,7 +21,7 @@ export function handleTransactionRequest(params: any) {
     console.log("Decoded transaction:", decodedTxn);
 
     if (!decodedTxn) {
-      throw new Error("Invalid transaction parameters");
+      throw new Error("Failed to decode transaction");
     }
 
     const senderAddr = (decodedTxn as any).snd ? 
@@ -36,7 +36,7 @@ export function handleTransactionRequest(params: any) {
       algosdk.encodeAddress((decodedTxn as any).rcv) : 
       senderAddr;
 
-    const suggestedParams: algosdk.SuggestedParams = {
+    const suggestedParams = {
       fee: (decodedTxn as any).fee || 1000,
       firstRound: (decodedTxn as any).fv || 0,
       lastRound: (decodedTxn as any).lv || 0,
@@ -45,12 +45,11 @@ export function handleTransactionRequest(params: any) {
       flatFee: true
     };
 
-    const txn = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
+    const txn = new algosdk.Transaction({
       from: senderAddr,
       to: receiverAddr,
       amount: (decodedTxn as any).amt || 0,
-      suggestedParams: suggestedParams,
-      note: (decodedTxn as any).note ? new Uint8Array(Buffer.from((decodedTxn as any).note)) : undefined
+      ...suggestedParams
     });
 
     console.log("Created Algorand transaction object:", txn);

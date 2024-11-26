@@ -31,7 +31,7 @@ export function setupSessionHandlers(client: SignClientType, callback: Transacti
           algosdk.encodeAddress((decodedTxn as any).rcv) : 
           senderAddr;
 
-        const suggestedParams: algosdk.SuggestedParams = {
+        const suggestedParams = {
           fee: (decodedTxn as any).fee || 1000,
           firstRound: (decodedTxn as any).fv || 0,
           lastRound: (decodedTxn as any).lv || 0,
@@ -40,12 +40,11 @@ export function setupSessionHandlers(client: SignClientType, callback: Transacti
           flatFee: true
         };
 
-        const txn = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
+        const txn = new algosdk.Transaction({
           from: senderAddr,
           to: receiverAddr,
           amount: (decodedTxn as any).amt || 0,
-          suggestedParams: suggestedParams,
-          note: (decodedTxn as any).note ? new Uint8Array(Buffer.from((decodedTxn as any).note)) : undefined
+          ...suggestedParams
         });
         
         console.log("Created Algorand transaction object:", txn);
