@@ -1,15 +1,7 @@
 import { Button } from "@/components/ui/button";
-import { KeyRound, Shield, Smartphone } from "lucide-react";
+import { KeyRound, Shield } from "lucide-react";
 import { AuthenticationResult } from "@/lib/webauthn";
 import { useToast } from "@/components/ui/use-toast";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 
 interface PasskeySectionProps {
   authResult: AuthenticationResult | null;
@@ -70,58 +62,14 @@ export const PasskeySection = ({ authResult, onRegister, onAuthenticate }: Passk
             </span>
           </div>
         </div>
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button
-              variant="outline"
-              className="w-full border-artence-purple text-artence-purple hover:bg-artence-purple/10 transition-colors duration-300"
-            >
-              <Shield className="mr-2 h-4 w-4" />
-              Authenticate with Passkey
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Authentication Options</DialogTitle>
-              <DialogDescription>
-                Choose how you want to authenticate with your passkey
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4 pt-4">
-              <Button
-                onClick={handleAuthenticate}
-                className="w-full bg-artence-purple hover:bg-artence-purple/90 text-white"
-              >
-                <Shield className="mr-2 h-4 w-4" />
-                Use This Device
-              </Button>
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t" />
-                </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-background px-2 text-muted-foreground">
-                    Or
-                  </span>
-                </div>
-              </div>
-              <Button
-                variant="outline"
-                className="w-full border-artence-purple text-artence-purple hover:bg-artence-purple/10"
-                onClick={() => {
-                  toast({
-                    title: "Cross-device Authentication",
-                    description: "Please use your security key or biometric authentication on your other device.",
-                  });
-                  handleAuthenticate();
-                }}
-              >
-                <Smartphone className="mr-2 h-4 w-4" />
-                Use Another Device
-              </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
+        <Button
+          variant="outline"
+          className="w-full border-artence-purple text-artence-purple hover:bg-artence-purple/10 transition-colors duration-300"
+          onClick={handleAuthenticate}
+        >
+          <Shield className="mr-2 h-4 w-4" />
+          Authenticate with Passkey
+        </Button>
       </div>
     </div>
   );
