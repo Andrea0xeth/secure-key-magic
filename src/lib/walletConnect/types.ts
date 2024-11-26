@@ -1,7 +1,7 @@
 import { SignClient } from '@walletconnect/sign-client';
 import * as algosdk from 'algosdk';
 
-export type TransactionCallback = (transaction: algosdk.Transaction) => void;
+export type TransactionCallback = (transaction: AlgorandTransaction) => void;
 
 export interface TransactionRequest {
   method: string;

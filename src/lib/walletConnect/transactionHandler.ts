@@ -2,7 +2,7 @@ import { SignClientTypes } from "@walletconnect/types";
 import * as algosdk from "algosdk";
 import { AlgorandTransaction } from "./types";
 
-type TransactionCallback = (transaction: algosdk.Transaction) => void;
+type TransactionCallback = (transaction: AlgorandTransaction) => void;
 let transactionCallback: TransactionCallback | null = null;
 
 export function setTransactionCallback(callback: TransactionCallback) {
@@ -18,16 +18,32 @@ export function handleTransactionRequest(params: any) {
   }
 
   try {
-    const txnParams = algosdk.decodeObj(Buffer.from(params.txn, 'base64'));
-    console.log("Decoded transaction params:", txnParams);
+    const decodedTxn = algosdk.decodeObj(Buffer.from(params.txn, 'base64'));
+    console.log("Decoded transaction params:", decodedTxn);
 
-    if (!txnParams) {
+    if (!decodedTxn) {
       throw new Error("Invalid transaction parameters");
     }
 
-    const transaction = new algosdk.Transaction(txnParams as algosdk.TransactionParams);
-    console.log("Created transaction object:", transaction);
+    // Convert Uint8Array addresses to string format
+    const from = algosdk.encodeAddress((decodedTxn as any).snd);
+    const to = algosdk.encodeAddress((decodedTxn as any).rcv);
+    
+    const transaction: AlgorandTransaction = {
+      type: 'pay',
+      from: from,
+      to: to,
+      amount: (decodedTxn as any).amt || 0,
+      fee: (decodedTxn as any).fee || 0,
+      group: (decodedTxn as any).grp,
+      signTxn: (key: Uint8Array) => {
+        const txn = algosdk.Transaction.from_obj_for_encoding(decodedTxn as algosdk.TransactionParams);
+        const signedTxn = txn.signTxn(key);
+        return signedTxn;
+      }
+    };
 
+    console.log("Created transaction object:", transaction);
     transactionCallback(transaction);
   } catch (error) {
     console.error("Error handling transaction request:", error);
