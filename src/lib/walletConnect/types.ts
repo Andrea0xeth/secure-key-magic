@@ -1,5 +1,5 @@
 import { SignClient } from '@walletconnect/sign-client';
-import { SessionTypes, ProposalTypes } from '@walletconnect/types';
+import { SessionTypes } from '@walletconnect/types';
 import * as algosdk from 'algosdk';
 
 export type TransactionCallback = (transaction: algosdk.Transaction) => void;
@@ -11,15 +11,7 @@ export interface TransactionRequest {
 
 export interface SessionProposal {
   id: number;
-  params: {
-    request: TransactionRequest;
-    chainId?: string;
-    requiredNamespaces?: {
-      algorand?: {
-        methods: string[];
-      };
-    };
-  };
+  params: SessionTypes.Proposal;
 }
 
 export interface AlgorandTransaction {
