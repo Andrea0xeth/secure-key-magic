@@ -45,13 +45,15 @@ export const PasskeySection = ({ authResult, onRegister, onAuthenticate }: Passk
   return (
     <div className="space-y-6">
       <div className="text-center space-y-4">
-        <Button
-          onClick={handleRegister}
-          className="w-full bg-artence-purple hover:bg-artence-purple/90 text-white transition-colors duration-300"
+      <Button
+          onClick={handleAuthenticate}
+          variant="outline"
+          className="w-full border-artence-purple text-artence-purple hover:bg-artence-purple/10 transition-colors duration-300"
         >
-          <KeyRound className="mr-2 h-4 w-4" />
-          Register New Passkey
+          <Shield className="mr-2 h-4 w-4" />
+          Authenticate with Passkey
         </Button>
+      
         <div className="relative">
           <div className="absolute inset-0 flex items-center">
             <span className="w-full border-t" />
@@ -63,12 +65,11 @@ export const PasskeySection = ({ authResult, onRegister, onAuthenticate }: Passk
           </div>
         </div>
         <Button
-          onClick={handleAuthenticate}
-          variant="outline"
-          className="w-full border-artence-purple text-artence-purple hover:bg-artence-purple/10 transition-colors duration-300"
+          onClick={handleRegister}
+          className="w-full bg-artence-purple hover:bg-artence-purple/90 text-white transition-colors duration-300"
         >
-          <Shield className="mr-2 h-4 w-4" />
-          Authenticate with Passkey
+          <KeyRound className="mr-2 h-4 w-4" />
+          Register New Passkey
         </Button>
       </div>
     </div>
