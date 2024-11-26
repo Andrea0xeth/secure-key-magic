@@ -2,6 +2,13 @@ import * as algosdk from "algosdk";
 import { SignClientTypes } from "@walletconnect/types";
 import { formatJsonRpcResult } from "@json-rpc-tools/utils";
 
+let transactionCallback: ((transaction: algosdk.Transaction) => void) | null = null;
+
+export function setTransactionCallback(callback: (transaction: algosdk.Transaction) => void) {
+  transactionCallback = callback;
+  console.log("Transaction callback set");
+}
+
 export async function handleTransactionRequest(
   requestEvent: SignClientTypes.EventArguments["session_request"]
 ): Promise<algosdk.Transaction[]> {
@@ -17,6 +24,7 @@ export async function handleTransactionRequest(
       console.log("Processing transaction parameters:", txnParams);
       
       const txn = new algosdk.Transaction({
+        type: algosdk.TransactionType.pay,
         from: txnParams.sender,
         to: txnParams.receiver,
         amount: txnParams.amount,
@@ -25,10 +33,14 @@ export async function handleTransactionRequest(
         lastRound: txnParams.lastRound,
         genesisID: txnParams.genesisID,
         genesisHash: txnParams.genesisHash,
-        type: txnParams.type,
       });
 
       console.log("Created transaction:", txn);
+      
+      if (transactionCallback) {
+        transactionCallback(txn);
+      }
+      
       return txn;
     });
 

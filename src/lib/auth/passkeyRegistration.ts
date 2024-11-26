@@ -1,12 +1,11 @@
-import { RegistrationResult } from "../types/auth";
-import { deriveAlgorandAccountFromCredential } from "../crypto/credentialDerivation";
+import { startRegistration } from "@simplewebauthn/browser";
+import * as algosdk from "algosdk";
+import { deriveKeyPair } from "../crypto/credentialDerivation";
 
-export async function registerPasskey(): Promise<RegistrationResult> {
+export async function registerPasskey() {
   try {
-    console.log("Starting passkey registration...");
-    
     if (!window.PublicKeyCredential) {
-      console.error("WebAuthn is not supported in this browser");
+      console.error("WebAuthn is not supported");
       throw new Error("WebAuthn is not supported in this browser");
     }
 
@@ -27,8 +26,10 @@ export async function registerPasskey(): Promise<RegistrationResult> {
         displayName: "Algorand User",
       },
       pubKeyCredParams: [
-        { type: "public-key", alg: -7 }, // ES256
-        { type: "public-key", alg: -257 }, // RS256
+        {
+          type: "public-key",
+          alg: -7, // ES256
+        },
       ],
       timeout: 60000,
       attestation: "direct",
@@ -39,25 +40,18 @@ export async function registerPasskey(): Promise<RegistrationResult> {
       },
     };
 
-    console.log("Creating credential with options:", createCredentialOptions);
+    console.log("Starting passkey registration...");
+    const credential = await startRegistration(createCredentialOptions);
+    console.log("Passkey registration successful:", credential);
 
-    const credential = await navigator.credentials.create({
-      publicKey: createCredentialOptions,
-    }) as PublicKeyCredential;
-
-    if (!credential) {
-      console.error("No credential returned from credentials.create()");
-      throw new Error("Registration failed - no credential returned");
-    }
-
-    console.log("Credential created successfully:", credential);
-
-    const account = deriveAlgorandAccountFromCredential(credential);
+    // Derive Algorand account from credential
+    const keyPair = await deriveKeyPair(credential);
+    const account = algosdk.mnemonicToSecretKey(keyPair.mnemonic);
     console.log("Derived Algorand account:", account);
 
     return {
-      address: account.addr,
-      publicKey: account.addr
+      address: account.addr.toString(),
+      publicKey: account.addr.toString()
     };
   } catch (error) {
     console.error("Error registering passkey:", error);
