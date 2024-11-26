@@ -10,7 +10,7 @@ export async function handleSessionProposal(
 
   try {
     const { id, params } = proposal;
-
+    
     // Define the required namespaces
     const namespaces = {
       algorand: {
