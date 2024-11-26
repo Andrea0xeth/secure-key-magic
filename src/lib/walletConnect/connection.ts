@@ -1,7 +1,7 @@
 import SignClient from '@walletconnect/sign-client';
 import { initSignClient } from './client';
 import { handleTransactionRequest } from './transactionHandler';
-import type { TransactionCallback, SessionProposal } from './types';
+import type { TransactionCallback, SessionProposalEvent } from './types';
 import { toast } from "@/hooks/use-toast";
 
 let transactionCallback: TransactionCallback | null = null;
@@ -26,12 +26,11 @@ export async function connectWithWalletConnect(wcUrl: string, address: string): 
 
     const pairResult = await client.pair({ uri: wcUrl });
 
-    client.on('session_proposal', async (proposal: SessionProposal) => {
-      console.log("Received session proposal:", proposal);
+    client.on('session_proposal', async (event: SessionProposalEvent) => {
+      console.log("Received session proposal:", event);
       try {
-        // Connect with the dApp using the proposal parameters
         await client.approve({
-          id: proposal.id,
+          id: event.id,
           namespaces: {
             algorand: {
               accounts: [`algorand:wGHE2Pwdvd7S12BL5FaOP20EGYesN73k:${address}`],

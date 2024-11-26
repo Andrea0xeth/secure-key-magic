@@ -14,7 +14,7 @@ export const handleTransactionRequest = (
     console.log("Decoded transaction:", decodedTxn);
     
     const transaction = new algosdk.Transaction({
-      type: decodedTxn.type,
+      type: decodedTxn.type || "pay",
       from: decodedTxn.snd,
       to: decodedTxn.rcv,
       amount: decodedTxn.amt || 0,
