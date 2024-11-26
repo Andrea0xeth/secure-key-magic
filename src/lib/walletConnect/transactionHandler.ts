@@ -9,13 +9,23 @@ export function setTransactionCallback(callback: (transaction: algosdk.Transacti
   console.log("Transaction callback set");
 }
 
-export function handleTransactionRequest(txnParams: any) {
+export function handleTransactionRequest(params: any) {
   try {
-    console.log("Transaction params:", txnParams);
+    console.log("Transaction params:", params);
     
-    const decodedTxn = algosdk.decodeObj(new Uint8Array(Buffer.from(txnParams.txn, 'base64'))) as DecodedAlgorandTransaction;
+    if (!params?.txn) {
+      console.error("No transaction data found in params");
+      return;
+    }
+
+    const txnBuffer = Buffer.from(params.txn, 'base64');
+    const decodedTxn = algosdk.decodeObj(txnBuffer) as DecodedAlgorandTransaction;
     console.log("Decoded transaction:", decodedTxn);
     
+    if (!decodedTxn) {
+      throw new Error("Failed to decode transaction");
+    }
+
     // Create suggested params from decoded transaction
     const suggestedParams: algosdk.SuggestedParams = {
       fee: decodedTxn.fee || 0,

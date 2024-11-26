@@ -1,7 +1,7 @@
 import { initSignClient } from './client';
 import { handleTransactionRequest } from './transactionHandler';
 import { toast } from "@/hooks/use-toast";
-import { SessionProposal } from './types';
+import { SessionTypes } from '@walletconnect/types';
 
 export async function connectWithWalletConnect(wcUrl: string, address: string): Promise<boolean> {
   try {
@@ -16,21 +16,33 @@ export async function connectWithWalletConnect(wcUrl: string, address: string): 
     console.log("Pairing with URI...");
     await client.pair({ uri: wcUrl });
 
-    client.on('session_proposal', async (proposal: SessionProposal) => {
-      console.log("Received session proposal:", proposal);
-      if (proposal.params.requiredNamespaces?.algorand?.methods?.includes('algo_signTxn')) {
-        handleTransactionRequest(proposal.params);
-      }
-    });
+    client.on('session_proposal', async (event: { id: number, params: SessionTypes.Proposal }) => {
+      console.log("Received session proposal:", event);
+      try {
+        const { id, params } = event;
+        const namespaces = {
+          algorand: {
+            accounts: [`algorand:wGHE2Pwdvd7S12BL5FaOP20EGYesN73k:${address}`],
+            methods: ['algo_signTxn'],
+            events: ['accountsChanged']
+          }
+        };
 
-    await client.connect({
-      pairingTopic: wcUrl.split('@')[0].substring(3),
-      requiredNamespaces: {
-        algorand: {
-          methods: ['algo_signTxn'],
-          chains: ['algorand:wGHE2Pwdvd7S12BL5FaOP20EGYesN73k'],
-          events: ['accountsChanged']
-        }
+        await client.approve({
+          id,
+          namespaces
+        });
+
+        console.log("Session proposal approved");
+      } catch (error) {
+        console.error("Error handling session proposal:", error);
+        await client.reject({
+          id: event.id,
+          reason: {
+            code: 4001,
+            message: "User rejected the session"
+          }
+        });
       }
     });
 
