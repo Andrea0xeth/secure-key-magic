@@ -56,6 +56,12 @@ export const TransactionDialog = ({ isOpen, onClose, transaction, onSign }: Tran
 
   if (!transaction) return null;
 
+  // Helper function to format Algorand amounts
+  const formatAlgoAmount = (microAlgos: number | bigint): string => {
+    const amount = typeof microAlgos === 'bigint' ? Number(microAlgos) : microAlgos;
+    return (amount / 1_000_000).toFixed(6);
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent>
@@ -71,10 +77,11 @@ export const TransactionDialog = ({ isOpen, onClose, transaction, onSign }: Tran
             <h4 className="text-sm font-medium mb-2">Transaction Details</h4>
             <div className="space-y-2 text-sm text-muted-foreground">
               <p>Type: {transaction.type}</p>
-              <p>Amount: {transaction.amount ? transaction.amount / 1e6 : 0} ALGO</p>
-              <p>Fee: {transaction.fee / 1e6} ALGO</p>
+              {transaction.group && <p>Group ID: {Buffer.from(transaction.group()).toString('base64')}</p>}
+              {transaction.amount && <p>Amount: {formatAlgoAmount(transaction.amount)} ALGO</p>}
+              <p>Fee: {formatAlgoAmount(transaction.fee)} ALGO</p>
               {transaction.to && (
-                <p>To: {algosdk.encodeAddress(transaction.to.publicKey)}</p>
+                <p>To: {algosdk.encodeAddress(transaction.to)}</p>
               )}
             </div>
           </div>
