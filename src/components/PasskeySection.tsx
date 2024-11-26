@@ -47,7 +47,7 @@ export const PasskeySection = ({ authResult, onRegister, onAuthenticate }: Passk
       <div className="text-center space-y-4">
         <Button
           onClick={handleRegister}
-          className="w-full bg-blue-500 hover:bg-blue-600 text-white"
+          className="w-full bg-artence-purple hover:bg-artence-purple/90 text-white transition-colors duration-300"
         >
           <KeyRound className="mr-2 h-4 w-4" />
           Register New Passkey
@@ -65,7 +65,7 @@ export const PasskeySection = ({ authResult, onRegister, onAuthenticate }: Passk
         <Button
           onClick={handleAuthenticate}
           variant="outline"
-          className="w-full"
+          className="w-full border-artence-purple text-artence-purple hover:bg-artence-purple/10 transition-colors duration-300"
         >
           <Shield className="mr-2 h-4 w-4" />
           Authenticate with Passkey
