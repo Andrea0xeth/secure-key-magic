@@ -9,7 +9,7 @@ export interface TransactionRequest {
 }
 
 export interface DecodedAlgorandTransaction {
-  type?: algosdk.TransactionType;
+  type?: 'pay' | string;
   snd?: Uint8Array;
   rcv?: Uint8Array;
   amt?: number;

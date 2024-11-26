@@ -39,8 +39,8 @@ export function handleTransactionRequest(params: any) {
       to: toAddress
     });
 
-    // Create suggested parameters
-    const suggestedParams = {
+    // Create suggested parameters with proper types
+    const suggestedParams: algosdk.SuggestedParams = {
       fee: decodedTxn.fee || 0,
       firstRound: decodedTxn.fv || 0,
       lastRound: decodedTxn.lv || 0,
@@ -49,17 +49,37 @@ export function handleTransactionRequest(params: any) {
       flatFee: true
     };
 
-    // Create transaction object
-    const transaction = new algosdk.Transaction({
-      from: fromAddress,
-      to: toAddress,
-      amount: decodedTxn.amt || 0,
-      ...suggestedParams
-    });
+    let transaction: algosdk.Transaction;
+
+    // Determine transaction type and create appropriate transaction
+    if (decodedTxn.type === 'pay') {
+      transaction = algosdk.makePaymentTxnWithSuggestedParams(
+        fromAddress,
+        toAddress,
+        decodedTxn.amt || 0,
+        undefined, // note
+        undefined, // closeRemainderTo
+        suggestedParams
+      );
+    } else {
+      // Default to payment transaction if type is not specified
+      console.log("Transaction type not specified, defaulting to payment transaction");
+      transaction = algosdk.makePaymentTxnWithSuggestedParams(
+        fromAddress,
+        toAddress,
+        decodedTxn.amt || 0,
+        undefined,
+        undefined,
+        suggestedParams
+      );
+    }
     
     console.log("Created transaction object:", {
       txnType: transaction.type,
-      params: transaction.get_obj_for_encoding()
+      sender: transaction.from.toString(),
+      receiver: transaction.to.toString(),
+      amount: transaction.amount,
+      fee: transaction.fee
     });
 
     if (transactionCallback) {
