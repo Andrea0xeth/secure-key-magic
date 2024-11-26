@@ -78,7 +78,7 @@ export const TransactionDialog = ({
     fee: formatAlgoAmount(transaction.fee),
     from: algosdk.encodeAddress(transaction.from.publicKey),
     to: algosdk.encodeAddress(transaction.to.publicKey),
-    amount: formatAlgoAmount(transaction.amount)
+    amount: formatAlgoAmount(transaction.amount || 0)
   };
 
   return (

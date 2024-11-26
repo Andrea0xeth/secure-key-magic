@@ -42,25 +42,24 @@ export function handleTransactionRequest(params: any) {
     const suggestedParams: algosdk.SuggestedParams = {
       fee: (decodedTxn as any).fee || 1000,
       flatFee: true,
-      firstValid: (decodedTxn as any).fv || 0,
-      lastValid: (decodedTxn as any).lv || 0,
+      firstRound: (decodedTxn as any).fv || 0,
+      lastRound: (decodedTxn as any).lv || 0,
       genesisID: (decodedTxn as any).gen || '',
       genesisHash: (decodedTxn as any).gh || '',
-      minFee: 1000
     };
 
-    console.log("Suggested parameters:", suggestedParams);
+    console.log("Creating transaction with parameters:", {
+      sender: senderAddr,
+      receiver: receiverAddr,
+      amount: (decodedTxn as any).amt || 0,
+      suggestedParams
+    });
 
-    const txn = new algosdk.Transaction({
+    const txn = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
       from: senderAddr,
       to: receiverAddr,
       amount: (decodedTxn as any).amt || 0,
-      fee: suggestedParams.fee,
-      firstRound: suggestedParams.firstValid,
-      lastRound: suggestedParams.lastValid,
-      genesisHash: suggestedParams.genesisHash,
-      genesisID: suggestedParams.genesisID,
-      type: algosdk.TransactionType.pay,
+      suggestedParams,
       note: (decodedTxn as any).note ? new Uint8Array(Buffer.from((decodedTxn as any).note)) : undefined
     });
 
