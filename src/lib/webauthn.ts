@@ -4,6 +4,11 @@ import { connectWithWalletConnect } from "./walletConnect";
 import { deriveAlgorandSeedFromCredential } from "./crypto/seedDerivation";
 import { storeAlgorandKey, getStoredAlgorandKey } from "./storage/keyStorage";
 
+export interface AuthenticationResult {
+  address: string;
+  publicKey: string;
+}
+
 const getOrCreateAlgorandAccount = async (credential?: PublicKeyCredential): Promise<algosdk.Account> => {
   try {
     const storedKey = getStoredAlgorandKey();
@@ -29,8 +34,15 @@ const getOrCreateAlgorandAccount = async (credential?: PublicKeyCredential): Pro
   }
 };
 
-export const exportPrivateKey = async (): Promise<string | null> => {
+export const authenticateWithPasskey = async (): Promise<AuthenticationResult | null> => {
   try {
+    console.log("Starting passkey authentication...");
+    
+    if (!window.PublicKeyCredential) {
+      console.error("WebAuthn is not supported in this browser");
+      throw new Error("WebAuthn is not supported in this browser");
+    }
+
     const challenge = new Uint8Array(32);
     crypto.getRandomValues(challenge);
 
@@ -41,39 +53,31 @@ export const exportPrivateKey = async (): Promise<string | null> => {
       rpId: window.location.hostname,
     };
 
+    console.log("Requesting credential with options:", getCredentialOptions);
+
     const assertion = await navigator.credentials.get({
       publicKey: getCredentialOptions
     }) as PublicKeyCredential;
 
     if (!assertion) {
-      toast({
-        title: "Verification Failed",
-        description: "Passkey verification is required to export the private key",
-        variant: "destructive",
-      });
-      return null;
+      console.error("No assertion returned from credentials.get()");
+      throw new Error("Authentication failed - no credential returned");
     }
 
-    const storedKey = getStoredAlgorandKey();
-    if (!storedKey) {
-      throw new Error("No private key found");
-    }
-    return storedKey;
+    console.log("Credential assertion received:", assertion);
+
+    const account = await getOrCreateAlgorandAccount(assertion);
+    console.log("Authenticated with Algorand address:", account.addr);
+
+    return {
+      address: algosdk.encodeAddress(account.addr.publicKey),
+      publicKey: algosdk.encodeAddress(account.addr.publicKey)
+    };
   } catch (error) {
-    console.error("Error exporting private key:", error);
-    toast({
-      title: "Export Failed",
-      description: "Failed to verify passkey or export private key",
-      variant: "destructive",
-    });
-    return null;
+    console.error("Error authenticating with passkey:", error);
+    throw error;
   }
 };
-
-export interface AuthenticationResult {
-  address: string;
-  publicKey: string;
-}
 
 export const registerPasskey = async (): Promise<AuthenticationResult | null> => {
   try {
@@ -160,7 +164,7 @@ export const registerPasskey = async (): Promise<AuthenticationResult | null> =>
   }
 };
 
-export const authenticateWithPasskey = async (): Promise<AuthenticationResult | null> => {
+export const exportPrivateKey = async (): Promise<string | null> => {
   try {
     const challenge = new Uint8Array(32);
     crypto.getRandomValues(challenge);
@@ -176,18 +180,25 @@ export const authenticateWithPasskey = async (): Promise<AuthenticationResult | 
       publicKey: getCredentialOptions
     }) as PublicKeyCredential;
 
-    const account = await getOrCreateAlgorandAccount(assertion);
-    console.log("Authenticated with Algorand address:", account.addr);
+    if (!assertion) {
+      toast({
+        title: "Verification Failed",
+        description: "Passkey verification is required to export the private key",
+        variant: "destructive",
+      });
+      return null;
+    }
 
-    return {
-      address: algosdk.encodeAddress(account.addr.publicKey),
-      publicKey: algosdk.encodeAddress(account.addr.publicKey)
-    };
+    const storedKey = getStoredAlgorandKey();
+    if (!storedKey) {
+      throw new Error("No private key found");
+    }
+    return storedKey;
   } catch (error) {
-    console.error("Error authenticating with passkey:", error);
+    console.error("Error exporting private key:", error);
     toast({
-      title: "Authentication Failed",
-      description: "Failed to authenticate with passkey. Please try again.",
+      title: "Export Failed",
+      description: "Failed to verify passkey or export private key",
       variant: "destructive",
     });
     return null;
