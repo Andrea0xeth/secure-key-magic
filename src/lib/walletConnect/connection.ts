@@ -16,7 +16,6 @@ export async function connectWithWalletConnect(wcUrl: string, address: string): 
     console.log("Pairing with URI...");
     await client.pair({ uri: wcUrl });
 
-    // Set up event listeners before connecting
     client.on('session_request', async (event: any) => {
       console.log("Received session request:", event);
       
@@ -80,12 +79,6 @@ export async function disconnectWalletConnect(): Promise<boolean> {
       });
     }
 
-    // Clear stored session data
-    localStorage.removeItem('wc@2:client:0.3//session');
-    localStorage.removeItem('wc@2:core:0.3//pairing');
-    localStorage.removeItem('wc@2:core:0.3//expirer');
-    localStorage.removeItem('wc@2:core:0.3//history');
-    
     console.log("Successfully disconnected all sessions");
     return true;
   } catch (error) {
