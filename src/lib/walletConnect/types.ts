@@ -15,7 +15,6 @@ export interface DecodedAlgorandTransaction {
 }
 
 export type TransactionCallback = (transaction: algosdk.Transaction) => void;
-export type SessionProposalEvent = SignClientTypes.EventArguments['session_proposal'];
 
 export interface WalletConnectSession {
   topic: string;
@@ -26,14 +25,17 @@ export interface WalletConnectSession {
   };
 }
 
-export interface SessionProposal {
-  id: number;
-  params: {
-    request?: {
-      method: string;
-      params: any[];
-    };
-    chainId?: string;
-    [key: string]: any;
-  };
+export interface SessionProposalEvent extends SignClientTypes.EventArguments['session_proposal'] {}
+
+export interface TransactionParams {
+  snd?: Uint8Array;
+  rcv?: Uint8Array;
+  amt?: number;
+  fee?: number;
+  fv?: number;
+  lv?: number;
+  note?: Uint8Array;
+  gen?: string;
+  gh?: string;
+  type?: algosdk.TransactionType;
 }

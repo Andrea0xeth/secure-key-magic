@@ -1,6 +1,6 @@
 import { toast } from "@/hooks/use-toast";
-import type { SessionProposalEvent } from "./types";
 import SignClient from '@walletconnect/sign-client';
+import type { SessionProposalEvent } from "./types";
 
 export const handleSessionProposal = async (
   client: SignClient,

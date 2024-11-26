@@ -61,10 +61,11 @@ export const TransactionDialog = ({ isOpen, onClose, transaction, onSign }: Tran
     return (amount / 1_000_000).toFixed(6);
   };
 
-  const txType = transaction.type;
-  const txFrom = algosdk.encodeAddress(transaction.get_obj_for_encoding().snd);
-  const txTo = transaction.get_obj_for_encoding().rcv ? algosdk.encodeAddress(transaction.get_obj_for_encoding().rcv) : '';
-  const txAmount = transaction.get_obj_for_encoding().amt || 0;
+  const txnObj = transaction.get_obj_for_encoding();
+  const txType = txnObj.type || 'pay';
+  const txFrom = algosdk.encodeAddress(txnObj.snd);
+  const txTo = txnObj.rcv ? algosdk.encodeAddress(txnObj.rcv) : '';
+  const txAmount = txnObj.amt || 0;
   const txFee = transaction.fee;
   const txGroup = transaction.group;
 
