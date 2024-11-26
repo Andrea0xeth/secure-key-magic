@@ -28,14 +28,14 @@ export const AlgoBalance = ({ address }: AlgoBalanceProps) => {
         const accountInfo = await algodClient.accountInformation(address).do();
         console.log("Account info received:", accountInfo);
         
-        // Check if amount exists and is a valid number
-        if (typeof accountInfo.amount === 'undefined' || accountInfo.amount === null) {
-          console.error("Invalid amount received in account info:", accountInfo);
+        // Check if amountWithoutPendingRewards exists and is a valid number
+        if (typeof accountInfo.amountWithoutPendingRewards === 'undefined' || accountInfo.amountWithoutPendingRewards === null) {
+          console.error("Invalid amountWithoutPendingRewards in account info:", accountInfo);
           return 0;
         }
         
         // Convert microAlgos to Algos
-        const algoBalance = Number(accountInfo.amount) / 1_000_000;
+        const algoBalance = Number(accountInfo.amountWithoutPendingRewards) / 1_000_000;
         console.log("Calculated ALGO balance:", algoBalance);
         return algoBalance;
       } catch (error) {
