@@ -16,8 +16,5 @@ export function deriveAlgorandAccountFromCredential(credential: PublicKeyCredent
   const account = algosdk.generateAccount();
   console.log("Generated deterministic account with address:", account.addr);
   
-  return {
-    addr: account.addr,
-    sk: seed
-  };
+  return account;
 }
