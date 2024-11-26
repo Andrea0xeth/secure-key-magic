@@ -4,11 +4,12 @@ import { Button } from "@/components/ui/button";
 import { authenticateWithPasskey } from "@/lib/webauthn";
 import { useToast } from "@/components/ui/use-toast";
 import * as algosdk from "algosdk";
+import type { AlgorandTransaction } from "@/lib/walletConnect/types";
 
 interface TransactionDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  transaction: algosdk.Transaction;
+  transaction: AlgorandTransaction | null;
   onSign: (signedTxn: Uint8Array) => void;
 }
 
@@ -17,6 +18,11 @@ export const TransactionDialog = ({ isOpen, onClose, transaction, onSign }: Tran
   const { toast } = useToast();
 
   const handleSign = async () => {
+    if (!transaction) {
+      console.error("No transaction to sign");
+      return;
+    }
+
     try {
       setIsLoading(true);
       console.log("Starting transaction signing process");
@@ -59,9 +65,13 @@ export const TransactionDialog = ({ isOpen, onClose, transaction, onSign }: Tran
     return (amount / 1_000_000).toFixed(6);
   };
 
+  if (!transaction) {
+    return null;
+  }
+
   const txnDetails = {
-    type: transaction.type,
-    from: algosdk.encodeAddress(transaction.from.publicKey),
+    type: transaction.type || 'pay',
+    from: transaction.from ? algosdk.encodeAddress(transaction.from.publicKey) : '',
     to: transaction.to ? algosdk.encodeAddress(transaction.to.publicKey) : '',
     amount: formatAlgoAmount(transaction.amount || BigInt(0)),
     fee: formatAlgoAmount(transaction.fee || 0),
