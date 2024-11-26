@@ -1,6 +1,5 @@
 import * as algosdk from "algosdk";
 import { SignClientTypes } from "@walletconnect/types";
-import { formatJsonRpcResult } from "@json-rpc-tools/utils";
 
 let transactionCallback: ((transaction: algosdk.Transaction) => void) | null = null;
 
@@ -23,23 +22,21 @@ export async function handleTransactionRequest(
     const txns = params.request.params.map((txnParams: any) => {
       console.log("Processing transaction parameters:", txnParams);
       
-      const suggestedParams: algosdk.SuggestedParams = {
-        fee: txnParams.fee,
+      const suggestedParams = {
+        ...txnParams,
+        fee: Number(txnParams.fee),
         flatFee: true,
-        firstRound: txnParams.firstRound,
-        lastRound: txnParams.lastRound,
         genesisID: txnParams.genesisID,
         genesisHash: txnParams.genesisHash,
-      };
+      } as algosdk.SuggestedParams;
 
-      const txn = algosdk.makePaymentTxnWithSuggestedParams(
-        txnParams.sender,
-        txnParams.receiver,
-        txnParams.amount,
-        undefined,
-        undefined,
-        suggestedParams
-      );
+      const txn = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
+        from: txnParams.sender,
+        to: txnParams.receiver,
+        amount: txnParams.amount,
+        note: undefined,
+        suggestedParams: suggestedParams
+      });
 
       console.log("Created transaction:", txn);
       

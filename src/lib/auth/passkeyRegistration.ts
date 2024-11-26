@@ -32,9 +32,9 @@ export async function registerPasskey() {
       timeout: 60000,
       attestation: "direct" as const,
       authenticatorSelection: {
-        authenticatorAttachment: "platform",
-        userVerification: "required",
-        residentKey: "required",
+        authenticatorAttachment: "platform" as AuthenticatorAttachment,
+        userVerification: "required" as UserVerificationRequirement,
+        residentKey: "required" as ResidentKeyRequirement,
       },
     };
 
@@ -42,12 +42,14 @@ export async function registerPasskey() {
     const credential = await startRegistration(createCredentialOptions);
     console.log("Passkey registration successful:", credential);
 
-    // Create a mock credential for deriveKeyPair since we can't convert RegistrationResponseJSON to PublicKeyCredential
+    // Create a credential object for key derivation
     const mockCredential = {
       id: credential.id,
-      rawId: Buffer.from(credential.rawId),
+      rawId: new Uint8Array(Buffer.from(credential.rawId, 'base64')),
+      response: {} as AuthenticatorResponse,
       type: 'public-key',
-      getClientExtensionResults: () => ({}),
+      authenticatorAttachment: 'platform' as AuthenticatorAttachment,
+      getClientExtensionResults: () => ({})
     } as PublicKeyCredential;
 
     const keyPair = deriveKeyPair(mockCredential);
