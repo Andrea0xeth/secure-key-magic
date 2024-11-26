@@ -25,3 +25,9 @@ export interface AlgorandTransaction {
   group?: Uint8Array;
   signTxn: (key: Uint8Array) => Uint8Array;
 }
+
+export interface EncodedTransaction {
+  txn: string;
+  signer?: string;
+  message?: string;
+}

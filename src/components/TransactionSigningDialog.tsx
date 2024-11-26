@@ -73,7 +73,13 @@ export const TransactionSigningDialog = ({
     return null;
   }
 
-  const txnObj = transaction.get_obj_for_encoding();
+  const txnDetails = {
+    type: transaction.type,
+    fee: formatAlgoAmount(transaction.fee),
+    from: transaction.from?.toString() || 'Unknown',
+    to: transaction.to?.toString() || 'Unknown',
+    amount: formatAlgoAmount(transaction.amount || 0)
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -89,11 +95,11 @@ export const TransactionSigningDialog = ({
           <div className="rounded-lg border p-4">
             <h4 className="text-sm font-medium mb-2">Transaction Details</h4>
             <div className="space-y-2 text-sm text-muted-foreground">
-              <p>Type: {txnObj.type || 'pay'}</p>
-              <p>Fee: {formatAlgoAmount(txnObj.fee || 0)} ALGO</p>
-              <p>From: {algosdk.encodeAddress(txnObj.snd)}</p>
-              <p>To: {txnObj.rcv ? algosdk.encodeAddress(txnObj.rcv) : 'Unknown'}</p>
-              <p>Amount: {formatAlgoAmount(txnObj.amt || 0)} ALGO</p>
+              <p>Type: {txnDetails.type || 'pay'}</p>
+              <p>Fee: {txnDetails.fee} ALGO</p>
+              <p>From: {txnDetails.from}</p>
+              <p>To: {txnDetails.to}</p>
+              <p>Amount: {txnDetails.amount} ALGO</p>
             </div>
           </div>
         </div>
