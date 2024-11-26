@@ -21,7 +21,6 @@ export function handleTransactionRequest(params: any) {
     console.log("Decoded transaction:", decodedTxn);
 
     if (!decodedTxn) {
-      console.error("Failed to decode transaction");
       throw new Error("Invalid transaction parameters");
     }
 
@@ -33,11 +32,11 @@ export function handleTransactionRequest(params: any) {
       algosdk.encodeAddress((decodedTxn as any).rcv) : 
       null;
 
-    console.log("Creating transaction with sender:", senderAddr, "receiver:", receiverAddr);
-
     if (!senderAddr || !receiverAddr) {
       throw new Error("Both sender and receiver addresses must be provided");
     }
+
+    console.log("Creating transaction with sender:", senderAddr, "receiver:", receiverAddr);
 
     const suggestedParams: algosdk.SuggestedParams = {
       fee: (decodedTxn as any).fee || 1000,
@@ -49,19 +48,20 @@ export function handleTransactionRequest(params: any) {
     };
 
     console.log("Creating transaction with parameters:", {
-      sender: senderAddr,
-      receiver: receiverAddr,
+      from: senderAddr,
+      to: receiverAddr,
       amount: (decodedTxn as any).amt || 0,
       suggestedParams
     });
 
-    const txn = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
-      from: senderAddr,
-      to: receiverAddr,
-      amount: (decodedTxn as any).amt || 0,
-      suggestedParams,
-      note: (decodedTxn as any).note ? new Uint8Array(Buffer.from((decodedTxn as any).note)) : undefined
-    });
+    const txn = algosdk.makePaymentTxnWithSuggestedParams(
+      senderAddr,
+      receiverAddr,
+      (decodedTxn as any).amt || 0,
+      (decodedTxn as any).note ? new Uint8Array(Buffer.from((decodedTxn as any).note)) : undefined,
+      undefined,
+      suggestedParams
+    );
 
     console.log("Created Algorand transaction object:", txn);
     transactionCallback(txn);

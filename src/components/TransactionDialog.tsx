@@ -12,12 +12,7 @@ interface TransactionDialogProps {
   onSign: (signedTxn: Uint8Array) => void;
 }
 
-export const TransactionDialog = ({ 
-  isOpen, 
-  onClose, 
-  transaction, 
-  onSign 
-}: TransactionDialogProps) => {
+export const TransactionDialog = ({ isOpen, onClose, transaction, onSign }: TransactionDialogProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
@@ -69,9 +64,7 @@ export const TransactionDialog = ({
     return (numericAmount / 1_000_000).toFixed(6);
   };
 
-  if (!transaction) {
-    return null;
-  }
+  if (!transaction) return null;
 
   const txnDetails = {
     type: "Payment",
@@ -86,9 +79,7 @@ export const TransactionDialog = ({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Sign Transaction</DialogTitle>
-          <DialogDescription>
-            Review and sign the transaction with your passkey
-          </DialogDescription>
+          <DialogDescription>Review and sign the transaction with your passkey</DialogDescription>
         </DialogHeader>
         
         <div className="space-y-4">
