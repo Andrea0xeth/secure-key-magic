@@ -5,6 +5,8 @@ import { Shield, Link } from "lucide-react";
 import { authenticateWithPasskey } from "@/lib/webauthn";
 import { connectWithWalletConnect } from "@/lib/walletConnect/connection";
 import { ConnectedAppsList } from "@/components/ConnectedAppsList";
+import { AlgoBalance } from "@/components/AlgoBalance";
+import { AddressQRCode } from "@/components/AddressQRCode";
 
 const Index = () => {
   const [authResult, setAuthResult] = useState<{ address: string } | null>(null);
@@ -69,6 +71,14 @@ const Index = () => {
                 <code className="px-4 py-2 bg-gray-100 dark:bg-gray-800 rounded-lg text-sm break-all block">
                   {authResult.address}
                 </code>
+              </div>
+
+              <div className="flex justify-center">
+                <AlgoBalance address={authResult.address} />
+              </div>
+
+              <div className="flex justify-center">
+                <AddressQRCode address={authResult.address} />
               </div>
 
               <div className="space-y-4">
