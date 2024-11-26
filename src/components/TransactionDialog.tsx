@@ -56,17 +56,15 @@ export const TransactionDialog = ({ isOpen, onClose, transaction, onSign }: Tran
 
   if (!transaction) return null;
 
-  // Helper function to format Algorand amounts
   const formatAlgoAmount = (microAlgos: number | bigint): string => {
     const amount = typeof microAlgos === 'bigint' ? Number(microAlgos) : microAlgos;
     return (amount / 1_000_000).toFixed(6);
   };
 
-  // Access transaction properties using the SDK's getters
   const txType = transaction.type;
-  const txFrom = transaction.from ? algosdk.encodeAddress(transaction.from) : 'Unknown';
-  const txTo = transaction.to ? algosdk.encodeAddress(transaction.to) : 'Unknown';
-  const txAmount = transaction.amount || 0;
+  const txFrom = algosdk.encodeAddress(transaction.from.publicKey);
+  const txTo = algosdk.encodeAddress(transaction.to.publicKey);
+  const txAmount = transaction.amount;
   const txFee = transaction.fee;
   const txGroup = transaction.group;
 
