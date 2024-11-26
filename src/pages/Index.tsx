@@ -7,6 +7,7 @@ import { connectWithWalletConnect } from "@/lib/walletConnect/connection";
 import { ConnectedAppsList } from "@/components/ConnectedAppsList";
 import { AlgoBalance } from "@/components/AlgoBalance";
 import { AddressQRCode } from "@/components/AddressQRCode";
+import { QRScanner } from "@/components/QRScanner";
 
 const Index = () => {
   const [authResult, setAuthResult] = useState<{ address: string } | null>(null);
@@ -89,13 +90,16 @@ const Index = () => {
                     onChange={(e) => setWcUrl(e.target.value)}
                     className="flex-1 px-3 py-2 sm:px-4 sm:py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                   />
-                  <Button
-                    onClick={handleWalletConnectUrl}
-                    className="w-full sm:w-auto bg-blue-500 hover:bg-blue-600 text-white"
-                  >
-                    <Link className="mr-2 h-4 w-4" />
-                    Connect
-                  </Button>
+                  <div className="flex gap-2">
+                    <QRScanner onResult={setWcUrl} />
+                    <Button
+                      onClick={handleWalletConnectUrl}
+                      className="w-full sm:w-auto bg-blue-500 hover:bg-blue-600 text-white"
+                    >
+                      <Link className="mr-2 h-4 w-4" />
+                      Connect
+                    </Button>
+                  </div>
                 </div>
                 
                 <div className="py-4">
