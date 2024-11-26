@@ -1,6 +1,6 @@
-import { SignClient } from '@walletconnect/sign-client';
 import { Transaction, TransactionType } from 'algosdk';
 import { SessionTypes } from '@walletconnect/types';
+import { SignClient } from '@walletconnect/sign-client';
 
 export type TransactionCallback = (transaction: Transaction) => void;
 
@@ -19,7 +19,7 @@ export interface AlgorandTransaction {
   signTxn: (privateKey: Uint8Array) => Uint8Array;
 }
 
-export interface SignClientType extends Omit<SignClient, 'session'> {
+export interface SignClientType extends Omit<typeof SignClient, 'session'> {
   session: {
     values: SessionTypes.Struct[];
   };

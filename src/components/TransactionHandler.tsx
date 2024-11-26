@@ -1,10 +1,17 @@
-import { useEffect } from 'react';
+import { useState } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { authenticateWithPasskey } from "@/lib/webauthn";
 import { useToast } from "@/components/ui/use-toast";
-import { TransactionDialog } from '@/components/TransactionDialog';
-import { useState } from 'react';
-import { getSignClient } from '@/lib/walletConnect/client';
-import * as algosdk from 'algosdk';
-import { AlgorandTransaction } from '@/lib/walletConnect/types';
+import * as algosdk from "algosdk";
+import type { AlgorandTransaction } from "@/lib/walletConnect/types";
+
+interface TransactionDialogProps {
+  isOpen: boolean;
+  onClose: () => void;
+  transaction: AlgorandTransaction | null;
+  onSign: (signedTxn: Uint8Array) => void;
+}
 
 export const TransactionHandler = () => {
   const [transaction, setTransaction] = useState<AlgorandTransaction | null>(null);
@@ -30,26 +37,23 @@ export const TransactionHandler = () => {
           const txnParams = params.request.params[0][0];
           console.log("Transaction params:", txnParams);
           
-          const decodedTxn = algosdk.decodeObj(Buffer.from(txnParams.txn, 'base64')) as algosdk.TransactionParams;
-          console.log("Decoded transaction:", decodedTxn);
+          const txn = algosdk.decodeUnsignedTransaction(Buffer.from(txnParams.txn, 'base64'));
+          console.log("Decoded transaction:", txn);
           
-          if (decodedTxn) {
-            const transaction = {
-              type: decodedTxn.type || 'pay',
-              from: { publicKey: decodedTxn.snd || new Uint8Array() },
-              to: { publicKey: decodedTxn.rcv || new Uint8Array() },
-              amount: BigInt(decodedTxn.amt || 0),
-              fee: decodedTxn.fee || 0,
-              firstRound: decodedTxn.fv || 0,
-              lastRound: decodedTxn.lv || 0,
-              note: decodedTxn.note,
-              genesisID: decodedTxn.gen || '',
-              genesisHash: decodedTxn.gh || '',
-              group: decodedTxn.grp,
-              signTxn: (privateKey: Uint8Array) => {
-                const txn = new algosdk.Transaction(decodedTxn);
-                return txn.signTxn(privateKey);
-              }
+          if (txn) {
+            const transaction: AlgorandTransaction = {
+              type: txn.type as TransactionType | 'pay',
+              from: { publicKey: txn.from.publicKey },
+              to: { publicKey: txn.to.publicKey },
+              amount: BigInt(txn.amount),
+              fee: txn.fee,
+              firstRound: txn.firstRound,
+              lastRound: txn.lastRound,
+              note: txn.note,
+              genesisID: txn.genesisID,
+              genesisHash: txn.genesisHash,
+              group: txn.group,
+              signTxn: (privateKey: Uint8Array) => txn.signTxn(privateKey)
             };
             
             setTransaction(transaction);
