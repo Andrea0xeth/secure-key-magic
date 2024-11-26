@@ -5,13 +5,6 @@ import { getStoredAlgorandKey } from "../storage/keyStorage";
 export async function authenticateWithPasskey(): Promise<AuthenticationResult> {
   try {
     console.log("Starting passkey authentication...");
-    
-    // Get the stored key
-    const storedKey = getStoredAlgorandKey();
-    if (!storedKey) {
-      console.error("No passkey registered");
-      throw new Error("No passkey registered. Please register a passkey first.");
-    }
 
     if (!window.PublicKeyCredential) {
       console.error("WebAuthn is not supported in this browser");
@@ -44,15 +37,6 @@ export async function authenticateWithPasskey(): Promise<AuthenticationResult> {
 
     const account = deriveAlgorandAccountFromCredential(assertion);
     console.log("Derived Algorand account:", account);
-
-    // Compare the derived address with the stored address
-    if (account.addr.toString() !== storedKey) {
-      console.error("Authentication failed - address mismatch", {
-        derived: account.addr.toString(),
-        stored: storedKey
-      });
-      throw new Error("Authentication failed - invalid passkey");
-    }
 
     return {
       address: account.addr.toString(),
