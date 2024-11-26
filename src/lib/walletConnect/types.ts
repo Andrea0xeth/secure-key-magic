@@ -26,7 +26,8 @@ export interface WalletConnectSession {
   };
 }
 
-export interface SessionProposal extends SignClientTypes.EventArguments['session_proposal'] {
+export type SessionProposalParams = {
+  id: number;
   params: {
     request: {
       method: string;
@@ -37,4 +38,5 @@ export interface SessionProposal extends SignClientTypes.EventArguments['session
       };
     };
   };
-}
+  verifyContext: unknown;
+};
