@@ -12,18 +12,23 @@ export const handleTransactionRequest = async (
     const decodedTxn = algosdk.decodeObj(Buffer.from(txnParams.txn, 'base64')) as TransactionParams;
     console.log("Decoded transaction:", decodedTxn);
     
-    const transaction = new algosdk.Transaction({
-      type: decodedTxn.type,
-      from: decodedTxn.snd,
-      to: decodedTxn.rcv,
-      amount: decodedTxn.amt || 0,
-      fee: decodedTxn.fee || 0,
-      firstRound: decodedTxn.fv || 0,
-      lastRound: decodedTxn.lv || 0,
-      note: decodedTxn.note,
-      genesisID: decodedTxn.gen || '',
-      genesisHash: decodedTxn.gh || '',
-    }) as AlgorandTransaction;
+    const transaction = {
+      ...new algosdk.Transaction({
+        type: decodedTxn.type,
+        from: decodedTxn.snd,
+        to: decodedTxn.rcv,
+        amount: decodedTxn.amt || 0,
+        fee: decodedTxn.fee || 0,
+        firstRound: decodedTxn.fv || 0,
+        lastRound: decodedTxn.lv || 0,
+        note: decodedTxn.note,
+        genesisID: decodedTxn.gen || '',
+        genesisHash: decodedTxn.gh || '',
+      }),
+      signTxn: function(privateKey: Uint8Array): Uint8Array {
+        return this.signTxn(privateKey);
+      }
+    } as AlgorandTransaction;
     
     callback(transaction);
   } catch (error) {

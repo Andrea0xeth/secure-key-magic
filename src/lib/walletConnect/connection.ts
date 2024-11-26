@@ -20,11 +20,27 @@ export async function connectWithWalletConnect(wcUrl: string, address: string): 
 
     const client = await initSignClient();
     console.log("Pairing with URI...");
-    await client.pair({ uri: wcUrl });
+    const { uri, topic } = await client.pair({ uri: wcUrl });
+
+    // Set up session proposal handler
+    client.on('session_proposal', async (event: any) => {
+      try {
+        console.log("Received session proposal:", event);
+        if (event.params?.requiredNamespaces?.algorand?.methods?.includes('algo_signTxn')) {
+          console.log("Setting up transaction signing");
+          if (transactionCallback && event.params?.request?.params?.[0]?.[0]) {
+            await handleTransactionRequest(event.params.request.params[0][0], transactionCallback);
+          }
+        }
+      } catch (error) {
+        console.error("Error handling session proposal:", error);
+        throw error;
+      }
+    });
 
     // Connect with the dApp
     await client.connect({
-      pairingTopic: wcUrl.split('@')[0].substring(3),
+      pairingTopic: topic,
       requiredNamespaces: {
         algorand: {
           methods: ['algo_signTxn'],
@@ -34,25 +50,20 @@ export async function connectWithWalletConnect(wcUrl: string, address: string): 
       }
     });
 
-    client.on('session_proposal', async (event) => {
-      try {
-        const { params } = event;
-        if (params.requiredNamespaces?.algorand?.methods?.includes('algo_signTxn')) {
-          console.log("Received sign transaction request");
-          if (transactionCallback && params.request?.params?.[0]?.[0]) {
-            await handleTransactionRequest(params.request.params[0][0], transactionCallback);
-          }
-        }
-      } catch (error) {
-        console.error("Error handling session proposal:", error);
-        throw error;
-      }
-    });
-
     console.log("Connection successful");
+    toast({
+      title: "Connected",
+      description: "Successfully connected to dApp",
+    });
+    
     return true;
   } catch (error) {
     console.error("Error in WalletConnect connection:", error);
+    toast({
+      title: "Connection Failed",
+      description: "Failed to connect to dApp. Please try again.",
+      variant: "destructive",
+    });
     throw error;
   }
 }
@@ -72,10 +83,18 @@ export async function disconnectWalletConnect(): Promise<boolean> {
       });
     }
 
-    console.log("Successfully disconnected all sessions");
+    toast({
+      title: "Disconnected",
+      description: "Successfully disconnected from all dApps",
+    });
     return true;
   } catch (error) {
     console.error("Error disconnecting WalletConnect:", error);
+    toast({
+      title: "Error",
+      description: "Failed to disconnect",
+      variant: "destructive",
+    });
     throw error;
   }
 }

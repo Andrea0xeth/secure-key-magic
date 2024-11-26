@@ -1,8 +1,11 @@
-import type { Transaction, TransactionType } from 'algosdk';
+import type { Transaction } from 'algosdk';
+import type { SignClientTypes } from '@walletconnect/types';
 
-export interface AlgorandTransaction extends Transaction {
+export type SessionProposalEvent = SignClientTypes.EventArguments['session_proposal'];
+
+export interface AlgorandTransaction extends Omit<Transaction, 'fee'> {
   signTxn: (privateKey: Uint8Array) => Uint8Array;
-  type: TransactionType;
+  type: 'pay' | 'axfer' | 'acfg' | 'afrz' | 'appl' | 'keyreg';
   from?: {
     publicKey: Uint8Array;
   };
@@ -10,12 +13,12 @@ export interface AlgorandTransaction extends Transaction {
     publicKey: Uint8Array;
   };
   amount?: bigint;
-  fee?: number;
+  fee: number;
   group?: Uint8Array;
 }
 
 export interface TransactionParams {
-  type: TransactionType;
+  type: 'pay' | 'axfer' | 'acfg' | 'afrz' | 'appl' | 'keyreg';
   snd?: Uint8Array;
   rcv?: Uint8Array;
   amt?: number;
