@@ -5,7 +5,6 @@ import { authenticateWithPasskey } from "@/lib/webauthn";
 import { useToast } from "@/components/ui/use-toast";
 import * as algosdk from "algosdk";
 import { Card } from "@/components/ui/card";
-import { decodeSignedTransaction, decodeUnsignedTransaction } from 'algosdk'
 
 interface TransactionDialogProps {
   isOpen: boolean;
@@ -39,15 +38,11 @@ export const TransactionDialog = ({ isOpen, onClose, transaction, onSign }: Tran
       console.log("Successfully authenticated, signing transaction");
       
       try {
-        // Decodifica la transazione
+        // Decode the transaction
         const txnBuffer = Buffer.from(transaction.txn, 'base64');
         const decodedTxn = algosdk.decodeUnsignedTransaction(txnBuffer);
         
-        // Log per debugging
-        console.log("Transaction decoded successfully");
-        console.log("Private key length:", authResult.privateKey.length);
-        
-        // Firma la transazione
+        // Sign the transaction
         const signedTxn = algosdk.signTransaction(decodedTxn, authResult.privateKey);
         console.log("Transaction signed successfully");
         
@@ -82,67 +77,29 @@ export const TransactionDialog = ({ isOpen, onClose, transaction, onSign }: Tran
 
   if (!transaction) return null;
 
-  const getTransactionDetails = (txn: algosdk.Transaction) => {
-    const baseDetails = {
-      type: txn.type,
-      fee: formatAlgoAmount(txn.fee),
+  let txnDetails;
+  try {
+    const txnBuffer = Buffer.from(transaction.txn, 'base64');
+    const decodedTxn = algosdk.decodeUnsignedTransaction(txnBuffer);
+    const txnObj = decodedTxn.get_obj_for_encoding();
+
+    txnDetails = {
+      type: decodedTxn.type,
+      fee: formatAlgoAmount(decodedTxn.fee),
+      from: decodedTxn.from.toString(),
+      to: decodedTxn.to?.toString() || 'N/A',
+      amount: txnObj.amt ? formatAlgoAmount(txnObj.amt) : '0'
     };
-
-    const txnObj = txn.get_obj_for_encoding();
-    
-    switch (txn.type) {
-      case algosdk.TransactionType.pay:
-        return {
-          ...baseDetails,
-          from: txn.from.toString(),
-          to: txn.to.toString(),
-          amount: formatAlgoAmount(txnObj.amt || 0)
-        };
-      case algosdk.TransactionType.axfer:
-        return {
-          ...baseDetails,
-          from: txn.from.toString(),
-          to: txn.to.toString(),
-          assetIndex: txnObj.xaid,
-          amount: txnObj.aamt?.toString() || '0'
-        };
-      case algosdk.TransactionType.acfg:
-        return {
-          ...baseDetails,
-          from: txn.from.toString(),
-          assetIndex: txnObj.caid,
-          assetParams: {
-            total: txnObj.apar?.t,
-            decimals: txnObj.apar?.dc,
-            name: txnObj.apar?.an,
-            unitName: txnObj.apar?.un,
-            url: txnObj.apar?.au
-          }
-        };
-      case algosdk.TransactionType.afrz:
-        return {
-          ...baseDetails,
-          from: txn.from.toString(),
-          assetIndex: txnObj.faid,
-          freezeAccount: txnObj.fadd,
-          freezeState: txnObj.afrz
-        };
-      case algosdk.TransactionType.appl:
-        return {
-          ...baseDetails,
-          from: txn.from.toString(),
-          applicationId: txnObj.apid,
-          appArgs: txnObj.apaa?.length || 0,
-          accounts: txnObj.apat?.length || 0,
-          foreignApps: txnObj.apfa?.length || 0,
-          foreignAssets: txnObj.apas?.length || 0
-        };
-      default:
-        return baseDetails;
-    }
-  };
-
-  const txnDetails = getTransactionDetails(transaction);
+  } catch (error) {
+    console.error("Error decoding transaction:", error);
+    txnDetails = {
+      type: transaction.type || 'Unknown',
+      fee: '0',
+      from: 'Error decoding',
+      to: 'Error decoding',
+      amount: '0'
+    };
+  }
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
