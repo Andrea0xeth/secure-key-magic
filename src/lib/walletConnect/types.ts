@@ -1,6 +1,6 @@
 import { SignClient } from '@walletconnect/sign-client';
-import { Transaction, TransactionType } from 'algosdk';
 import { SessionTypes } from '@walletconnect/types';
+import { Transaction, TransactionType } from 'algosdk';
 
 export type TransactionCallback = (transaction: Transaction) => void;
 
@@ -37,3 +37,16 @@ export type SignClientType = SignClient & {
     values: SessionTypes.Struct[];
   };
 };
+
+export interface DecodedAlgorandTransaction {
+  type: TransactionType;
+  snd?: Uint8Array;
+  rcv?: Uint8Array;
+  amt?: number;
+  fee?: number;
+  fv?: number;
+  lv?: number;
+  note?: Uint8Array;
+  gen?: string;
+  gh?: string;
+}
