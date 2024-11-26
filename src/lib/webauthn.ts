@@ -1,2 +1,3 @@
 export { authenticateWithPasskey } from './auth/passkeyAuth';
-export type { AuthenticationResult } from './types/auth';
+export { registerPasskey } from './auth/passkeyRegistration';
+export type { AuthenticationResult, RegistrationResult } from './types/auth';

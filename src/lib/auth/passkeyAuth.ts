@@ -1,7 +1,7 @@
 import { AuthenticationResult } from "../types/auth";
 import { deriveAlgorandAccountFromCredential } from "../crypto/credentialDerivation";
 
-export async function authenticateWithPasskey(): Promise<AuthenticationResult | null> {
+export async function authenticateWithPasskey(): Promise<AuthenticationResult> {
   try {
     console.log("Starting passkey authentication...");
     
