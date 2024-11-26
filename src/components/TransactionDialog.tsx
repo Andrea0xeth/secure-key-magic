@@ -43,8 +43,8 @@ export const TransactionDialog = ({
       }
 
       console.log("Successfully authenticated, signing transaction");
-      const signedTxn = transaction.signTxn(authResult.sk);
-      onSign(signedTxn);
+      const signedTxn = algosdk.signTransaction(transaction, authResult.privateKey);
+      onSign(signedTxn.blob);
       
       toast({
         title: "Transaction Signed",
@@ -76,9 +76,9 @@ export const TransactionDialog = ({
   const txnDetails = {
     type: transaction.type,
     fee: formatAlgoAmount(transaction.fee),
-    from: transaction.from?.toString() || 'Unknown',
-    to: transaction.to?.toString() || 'Unknown',
-    amount: formatAlgoAmount(transaction.amount || 0)
+    from: algosdk.encodeAddress(transaction.from.publicKey),
+    to: transaction.to ? algosdk.encodeAddress(transaction.to.publicKey) : 'Unknown',
+    amount: formatAlgoAmount(transaction.amount)
   };
 
   return (

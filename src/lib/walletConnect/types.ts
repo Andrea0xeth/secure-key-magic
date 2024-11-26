@@ -35,3 +35,17 @@ export interface DecodedTransaction {
   type?: string;
   grp?: Uint8Array;
 }
+
+export interface TransactionParams {
+  type?: string;
+  fee: number;
+  firstRound: number;
+  lastRound: number;
+  genesisID: string;
+  genesisHash: string;
+  note?: Uint8Array;
+  group?: Uint8Array;
+  from: string;
+  to: string;
+  amount: number;
+}

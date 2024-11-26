@@ -34,22 +34,26 @@ export function handleTransactionRequest(params: any) {
       throw new Error("Sender address must not be null or undefined");
     }
 
-    // Create transaction object
-    const txn = new algosdk.Transaction({
-      from: senderAddress,
-      to: receiverAddress || senderAddress,
-      amount: (decodedTxn as any).amt || 0,
+    console.log("Creating transaction with sender:", senderAddress, "receiver:", receiverAddress);
+
+    const txnParams = {
+      type: (decodedTxn as any).type || 'pay',
       fee: (decodedTxn as any).fee || 1000,
       firstRound: (decodedTxn as any).fv || 0,
       lastRound: (decodedTxn as any).lv || 0,
-      genesisHash: (decodedTxn as any).gh || '',
       genesisID: (decodedTxn as any).gen || '',
-      type: (decodedTxn as any).type || 'pay',
+      genesisHash: (decodedTxn as any).gh || '',
       note: (decodedTxn as any).note,
       group: (decodedTxn as any).grp,
-    });
+      from: senderAddress,
+      to: receiverAddress || senderAddress,
+      amount: (decodedTxn as any).amt || 0,
+    };
 
+    console.log("Transaction parameters:", txnParams);
+    const txn = new algosdk.Transaction(txnParams);
     console.log("Created Algorand transaction object:", txn);
+    
     transactionCallback(txn);
   } catch (error) {
     console.error("Error handling transaction request:", error);
