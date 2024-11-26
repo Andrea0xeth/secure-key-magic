@@ -48,7 +48,16 @@ export const TransactionDialog = ({ isOpen, onClose, transaction, onSign }: Tran
         const txnBuffer = Buffer.from(transaction.txn, 'base64');
         const decodedTxn = algosdk.decodeUnsignedTransaction(txnBuffer);
         
-        const signedTxn = algosdk.signTransaction(decodedTxn, authResult.privateKey);
+        let privateKeyUint8 = new Uint8Array(authResult.privateKey);
+        if (privateKeyUint8.length !== 32) {
+          const tempKey = new Uint8Array(32);
+          tempKey.set(privateKeyUint8.slice(0, 32));
+          privateKeyUint8 = tempKey;
+        }
+
+        console.log("Private key length:", privateKeyUint8.length);
+        
+        const signedTxn = algosdk.signTransaction(decodedTxn, privateKeyUint8);
         
         onSign(signedTxn.blob);
         
@@ -62,7 +71,7 @@ export const TransactionDialog = ({ isOpen, onClose, transaction, onSign }: Tran
         console.error("Error decoding/signing transaction:", error);
         toast({
           title: "Signing Failed",
-          description: "Failed to process the transaction",
+          description: "Failed to process the transaction. Error: " + error.message,
           variant: "destructive",
         });
       }
