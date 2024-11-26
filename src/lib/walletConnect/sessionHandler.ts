@@ -12,19 +12,19 @@ export const handleSessionProposal = async (
   try {
     const { id, params } = proposal;
     
-    const approvalData = {
-      id,
-      namespaces: {
-        algorand: {
-          accounts: [`algorand:wGHE2Pwdvd7S12BL5FaOP20EGYesN73k:${address}`],
-          methods: ['algo_signTxn'],
-          events: ['accountsChanged']
-        }
+    const namespaces = {
+      algorand: {
+        accounts: [`algorand:wGHE2Pwdvd7S12BL5FaOP20EGYesN73k:${address}`],
+        methods: ['algo_signTxn'],
+        events: ['accountsChanged']
       }
     };
 
-    console.log("Approving session with data:", approvalData);
-    await client.approve(approvalData);
+    console.log("Approving session with namespaces:", namespaces);
+    await client.approve({
+      id,
+      namespaces
+    });
     
     toast({
       title: "Connected",
