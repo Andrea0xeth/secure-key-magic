@@ -17,11 +17,6 @@ export async function initSignClient() {
         }
       });
 
-      // Set up event listeners
-      signClient.on('session_proposal', async (proposal) => {
-        console.log('Received session proposal:', proposal);
-      });
-
       console.log("SignClient initialized successfully");
     }
     return signClient;
@@ -44,49 +39,59 @@ export async function connectWithWalletConnect(wcUrl: string, address: string): 
     if (!client) {
       throw new Error("Failed to initialize SignClient");
     }
-    
-    console.log("Attempting to pair with URI:", wcUrl);
 
-    try {
-      const { uri, approval } = await client.connect({
-        requiredNamespaces: {
-          algorand: {
-            methods: [
-              'algorand_signTransaction',
-              'algorand_signTxnGroup',
-            ],
-            chains: ['algorand:mainnet'],
-            events: ['accountsChanged']
-          }
-        },
-        pairingTopic: wcUrl.split('?')[0].split('@')[0].replace('wc:', '')
-      });
+    // First pair with the URI
+    console.log("Pairing with URI...");
+    const { uri, approval } = await client.pair({ uri: wcUrl });
 
-      console.log("Pairing with dApp...");
-      
-      const session = await approval();
-      console.log("Session established:", session);
-
-      await client.update({
-        topic: session.topic,
-        namespaces: {
-          algorand: {
-            accounts: [`algorand:mainnet:${address}`],
-            methods: [
-              'algorand_signTransaction',
-              'algorand_signTxnGroup',
-            ],
-            events: ['accountsChanged']
-          }
+    // Then connect with the required namespaces
+    console.log("Connecting with required namespaces...");
+    const connectParams = {
+      requiredNamespaces: {
+        algorand: {
+          methods: [
+            'algorand_signTransaction',
+            'algorand_signTxnGroup',
+          ],
+          chains: ['algorand:mainnet'],
+          events: ['accountsChanged']
         }
-      });
+      }
+    };
 
-      console.log("Session updated with address:", address);
-      return true;
-    } catch (approvalError) {
-      console.error("Error during session approval:", approvalError);
-      throw approvalError;
-    }
+    // Set up session proposal listener before connecting
+    client.on('session_proposal', async (proposal: SignClientTypes.EventArguments['session_proposal']) => {
+      console.log("Received session proposal:", proposal);
+      try {
+        const session = await approval();
+        console.log("Session established:", session);
+
+        await client.update({
+          topic: session.topic,
+          namespaces: {
+            algorand: {
+              accounts: [`algorand:mainnet:${address}`],
+              methods: [
+                'algorand_signTransaction',
+                'algorand_signTxnGroup',
+              ],
+              events: ['accountsChanged']
+            }
+          }
+        });
+
+        console.log("Session updated with address:", address);
+      } catch (error) {
+        console.error("Error handling session proposal:", error);
+        throw error;
+      }
+    });
+
+    // Connect with the dApp
+    await client.connect(connectParams);
+    console.log("Connection successful");
+    
+    return true;
   } catch (error) {
     console.error("Error in WalletConnect connection:", error);
     throw error;
