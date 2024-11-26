@@ -1,28 +1,13 @@
 import SignClient from '@walletconnect/sign-client';
 import type { SignClientTypes } from '@walletconnect/types';
 import { toast } from "@/hooks/use-toast";
-import * as algosdk from "algosdk";
+import { handleTransactionRequest } from './walletConnect/transactionHandler';
+import { setTransactionCallback } from './walletConnect/transactionHandler';
+import { SessionProposal } from './walletConnect/transactionTypes';
 
 let signClient: SignClient | null = null;
-let transactionCallback: ((transaction: algosdk.Transaction) => void) | null = null;
 
-interface DecodedAlgorandTransaction {
-  type?: algosdk.TransactionType;
-  snd?: Uint8Array;
-  rcv?: Uint8Array;
-  amt?: number;
-  fee?: number;
-  fv?: number;
-  lv?: number;
-  note?: Uint8Array;
-  gen?: string;
-  gh?: string;
-}
-
-export function setTransactionCallback(callback: (transaction: algosdk.Transaction) => void) {
-  transactionCallback = callback;
-  console.log("Transaction callback set");
-}
+export { setTransactionCallback };
 
 export async function initSignClient(): Promise<SignClient | null> {
   try {
@@ -44,48 +29,7 @@ export async function initSignClient(): Promise<SignClient | null> {
         const { params } = event;
         if (params.request.method === "algo_signTxn") {
           console.log("Received sign transaction request");
-          
-          try {
-            const txnParams = params.request.params[0][0];
-            console.log("Transaction params:", txnParams);
-            
-            // Decode the transaction from msgpack format
-            const decodedTxn = algosdk.decodeObj(Buffer.from(txnParams.txn, 'base64')) as DecodedAlgorandTransaction;
-            console.log("Decoded transaction:", decodedTxn);
-            
-            // Create a new transaction object with proper typing
-            const transaction = new algosdk.Transaction({
-              type: decodedTxn.type || 'pay',
-              from: decodedTxn.snd,
-              to: decodedTxn.rcv,
-              amount: decodedTxn.amt || 0,
-              fee: decodedTxn.fee || 0,
-              firstRound: decodedTxn.fv || 0,
-              lastRound: decodedTxn.lv || 0,
-              note: decodedTxn.note,
-              genesisID: decodedTxn.gen || '',
-              genesisHash: decodedTxn.gh || '',
-            });
-            
-            if (transactionCallback) {
-              console.log("Calling transaction callback with transaction:", transaction);
-              transactionCallback(transaction);
-            } else {
-              console.error("No transaction callback set");
-              toast({
-                title: "Error",
-                description: "Transaction handler not initialized",
-                variant: "destructive",
-              });
-            }
-          } catch (error) {
-            console.error("Error processing transaction:", error);
-            toast({
-              title: "Error",
-              description: "Failed to process transaction",
-              variant: "destructive",
-            });
-          }
+          handleTransactionRequest(params.request.params[0][0]);
         }
       });
       
@@ -112,64 +56,17 @@ export async function connectWithWalletConnect(wcUrl: string, address: string): 
       throw new Error("Failed to initialize SignClient");
     }
 
-    // First pair with the URI
     console.log("Pairing with URI...");
     const pairResult = await client.pair({ uri: wcUrl });
 
-    client.on('session_proposal', async (proposal: SignClientTypes.EventArguments['session_proposal']) => {
+    client.on('session_proposal', async (proposal: SessionProposal) => {
       console.log("Received session proposal:", proposal);
-      try {
-        const { params } = proposal;
-        if (params.request.method === "algo_signTxn") {
-          console.log("Received sign transaction request");
-          
-          try {
-            const txnParams = params.request.params[0][0];
-            console.log("Transaction params:", txnParams);
-            
-            const decodedTxn = algosdk.decodeObj(Buffer.from(txnParams.txn, 'base64')) as DecodedAlgorandTransaction;
-            console.log("Decoded transaction:", decodedTxn);
-            
-            const transaction = new algosdk.Transaction({
-              type: decodedTxn.type || 'pay',
-              from: decodedTxn.snd,
-              to: decodedTxn.rcv,
-              amount: decodedTxn.amt || 0,
-              fee: decodedTxn.fee || 0,
-              firstRound: decodedTxn.fv || 0,
-              lastRound: decodedTxn.lv || 0,
-              note: decodedTxn.note,
-              genesisID: decodedTxn.gen || '',
-              genesisHash: decodedTxn.gh || '',
-            });
-            
-            if (transactionCallback) {
-              console.log("Calling transaction callback with transaction:", transaction);
-              transactionCallback(transaction);
-            } else {
-              console.error("No transaction callback set");
-              toast({
-                title: "Error",
-                description: "Transaction handler not initialized",
-                variant: "destructive",
-              });
-            }
-          } catch (error) {
-            console.error("Error processing transaction:", error);
-            toast({
-              title: "Error",
-              description: "Failed to process transaction",
-              variant: "destructive",
-            });
-          }
-        }
-      } catch (error) {
-        console.error("Error handling session proposal:", error);
-        throw error;
+      if (proposal.params.request.method === "algo_signTxn") {
+        console.log("Received sign transaction request");
+        handleTransactionRequest(proposal.params.request.params[0][0]);
       }
     });
 
-    // Connect with the dApp using the same required namespaces from the proposal
     const connectResult = await client.connect({
       pairingTopic: wcUrl.split('@')[0].substring(3),
       requiredNamespaces: {

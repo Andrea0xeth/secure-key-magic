@@ -1,10 +1,10 @@
 import * as algosdk from "algosdk";
 import { toast } from "@/hooks/use-toast";
-import { DecodedAlgorandTransaction, TransactionCallback } from "./types";
+import { DecodedAlgorandTransaction } from "./transactionTypes";
 
-let transactionCallback: TransactionCallback | null = null;
+let transactionCallback: ((transaction: algosdk.Transaction) => void) | null = null;
 
-export function setTransactionCallback(callback: TransactionCallback) {
+export function setTransactionCallback(callback: (transaction: algosdk.Transaction) => void) {
   transactionCallback = callback;
   console.log("Transaction callback set");
 }
@@ -16,18 +16,23 @@ export function handleTransactionRequest(txnParams: any) {
     const decodedTxn = algosdk.decodeObj(new Uint8Array(Buffer.from(txnParams.txn, 'base64'))) as DecodedAlgorandTransaction;
     console.log("Decoded transaction:", decodedTxn);
     
-    const transaction = new algosdk.Transaction({
-      type: decodedTxn.type || "pay",
-      from: algosdk.encodeAddress(decodedTxn.snd || new Uint8Array(32)),
-      to: algosdk.encodeAddress(decodedTxn.rcv || new Uint8Array(32)),
-      amount: decodedTxn.amt || 0,
+    // Create suggested params from decoded transaction
+    const suggestedParams: algosdk.SuggestedParams = {
       fee: decodedTxn.fee || 0,
       firstRound: decodedTxn.fv || 0,
       lastRound: decodedTxn.lv || 0,
-      note: decodedTxn.note,
       genesisID: decodedTxn.gen || '',
       genesisHash: decodedTxn.gh || '',
-    } as algosdk.TransactionParams);
+      flatFee: true,
+    };
+
+    // Create transaction with proper types
+    const transaction = new algosdk.Transaction({
+      from: algosdk.encodeAddress(decodedTxn.snd || new Uint8Array(32)),
+      to: algosdk.encodeAddress(decodedTxn.rcv || new Uint8Array(32)),
+      amount: decodedTxn.amt || 0,
+      suggestedParams: suggestedParams,
+    });
     
     if (transactionCallback) {
       console.log("Calling transaction callback with transaction:", transaction);
