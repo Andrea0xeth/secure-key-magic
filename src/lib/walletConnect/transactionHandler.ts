@@ -4,6 +4,7 @@ import { TransactionCallback } from "./types";
 let transactionCallback: TransactionCallback | null = null;
 
 export function setTransactionCallback(callback: TransactionCallback) {
+  console.log("Setting transaction callback");
   transactionCallback = callback;
 }
 
@@ -27,15 +28,13 @@ export function handleTransactionRequest(params: any) {
       algosdk.encodeAddress((decodedTxn as any).snd) : 
       null;
 
-    const receiverAddr = (decodedTxn as any).rcv ? 
-      algosdk.encodeAddress((decodedTxn as any).rcv) : 
-      null;
-
-    if (!senderAddr || !receiverAddr) {
-      throw new Error("Sender and receiver addresses are required");
+    if (!senderAddr) {
+      throw new Error("Sender address must not be null or undefined");
     }
 
-    console.log("Creating transaction with sender:", senderAddr, "receiver:", receiverAddr);
+    const receiverAddr = (decodedTxn as any).rcv ? 
+      algosdk.encodeAddress((decodedTxn as any).rcv) : 
+      senderAddr;
 
     const suggestedParams: algosdk.SuggestedParams = {
       fee: (decodedTxn as any).fee || 1000,
@@ -46,14 +45,13 @@ export function handleTransactionRequest(params: any) {
       flatFee: true
     };
 
-    const txn = algosdk.makePaymentTxnWithSuggestedParams(
-      senderAddr,
-      receiverAddr,
-      (decodedTxn as any).amt || 0,
-      undefined,
-      (decodedTxn as any).note ? new Uint8Array(Buffer.from((decodedTxn as any).note)) : undefined,
-      suggestedParams
-    );
+    const txn = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
+      from: senderAddr,
+      to: receiverAddr,
+      amount: (decodedTxn as any).amt || 0,
+      suggestedParams: suggestedParams,
+      note: (decodedTxn as any).note ? new Uint8Array(Buffer.from((decodedTxn as any).note)) : undefined
+    });
 
     console.log("Created Algorand transaction object:", txn);
     transactionCallback(txn);

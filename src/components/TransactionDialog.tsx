@@ -70,8 +70,8 @@ export const TransactionDialog = ({ isOpen, onClose, transaction, onSign }: Tran
   const txnDetails = {
     type: "Payment",
     fee: formatAlgoAmount(transaction.fee),
-    from: algosdk.encodeAddress(transaction.from),
-    to: algosdk.encodeAddress(transaction.to),
+    from: algosdk.encodeAddress(transaction.from.publicKey),
+    to: algosdk.encodeAddress(transaction.to.publicKey),
     amount: formatAlgoAmount(transaction.amount)
   };
 

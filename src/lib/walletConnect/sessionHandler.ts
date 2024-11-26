@@ -40,14 +40,13 @@ export function setupSessionHandlers(client: SignClientType, callback: Transacti
           flatFee: true
         };
 
-        const txn = algosdk.makePaymentTxnWithSuggestedParams(
-          senderAddr,
-          receiverAddr,
-          (decodedTxn as any).amt || 0,
-          undefined,
-          (decodedTxn as any).note ? new Uint8Array(Buffer.from((decodedTxn as any).note)) : undefined,
-          suggestedParams
-        );
+        const txn = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
+          from: senderAddr,
+          to: receiverAddr,
+          amount: (decodedTxn as any).amt || 0,
+          suggestedParams: suggestedParams,
+          note: (decodedTxn as any).note ? new Uint8Array(Buffer.from((decodedTxn as any).note)) : undefined
+        });
         
         console.log("Created Algorand transaction object:", txn);
         callback(txn);
