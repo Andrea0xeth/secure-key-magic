@@ -1,6 +1,8 @@
 import { initSignClient } from './client';
+import { handleSessionProposal } from './sessionHandler';
+import { handleTransactionRequest } from './transactionHandler';
+import type { TransactionCallback } from './types';
 import { toast } from "@/hooks/use-toast";
-import * as algosdk from "algosdk";
 
 export async function connectWithWalletConnect(wcUrl: string, address: string): Promise<boolean> {
   try {
@@ -10,34 +12,28 @@ export async function connectWithWalletConnect(wcUrl: string, address: string): 
       throw new Error("Invalid WalletConnect URL format");
     }
 
-    const client = await initSignClient();
-    if (!client) {
-      throw new Error("Failed to initialize SignClient");
-    }
-
-    // Configure client to skip verification
-    (client as any).core.verify = {
-      register: async () => true,
-      resolve: async () => ({ attestationId: 'mock', verifyUrl: '' }),
-    };
-
-    // Connect with required namespaces before pairing
-    const requiredNamespaces = {
-      algorand: {
-        methods: ['algo_signTxn'],
-        chains: ['algorand:wGHE2Pwdvd7S12BL5FaOP20EGYesN73k'],
-        events: ['accountsChanged']
+    const client = await initSignClient({
+      projectId: import.meta.env.VITE_WALLET_CONNECT_PROJECT_ID,
+      metadata: {
+        name: 'Algorand Passkeys',
+        description: 'Secure Algorand authentication using passkeys',
+        url: window.location.host,
+        icons: ['https://walletconnect.com/walletconnect-logo.png']
       }
-    };
+    });
 
+    // Set up event listeners
+    client.on("session_proposal", async (proposal) => {
+      try {
+        await handleSessionProposal(client, proposal, address);
+      } catch (error) {
+        console.error("Error handling session proposal:", error);
+      }
+    });
+
+    // Pair with the URI
     console.log("Pairing with URI...");
     await client.pair({ uri: wcUrl });
-
-    // Establish session with required namespaces
-    await client.connect({
-      requiredNamespaces,
-      pairingTopic: wcUrl.split('@')[0].substring(3)
-    });
 
     console.log("Connection successful");
     return true;
@@ -54,11 +50,15 @@ export async function connectWithWalletConnect(wcUrl: string, address: string): 
 
 export async function disconnectWalletConnect(): Promise<boolean> {
   try {
-    const client = await initSignClient();
-    if (!client) {
-      console.log("No active SignClient found");
-      return false;
-    }
+    const client = await initSignClient({
+      projectId: import.meta.env.VITE_WALLET_CONNECT_PROJECT_ID,
+      metadata: {
+        name: 'Algorand Passkeys',
+        description: 'Secure Algorand authentication using passkeys',
+        url: window.location.host,
+        icons: ['https://walletconnect.com/walletconnect-logo.png']
+      }
+    });
 
     const sessions = client.session.values;
     for (const session of sessions) {

@@ -54,8 +54,6 @@ export const TransactionDialog = ({ isOpen, onClose, transaction, onSign }: Tran
     }
   };
 
-  if (!transaction) return null;
-
   const formatAlgoAmount = (microAlgos: number | bigint): string => {
     const amount = typeof microAlgos === 'bigint' ? Number(microAlgos) : microAlgos;
     return (amount / 1_000_000).toFixed(6);
@@ -63,10 +61,10 @@ export const TransactionDialog = ({ isOpen, onClose, transaction, onSign }: Tran
 
   const txnDetails = {
     type: transaction.type,
-    from: algosdk.encodeAddress(transaction.get_obj_for_encoding().snd),
-    to: transaction.get_obj_for_encoding().rcv ? algosdk.encodeAddress(transaction.get_obj_for_encoding().rcv) : '',
-    amount: formatAlgoAmount(transaction.get_obj_for_encoding().amt || 0),
-    fee: formatAlgoAmount(transaction.get_obj_for_encoding().fee || 0),
+    from: algosdk.encodeAddress(transaction.from.publicKey),
+    to: transaction.to ? algosdk.encodeAddress(transaction.to.publicKey) : '',
+    amount: formatAlgoAmount(transaction.amount || BigInt(0)),
+    fee: formatAlgoAmount(transaction.fee || 0),
     group: transaction.group ? Buffer.from(transaction.group).toString('base64') : undefined
   };
 

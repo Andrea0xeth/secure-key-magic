@@ -4,13 +4,13 @@ import * as algosdk from "algosdk";
 export type SessionProposalEvent = SignClientTypes.EventArguments['session_proposal'];
 
 export interface TransactionParams {
-  type?: algosdk.TransactionType;
-  snd?: Uint8Array;
-  rcv?: Uint8Array;
-  amt?: number;
-  fee?: number;
-  fv?: number;
-  lv?: number;
+  type: algosdk.TransactionType;
+  snd: Uint8Array;
+  rcv: Uint8Array;
+  amt: number | bigint;
+  fee: number;
+  fv: number;
+  lv: number;
   note?: Uint8Array;
   gen?: string;
   gh?: string;
@@ -25,5 +25,15 @@ export interface WalletConnectSession {
       name: string;
       url?: string;
     };
+  };
+}
+
+export interface WalletConnectConfig {
+  projectId: string;
+  metadata: {
+    name: string;
+    description: string;
+    url: string;
+    icons: string[];
   };
 }

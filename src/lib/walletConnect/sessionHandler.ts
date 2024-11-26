@@ -4,25 +4,23 @@ import type { SessionProposalEvent } from './types';
 
 export async function handleSessionProposal(
   client: SignClient,
-  proposal: SessionProposalEvent
-): Promise<boolean> {
+  proposal: SessionProposalEvent,
+  address: string
+): Promise<void> {
   console.log("Processing session proposal:", proposal);
 
   try {
     const { id, params } = proposal;
     
-    // Define the required namespaces
     const namespaces = {
       algorand: {
-        accounts: [`algorand:wGHE2Pwdvd7S12BL5FaOP20EGYesN73k:${params.proposer.metadata.url || ''}`],
+        accounts: [`algorand:wGHE2Pwdvd7S12BL5FaOP20EGYesN73k:${address}`],
         methods: ['algo_signTxn'],
         events: ['accountsChanged'],
         chains: ['algorand:wGHE2Pwdvd7S12BL5FaOP20EGYesN73k']
       }
     };
 
-    console.log("Approving session with namespaces:", namespaces);
-    
     await client.approve({
       id,
       namespaces
@@ -32,8 +30,6 @@ export async function handleSessionProposal(
       title: "Connected",
       description: "Successfully connected to dApp",
     });
-
-    return true;
   } catch (error) {
     console.error("Error in session proposal handling:", error);
     toast({
@@ -41,6 +37,6 @@ export async function handleSessionProposal(
       description: "Failed to establish connection with dApp",
       variant: "destructive",
     });
-    return false;
+    throw error;
   }
 }

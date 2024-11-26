@@ -1,31 +1,24 @@
 import * as algosdk from "algosdk";
 import { toast } from "@/hooks/use-toast";
-import type { TransactionCallback, TransactionParams } from "./types";
+import type { TransactionCallback } from "./types";
 
 export const handleTransactionRequest = async (
   txnParams: { txn: string }, 
   callback: TransactionCallback
 ) => {
   try {
-    console.log("Transaction params:", txnParams);
+    console.log("Processing transaction params:", txnParams);
     
-    const decodedTxn = algosdk.decodeObj(Buffer.from(txnParams.txn, 'base64')) as TransactionParams;
-    console.log("Decoded transaction:", decodedTxn);
+    const txnBuffer = Buffer.from(txnParams.txn, 'base64');
+    const transaction = algosdk.decodeSignedTransaction(txnBuffer).txn;
     
-    const transaction = new algosdk.Transaction({
-      type: decodedTxn.type as algosdk.TransactionType,
-      from: decodedTxn.snd ? algosdk.encodeAddress(decodedTxn.snd) : '',
-      to: decodedTxn.rcv ? algosdk.encodeAddress(decodedTxn.rcv) : '',
-      amount: decodedTxn.amt || 0,
-      fee: decodedTxn.fee || 0,
-      firstRound: decodedTxn.fv || 0,
-      lastRound: decodedTxn.lv || 0,
-      note: decodedTxn.note,
-      genesisID: decodedTxn.gen || '',
-      genesisHash: decodedTxn.gh || '',
-    });
+    console.log("Decoded transaction:", transaction);
     
-    callback(transaction);
+    if (callback) {
+      callback(transaction);
+    } else {
+      throw new Error("No transaction callback set");
+    }
   } catch (error) {
     console.error("Error processing transaction:", error);
     toast({
@@ -33,5 +26,6 @@ export const handleTransactionRequest = async (
       description: "Failed to process transaction",
       variant: "destructive",
     });
+    throw error;
   }
 };
