@@ -1,10 +1,10 @@
 import { toast } from "@/hooks/use-toast";
 import SignClient from '@walletconnect/sign-client';
-import type { SessionProposalEvent } from "./types";
+import type { SessionProposal } from "./types";
 
 export const handleSessionProposal = async (
   client: SignClient,
-  proposal: SessionProposalEvent,
+  proposal: SessionProposal,
   address: string
 ) => {
   console.log("Handling session proposal:", proposal);
@@ -12,7 +12,6 @@ export const handleSessionProposal = async (
   try {
     const { id, params } = proposal;
     
-    // Validate proposal structure and required namespaces
     if (!params?.requiredNamespaces?.algorand) {
       console.error("Invalid proposal structure or missing algorand namespace:", params);
       throw new Error("Invalid session proposal format");
