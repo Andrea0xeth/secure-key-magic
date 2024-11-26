@@ -1,15 +1,5 @@
 import { initSignClient } from './client';
 import { toast } from "@/hooks/use-toast";
-import { handleTransactionRequest } from './transactionHandler';
-import type { TransactionCallback, SessionProposalEvent } from './types';
-import type { SignClientTypes } from '@walletconnect/types';
-
-let transactionCallback: TransactionCallback | null = null;
-
-export function setTransactionCallback(callback: TransactionCallback) {
-  transactionCallback = callback;
-  console.log("Transaction callback set");
-}
 
 export async function connectWithWalletConnect(wcUrl: string, address: string): Promise<boolean> {
   try {
@@ -25,41 +15,6 @@ export async function connectWithWalletConnect(wcUrl: string, address: string): 
     const pairings = await client.pair({ uri: wcUrl });
     const topic = pairings.topic;
 
-    // Set up session proposal handler
-    client.on('session_proposal', async (event: SignClientTypes.EventArguments['session_proposal']) => {
-      try {
-        console.log("Received session proposal:", event);
-        
-        await client.approve({
-          id: event.id,
-          namespaces: {
-            algorand: {
-              accounts: [`algorand:wGHE2Pwdvd7S12BL5FaOP20EGYesN73k:${address}`],
-              methods: ['algo_signTxn'],
-              events: ['accountsChanged'],
-              chains: ['algorand:wGHE2Pwdvd7S12BL5FaOP20EGYesN73k']
-            }
-          }
-        });
-
-        if (event.params.request?.method === 'algo_signTxn' && transactionCallback) {
-          const txnParams = event.params.request.params?.[0]?.[0];
-          if (txnParams) {
-            await handleTransactionRequest(txnParams, transactionCallback);
-          }
-        }
-      } catch (error) {
-        console.error("Error handling session proposal:", error);
-        toast({
-          title: "Connection Error",
-          description: "Failed to establish connection with dApp",
-          variant: "destructive",
-        });
-        throw error;
-      }
-    });
-
-    // Connect with the dApp
     await client.connect({
       pairingTopic: topic,
       requiredNamespaces: {

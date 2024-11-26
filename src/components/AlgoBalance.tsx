@@ -5,7 +5,6 @@ interface AlgoBalanceProps {
   address: string;
 }
 
-// Updated interface to match actual API response
 interface AlgorandAccount {
   address: string;
   amount: bigint;
@@ -29,13 +28,11 @@ export const AlgoBalance = ({ address }: AlgoBalanceProps) => {
         const accountInfo = (await algodClient.accountInformation(address).do()) as unknown as AlgorandAccount;
         console.log("Account info received:", accountInfo);
         
-        // Convert amountWithoutPendingRewards from bigint to number and then to Algos
         if (typeof accountInfo.amountWithoutPendingRewards === 'undefined') {
           console.error("Invalid amount received:", accountInfo.amountWithoutPendingRewards);
           return 0;
         }
         
-        // Convert microAlgos to Algos (divide by 1,000,000)
         const algoBalance = Number(accountInfo.amountWithoutPendingRewards) / 1_000_000;
         console.log("Calculated ALGO balance:", algoBalance);
         return algoBalance;
@@ -44,7 +41,7 @@ export const AlgoBalance = ({ address }: AlgoBalanceProps) => {
         return 0;
       }
     },
-    refetchInterval: 10000, // Refresh every 10 seconds
+    refetchInterval: 10000,
   });
 
   if (isLoading) {
