@@ -38,12 +38,10 @@ export async function connectWithWalletConnect(wcUrl: string, address: string): 
       throw new Error("Failed to initialize SignClient");
     }
     
-    // Parse the URI and remove query parameters that might cause issues
-    const uri = wcUrl.split('?')[0];
-    console.log("Attempting to pair with URI:", uri);
+    console.log("Attempting to pair with URI:", wcUrl);
 
     try {
-      const { approval } = await client.pair({ uri });
+      const { approval } = await client.pair({ uri: wcUrl });
       console.log("Pairing with dApp...");
       
       const session = await approval();
