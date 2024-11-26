@@ -3,7 +3,7 @@ import type { SignClientTypes } from '@walletconnect/types';
 
 let signClient: SignClient | null = null;
 
-export async function initSignClient(): Promise<typeof SignClient | null> {
+export async function initSignClient(): Promise<SignClient | null> {
   try {
     if (!signClient) {
       console.log("Initializing SignClient...");
@@ -46,7 +46,38 @@ export async function connectWithWalletConnect(wcUrl: string, address: string): 
 
     // Then connect with the required namespaces
     console.log("Connecting with required namespaces...");
-    const connectParams = {
+    const namespaces = {
+      algorand: {
+        methods: [
+          'algorand_signTransaction',
+          'algorand_signTxnGroup',
+        ],
+        chains: ['algorand:mainnet'],
+        events: ['accountsChanged'],
+        accounts: [`algorand:mainnet:${address}`]
+      }
+    };
+
+    // Set up session proposal listener before connecting
+    client.on('session_proposal', async (proposal: SignClientTypes.EventArguments['session_proposal']) => {
+      console.log("Received session proposal:", proposal);
+      try {
+        const { acknowledged } = await client.approve({
+          id: proposal.id,
+          namespaces
+        });
+        
+        await acknowledged();
+        console.log("Session approved and acknowledged");
+      } catch (error) {
+        console.error("Error handling session proposal:", error);
+        throw error;
+      }
+    });
+
+    // Connect with the dApp
+    await client.connect({
+      pairingTopic: wcUrl.split('@')[0].substring(3),
       requiredNamespaces: {
         algorand: {
           methods: [
@@ -57,40 +88,9 @@ export async function connectWithWalletConnect(wcUrl: string, address: string): 
           events: ['accountsChanged']
         }
       }
-    };
-
-    // Set up session proposal listener before connecting
-    client.on('session_proposal', async (proposal: SignClientTypes.EventArguments['session_proposal']) => {
-      console.log("Received session proposal:", proposal);
-      try {
-        const session = await approval();
-        console.log("Session established:", session);
-
-        await client.update({
-          topic: session.topic,
-          namespaces: {
-            algorand: {
-              accounts: [`algorand:mainnet:${address}`],
-              methods: [
-                'algorand_signTransaction',
-                'algorand_signTxnGroup',
-              ],
-              events: ['accountsChanged']
-            }
-          }
-        });
-
-        console.log("Session updated with address:", address);
-      } catch (error) {
-        console.error("Error handling session proposal:", error);
-        throw error;
-      }
     });
-
-    // Connect with the dApp
-    await client.connect(connectParams);
-    console.log("Connection successful");
     
+    console.log("Connection successful");
     return true;
   } catch (error) {
     console.error("Error in WalletConnect connection:", error);
