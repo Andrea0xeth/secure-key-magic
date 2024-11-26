@@ -1,9 +1,9 @@
-import { SignClient } from '@walletconnect/sign-client';
+import SignClient from '@walletconnect/sign-client';
 import type { SignClientTypes } from '@walletconnect/types';
 
 let signClient: SignClient | null = null;
 
-export async function initSignClient(): Promise<typeof SignClient | null> {
+export async function initSignClient(): Promise<SignClient | null> {
   try {
     if (!signClient) {
       console.log("Initializing SignClient...");
@@ -84,11 +84,8 @@ export async function connectWithWalletConnect(wcUrl: string, address: string): 
       pairingTopic: wcUrl.split('@')[0].substring(3),
       requiredNamespaces: {
         algorand: {
-          methods: [
-            'algorand_signTransaction',
-            'algorand_signTxnGroup',
-          ],
-          chains: ['algorand:mainnet'],
+          methods: ['algo_signTxn'],
+          chains: ['algorand:wGHE2Pwdvd7S12BL5FaOP20EGYesN73k'],
           events: ['accountsChanged']
         }
       }
