@@ -1,20 +1,27 @@
 import { toast } from "@/hooks/use-toast";
 import * as algosdk from "algosdk";
 import { connectWithWalletConnect } from "./walletConnect";
+import { deriveAlgorandSeedFromCredential } from "./crypto/seedDerivation";
+import { storeAlgorandKey, getStoredAlgorandKey } from "./storage/keyStorage";
 
-const STORAGE_KEY = 'algorand_private_key';
-
-const getOrCreateAlgorandAccount = (): algosdk.Account => {
+const getOrCreateAlgorandAccount = async (credential?: PublicKeyCredential): Promise<algosdk.Account> => {
   try {
-    const storedKey = localStorage.getItem(STORAGE_KEY);
+    const storedKey = getStoredAlgorandKey();
     if (storedKey) {
       console.log("Using existing Algorand account");
       return algosdk.mnemonicToSecretKey(storedKey);
     }
 
+    if (credential) {
+      console.log("Deriving new Algorand account from passkey");
+      const seed = await deriveAlgorandSeedFromCredential(credential);
+      storeAlgorandKey(seed);
+      return algosdk.mnemonicToSecretKey(seed);
+    }
+
     console.log("Generating new Algorand account");
     const account = algosdk.generateAccount();
-    localStorage.setItem(STORAGE_KEY, algosdk.secretKeyToMnemonic(account.sk));
+    storeAlgorandKey(algosdk.secretKeyToMnemonic(account.sk));
     return account;
   } catch (error) {
     console.error("Error managing Algorand account:", error);
@@ -36,7 +43,7 @@ export const exportPrivateKey = async (): Promise<string | null> => {
 
     const assertion = await navigator.credentials.get({
       publicKey: getCredentialOptions
-    });
+    }) as PublicKeyCredential;
 
     if (!assertion) {
       toast({
@@ -47,7 +54,7 @@ export const exportPrivateKey = async (): Promise<string | null> => {
       return null;
     }
 
-    const storedKey = localStorage.getItem(STORAGE_KEY);
+    const storedKey = getStoredAlgorandKey();
     if (!storedKey) {
       throw new Error("No private key found");
     }
@@ -135,7 +142,7 @@ export const registerPasskey = async (): Promise<AuthenticationResult | null> =>
 
     console.log("Credential created successfully:", credential);
 
-    const account = getOrCreateAlgorandAccount();
+    const account = await getOrCreateAlgorandAccount(credential);
     console.log("Using Algorand address:", account.addr);
 
     return {
@@ -167,9 +174,9 @@ export const authenticateWithPasskey = async (): Promise<AuthenticationResult | 
 
     const assertion = await navigator.credentials.get({
       publicKey: getCredentialOptions
-    });
+    }) as PublicKeyCredential;
 
-    const account = getOrCreateAlgorandAccount();
+    const account = await getOrCreateAlgorandAccount(assertion);
     console.log("Authenticated with Algorand address:", account.addr);
 
     return {

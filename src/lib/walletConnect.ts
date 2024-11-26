@@ -3,7 +3,7 @@ import type { SignClientTypes } from '@walletconnect/types';
 
 let signClient: SignClient | null = null;
 
-export async function initSignClient() {
+export async function initSignClient(): Promise<typeof SignClient | null> {
   try {
     if (!signClient) {
       console.log("Initializing SignClient...");
