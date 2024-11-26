@@ -76,8 +76,8 @@ export const TransactionDialog = ({
   const txnDetails = {
     type: "Payment",
     fee: formatAlgoAmount(transaction.fee),
-    from: transaction.from,
-    to: transaction.to,
+    from: algosdk.encodeAddress(transaction.from.publicKey),
+    to: algosdk.encodeAddress(transaction.to.publicKey),
     amount: formatAlgoAmount(transaction.amount)
   };
 
