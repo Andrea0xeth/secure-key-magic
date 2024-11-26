@@ -38,5 +38,11 @@ export interface SessionProposal {
         events: string[];
       };
     };
+    verifyContext: {
+      verified: {
+        verifyUrl: string;
+        validation: string;
+      };
+    };
   };
 }
