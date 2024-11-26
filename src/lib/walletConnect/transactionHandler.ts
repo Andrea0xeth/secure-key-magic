@@ -1,7 +1,7 @@
 import * as algosdk from "algosdk";
 import { Buffer } from 'buffer';
 import { toast } from "@/hooks/use-toast";
-import type { DecodedAlgorandTransaction } from "./types";
+import type { DecodedAlgorandTransaction, TransactionParams } from "./types";
 
 export const handleTransactionRequest = (
   txnParams: any, 
@@ -13,19 +13,20 @@ export const handleTransactionRequest = (
     const decodedTxn = algosdk.decodeObj(Buffer.from(txnParams.txn, 'base64')) as DecodedAlgorandTransaction;
     console.log("Decoded transaction:", decodedTxn);
     
-    const transaction = new algosdk.Transaction({
-      type: decodedTxn.type || "pay",
-      from: decodedTxn.snd,
-      to: decodedTxn.rcv,
-      amount: decodedTxn.amt || 0,
+    const params: TransactionParams = {
+      type: decodedTxn.type || 'pay',
+      snd: decodedTxn.snd,
+      rcv: decodedTxn.rcv,
+      amt: decodedTxn.amt ? Number(decodedTxn.amt) : 0,
       fee: decodedTxn.fee || 0,
-      firstRound: decodedTxn.fv || 0,
-      lastRound: decodedTxn.lv || 0,
+      fv: decodedTxn.fv || 0,
+      lv: decodedTxn.lv || 0,
       note: decodedTxn.note,
-      genesisID: decodedTxn.gen || '',
-      genesisHash: decodedTxn.gh || '',
-    });
+      gen: decodedTxn.gen || '',
+      gh: decodedTxn.gh || '',
+    };
     
+    const transaction = new algosdk.Transaction(params);
     callback(transaction);
   } catch (error) {
     console.error("Error processing transaction:", error);
