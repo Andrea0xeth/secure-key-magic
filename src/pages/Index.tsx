@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Shield, Scan, Clipboard } from "lucide-react";
-import { authenticateWithPasskey, registerPasskey } from "@/lib/webauthn";
+import { authenticateWithPasskey, registerPasskey, AuthenticationResult } from "@/lib/webauthn";
 import { connectWithWalletConnect } from "@/lib/walletConnect/connection";
 import { ConnectedAppsList } from "@/components/ConnectedAppsList";
 import { AlgoBalance } from "@/components/AlgoBalance";
@@ -13,9 +13,10 @@ import { toast } from "@/hooks/use-toast";
 import { TransactionSigningDialog } from "@/components/TransactionSigningDialog";
 import * as algosdk from "algosdk";
 import { setTransactionCallback } from "@/lib/walletConnect/transactionHandler";
+import { PasskeySection } from "@/components/PasskeySection";
 
 const Index = () => {
-  const [authResult, setAuthResult] = useState<{ address: string } | null>(null);
+  const [authResult, setAuthResult] = useState<AuthenticationResult | null>(null);
   const [wcUrl, setWcUrl] = useState<string>("");
   const { theme, setTheme } = useTheme();
   const [currentTransaction, setCurrentTransaction] = useState<algosdk.Transaction | null>(null);
@@ -28,11 +29,23 @@ const Index = () => {
       console.log("Passkey authentication successful:", result);
       setAuthResult(result);
       
-      // Set up transaction handling
       setTransactionCallback((transaction: algosdk.Transaction) => {
         console.log("Received transaction to sign:", transaction);
         setCurrentTransaction(transaction);
         setIsTransactionDialogOpen(true);
+      });
+    }
+  };
+
+  const handleRegister = async () => {
+    console.log("Starting passkey registration...");
+    const result = await registerPasskey();
+    if (result) {
+      console.log("Passkey registration successful:", result);
+      setAuthResult(result);
+      toast({
+        title: "Registration Successful",
+        description: "Your passkey has been registered successfully.",
       });
     }
   };
@@ -68,14 +81,11 @@ const Index = () => {
 
   const handleSignedTransaction = (signedTxn: Uint8Array) => {
     console.log("Transaction signed:", signedTxn);
-    // Here you would normally send the signed transaction back to the dApp
     toast({
       title: "Transaction Signed",
       description: "The transaction has been signed successfully",
     });
   };
-
-  // ... keep existing code (UI rendering)
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-gray-100 dark:from-artence-navy dark:to-gray-900 transition-colors duration-300">
@@ -102,17 +112,13 @@ const Index = () => {
         </div>
 
         <Card className="p-4 sm:p-6 shadow-lg border-2 border-opacity-50 backdrop-blur-sm bg-white/90 dark:bg-artence-navy/90 dark:border-gray-700 transition-colors duration-300">
-          {!authResult ? (
-            <div className="text-center">
-              <Button
-                onClick={handleAuthenticate}
-                className="w-full sm:w-auto bg-artence-purple hover:bg-primary text-white transition-colors duration-300"
-              >
-                <Shield className="mr-2 h-4 w-4" />
-                Authenticate with Passkey
-              </Button>
-            </div>
-          ) : (
+          <PasskeySection 
+            authResult={authResult}
+            onRegister={handleRegister}
+            onAuthenticate={handleAuthenticate}
+          />
+
+          {authResult && (
             <div className="space-y-6">
               <div className="text-center">
                 <div className="flex justify-center">
@@ -155,9 +161,6 @@ const Index = () => {
                     </Button>
                   </div>
                   <div className="flex gap-2">
-                    {/* Temporarily commented out QR Scanner
-                    <QRScanner onResult={setWcUrl} />
-                    */}
                     <Button
                       onClick={handleWalletConnectUrl}
                       className="w-full sm:w-auto bg-artence-purple hover:bg-primary text-white transition-colors duration-300"

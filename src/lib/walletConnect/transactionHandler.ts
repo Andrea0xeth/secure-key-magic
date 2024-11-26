@@ -4,21 +4,24 @@ import { SignClientTypes } from "@walletconnect/types";
 let transactionCallback: ((transaction: algosdk.Transaction) => void) | null = null;
 
 export function setTransactionCallback(callback: (transaction: algosdk.Transaction) => void) {
+  console.log("Setting transaction callback");
   transactionCallback = callback;
-  console.log("Transaction callback set");
 }
 
-export async function handleTransactionRequest(
-  requestEvent: SignClientTypes.EventArguments["session_request"]
-): Promise<algosdk.Transaction[]> {
+export function clearTransactionCallback() {
+  console.log("Clearing transaction callback");
+  transactionCallback = null;
+}
+
+export async function handleTransactionRequest(params: SignClientTypes.EventArguments["session_request"]) {
+  console.log("Handling transaction request:", params);
+  
+  if (!transactionCallback) {
+    console.error("No transaction callback set");
+    throw new Error("No transaction callback set");
+  }
+
   try {
-    console.log("Processing transaction request:", requestEvent);
-
-    const { params } = requestEvent;
-    if (!params) {
-      throw new Error("No parameters provided in transaction request");
-    }
-
     const txns = params.request.params.map((txnParams: any) => {
       console.log("Processing transaction parameters:", txnParams);
       
@@ -30,26 +33,22 @@ export async function handleTransactionRequest(
         genesisHash: txnParams.genesisHash,
       } as algosdk.SuggestedParams;
 
-      const txn = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
+      const txn = new algosdk.Transaction({
         from: txnParams.sender,
         to: txnParams.receiver,
         amount: txnParams.amount,
-        note: undefined,
-        suggestedParams: suggestedParams
+        ...suggestedParams
       });
 
       console.log("Created transaction:", txn);
-      
-      if (transactionCallback) {
-        transactionCallback(txn);
-      }
-      
       return txn;
     });
 
-    return txns;
+    console.log("Calling transaction callback with transaction:", txns[0]);
+    transactionCallback(txns[0]);
+
   } catch (error) {
-    console.error("Error processing transaction request:", error);
+    console.error("Error processing transaction:", error);
     throw error;
   }
 }
