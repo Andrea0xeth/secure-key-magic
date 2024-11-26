@@ -21,6 +21,9 @@ export async function connectWithWalletConnect(wcUrl: string, address: string): 
     const client = await initSignClient();
     console.log("Attempting to pair with URI...");
     
+    // Disconnect any existing sessions before creating a new one
+    await disconnectWalletConnect();
+    
     if (transactionCallback) {
       setupSessionHandlers(client, transactionCallback);
     }
@@ -90,9 +93,15 @@ export async function disconnectWalletConnect(): Promise<boolean> {
       });
     }
 
+    // Clear the stored session data
+    localStorage.removeItem('wc@2:client:0.3//session');
+    localStorage.removeItem('wc@2:core:0.3//pairing');
+    localStorage.removeItem('wc@2:core:0.3//expirer');
+    localStorage.removeItem('wc@2:core:0.3//history');
+    
     toast({
       title: "Disconnected",
-      description: "Successfully disconnected from all dApps",
+      description: "Successfully disconnected from dApp",
     });
     return true;
   } catch (error) {

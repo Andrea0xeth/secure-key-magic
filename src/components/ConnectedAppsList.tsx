@@ -13,15 +13,17 @@ interface ConnectedApp {
 export const ConnectedAppsList = () => {
   const { toast } = useToast();
 
-  const { data: connectedApps = [], refetch } = useQuery({
+  const { data: connectedApp, refetch } = useQuery({
     queryKey: ['connectedApps'],
     queryFn: async () => {
       const client = await initSignClient();
       const sessions = client.session.values;
-      return sessions.map(session => ({
-        name: session.peer.metadata.name,
-        topic: session.topic
-      }));
+      // Only return the most recent session if it exists
+      const latestSession = sessions[sessions.length - 1];
+      return latestSession ? {
+        name: latestSession.peer.metadata.name,
+        topic: latestSession.topic
+      } : null;
     },
     refetchInterval: 5000,
   });
@@ -30,12 +32,21 @@ export const ConnectedAppsList = () => {
     try {
       await disconnectWalletConnect();
       refetch();
+      toast({
+        title: "Disconnected",
+        description: "Successfully disconnected from dApp",
+      });
     } catch (error) {
       console.error("Error disconnecting:", error);
+      toast({
+        title: "Error",
+        description: "Failed to disconnect from dApp",
+        variant: "destructive",
+      });
     }
   };
 
-  if (!connectedApps?.length) {
+  if (!connectedApp) {
     return (
       <div className="text-sm text-muted-foreground text-center">
         No connected dApps
@@ -45,24 +56,19 @@ export const ConnectedAppsList = () => {
 
   return (
     <div className="space-y-2">
-      <h3 className="text-sm font-medium">Connected dApps</h3>
+      <h3 className="text-sm font-medium">Connected dApp</h3>
       <div className="space-y-2">
-        {connectedApps.map((app) => (
-          <div
-            key={app.topic}
-            className="flex items-center justify-between p-2 rounded-lg border bg-card"
+        <div className="flex items-center justify-between p-2 rounded-lg border bg-card">
+          <span className="text-sm">{connectedApp.name}</span>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => handleDisconnect(connectedApp.topic)}
+            className="text-red-500 hover:text-red-600 hover:bg-red-50"
           >
-            <span className="text-sm">{app.name}</span>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => handleDisconnect(app.topic)}
-              className="text-red-500 hover:text-red-600 hover:bg-red-50"
-            >
-              <LogOut className="h-4 w-4" />
-            </Button>
-          </div>
-        ))}
+            <LogOut className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
     </div>
   );
