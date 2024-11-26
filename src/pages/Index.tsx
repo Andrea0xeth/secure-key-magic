@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Shield } from "lucide-react";
+import { Shield, Scan, Clipboard } from "lucide-react";
 import { authenticateWithPasskey } from "@/lib/webauthn";
 import { connectWithWalletConnect } from "@/lib/walletConnect/connection";
 import { ConnectedAppsList } from "@/components/ConnectedAppsList";
@@ -9,6 +9,7 @@ import { AlgoBalance } from "@/components/AlgoBalance";
 import { AddressQRCode } from "@/components/AddressQRCode";
 import { QRScanner } from "@/components/QRScanner";
 import { useTheme } from "next-themes";
+import { toast } from "@/hooks/use-toast";
 
 const Index = () => {
   const [authResult, setAuthResult] = useState<{ address: string } | null>(null);
@@ -31,6 +32,25 @@ const Index = () => {
       setWcUrl("");
     } catch (error) {
       console.error("Error connecting:", error);
+    }
+  };
+
+  const handlePaste = async () => {
+    try {
+      const text = await navigator.clipboard.readText();
+      console.log("Pasted text:", text);
+      setWcUrl(text);
+      toast({
+        title: "Text pasted",
+        description: "Clipboard content has been pasted",
+      });
+    } catch (error) {
+      console.error("Failed to paste:", error);
+      toast({
+        title: "Paste failed",
+        description: "Unable to access clipboard",
+        variant: "destructive",
+      });
     }
   };
 
@@ -94,13 +114,23 @@ const Index = () => {
 
               <div className="space-y-4">
                 <div className="flex flex-col sm:flex-row gap-2">
-                  <input
-                    type="text"
-                    placeholder="Enter WalletConnect URL"
-                    value={wcUrl}
-                    onChange={(e) => setWcUrl(e.target.value)}
-                    className="flex-1 px-3 py-2 sm:px-4 sm:py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-artence-purple text-sm bg-white dark:bg-gray-800 dark:border-gray-700 dark:text-white transition-colors duration-300"
-                  />
+                  <div className="flex-1 flex gap-2">
+                    <input
+                      type="text"
+                      placeholder="Enter WalletConnect URL"
+                      value={wcUrl}
+                      onChange={(e) => setWcUrl(e.target.value)}
+                      className="flex-1 px-3 py-2 sm:px-4 sm:py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-artence-purple text-sm bg-white dark:bg-gray-800 dark:border-gray-700 dark:text-white transition-colors duration-300"
+                    />
+                    <Button
+                      onClick={handlePaste}
+                      variant="outline"
+                      size="icon"
+                      className="flex-shrink-0"
+                    >
+                      <Clipboard className="h-4 w-4" />
+                    </Button>
+                  </div>
                   <div className="flex gap-2">
                     <QRScanner onResult={setWcUrl} />
                     <Button
