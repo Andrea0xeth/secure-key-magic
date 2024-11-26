@@ -1,4 +1,3 @@
-import { SignClientTypes } from "@walletconnect/types";
 import * as algosdk from "algosdk";
 import { TransactionCallback } from "./types";
 
@@ -47,12 +46,17 @@ export function handleTransactionRequest(params: any) {
 
     console.log("Suggested parameters:", suggestedParams);
 
-    const txn = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
+    const txn = new algosdk.Transaction({
       from: senderAddr,
       to: receiverAddr || senderAddr,
       amount: (decodedTxn as any).amt || 0,
-      suggestedParams: suggestedParams,
-      note: (decodedTxn as any).note,
+      fee: suggestedParams.fee,
+      firstRound: suggestedParams.firstRound,
+      lastRound: suggestedParams.lastRound,
+      genesisHash: suggestedParams.genesisHash,
+      genesisID: suggestedParams.genesisID,
+      type: 'pay',
+      note: (decodedTxn as any).note
     });
 
     console.log("Created Algorand transaction object:", txn);

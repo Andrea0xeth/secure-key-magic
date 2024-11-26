@@ -7,5 +7,4 @@ export interface AuthenticationResult {
 export interface RegistrationResult {
   address: string;
   publicKey: string;
-  privateKey: Uint8Array;
 }

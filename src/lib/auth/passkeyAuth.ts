@@ -38,8 +38,8 @@ export async function authenticateWithPasskey(): Promise<AuthenticationResult> {
     console.log("Derived Algorand account:", account);
 
     return {
-      address: account.addr,
-      publicKey: account.addr,
+      address: account.addr.toString(),
+      publicKey: account.addr.toString(),
       privateKey: account.sk
     };
   } catch (error) {
