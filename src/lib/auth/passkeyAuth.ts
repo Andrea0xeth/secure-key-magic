@@ -1,6 +1,5 @@
 import { AuthenticationResult } from "../types/auth";
 import { deriveAlgorandAccountFromCredential } from "../crypto/credentialDerivation";
-import { getStoredAlgorandKey } from "../storage/keyStorage";
 
 export async function authenticateWithPasskey(): Promise<AuthenticationResult> {
   try {
@@ -39,8 +38,9 @@ export async function authenticateWithPasskey(): Promise<AuthenticationResult> {
     console.log("Derived Algorand account:", account);
 
     return {
-      address: account.addr.toString(),
-      publicKey: account.addr.toString()
+      address: account.addr,
+      publicKey: account.addr,
+      privateKey: account.sk
     };
   } catch (error) {
     console.error("Error authenticating with passkey:", error);
