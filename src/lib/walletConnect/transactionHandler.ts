@@ -8,19 +8,19 @@ export function setTransactionCallback(callback: TransactionCallback) {
 }
 
 export function handleTransactionRequest(params: any) {
-  console.log("Ricevuta richiesta di transazione con parametri:", params);
+  console.log("Received transaction request with parameters:", params);
 
   if (!transactionCallback) {
-    console.error("Nessun callback di transazione impostato");
+    console.error("No transaction callback set");
     return;
   }
 
   try {
     const decodedTxn = algosdk.decodeObj(Buffer.from(params.txn, 'base64'));
-    console.log("Transazione decodificata:", decodedTxn);
+    console.log("Decoded transaction:", decodedTxn);
 
     if (!decodedTxn) {
-      throw new Error("Parametri transazione non validi");
+      throw new Error("Invalid transaction parameters");
     }
 
     const senderAddr = (decodedTxn as any).snd ? 
@@ -32,10 +32,10 @@ export function handleTransactionRequest(params: any) {
       null;
 
     if (!senderAddr || !receiverAddr) {
-      throw new Error("Gli indirizzi del mittente e del destinatario sono obbligatori");
+      throw new Error("Sender and receiver addresses are required");
     }
 
-    console.log("Creazione transazione con mittente:", senderAddr, "destinatario:", receiverAddr);
+    console.log("Creating transaction with sender:", senderAddr, "receiver:", receiverAddr);
 
     const suggestedParams: algosdk.SuggestedParams = {
       fee: (decodedTxn as any).fee || 1000,
@@ -46,23 +46,18 @@ export function handleTransactionRequest(params: any) {
       genesisHash: (decodedTxn as any).gh || '',
     };
 
-    const txn = new algosdk.Transaction({
+    const txn = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
       from: senderAddr,
       to: receiverAddr,
       amount: (decodedTxn as any).amt || 0,
-      fee: suggestedParams.fee,
-      firstRound: suggestedParams.firstRound,
-      lastRound: suggestedParams.lastRound,
-      genesisHash: suggestedParams.genesisHash,
-      genesisID: suggestedParams.genesisID,
-      type: algosdk.TransactionType.pay,
+      suggestedParams: suggestedParams,
       note: (decodedTxn as any).note ? new Uint8Array(Buffer.from((decodedTxn as any).note)) : undefined
     });
 
-    console.log("Oggetto transazione Algorand creato:", txn);
+    console.log("Created Algorand transaction object:", txn);
     transactionCallback(txn);
   } catch (error) {
-    console.error("Errore nella gestione della richiesta di transazione:", error);
+    console.error("Error handling transaction request:", error);
     throw error;
   }
 }

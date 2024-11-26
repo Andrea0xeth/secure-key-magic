@@ -19,40 +19,40 @@ export const TransactionDialog = ({ isOpen, onClose, transaction, onSign }: Tran
 
   const handleSign = async () => {
     if (!transaction) {
-      console.error("Nessuna transazione da firmare");
+      console.error("No transaction to sign");
       return;
     }
 
     try {
       setIsLoading(true);
-      console.log("Avvio processo di firma della transazione");
+      console.log("Starting transaction signing process");
       
       const authResult = await authenticateWithPasskey();
       if (!authResult) {
-        console.error("Autenticazione con passkey fallita");
+        console.error("Failed to authenticate with passkey");
         toast({
-          title: "Autenticazione Fallita",
-          description: "Impossibile autenticare con la passkey",
+          title: "Authentication Failed",
+          description: "Failed to authenticate with passkey",
           variant: "destructive",
         });
         return;
       }
 
-      console.log("Autenticazione riuscita, firma della transazione in corso");
+      console.log("Successfully authenticated, signing transaction");
       const signedTxn = algosdk.signTransaction(transaction, authResult.privateKey);
       onSign(signedTxn.blob);
       
       toast({
-        title: "Transazione Firmata",
-        description: "La transazione è stata firmata con successo",
+        title: "Transaction Signed",
+        description: "Successfully signed the transaction",
       });
       
       onClose();
     } catch (error) {
-      console.error("Errore durante la firma della transazione:", error);
+      console.error("Error signing transaction:", error);
       toast({
-        title: "Firma Fallita",
-        description: "Impossibile firmare la transazione",
+        title: "Signing Failed",
+        description: "Failed to sign the transaction",
         variant: "destructive",
       });
     } finally {
@@ -67,11 +67,12 @@ export const TransactionDialog = ({ isOpen, onClose, transaction, onSign }: Tran
 
   if (!transaction) return null;
 
+  // Extract transaction details safely
   const txnDetails = {
     type: "Payment",
     fee: formatAlgoAmount(transaction.fee),
-    from: algosdk.encodeAddress(transaction.from.publicKey),
-    to: algosdk.encodeAddress(transaction.to.publicKey),
+    from: algosdk.encodeAddress(transaction.sender),
+    to: algosdk.encodeAddress(transaction.receiver),
     amount: formatAlgoAmount(transaction.amount)
   };
 
@@ -79,29 +80,29 @@ export const TransactionDialog = ({ isOpen, onClose, transaction, onSign }: Tran
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Firma Transazione</DialogTitle>
+          <DialogTitle>Sign Transaction</DialogTitle>
           <DialogDescription>
-            Rivedi e firma la transazione con la tua passkey
+            Review and sign the transaction with your passkey
           </DialogDescription>
         </DialogHeader>
         
         <Card className="p-4 space-y-3">
           <div className="space-y-2">
-            <h4 className="text-sm font-medium">Dettagli Transazione</h4>
+            <h4 className="text-sm font-medium">Transaction Details</h4>
             <div className="grid grid-cols-3 gap-2 text-sm">
-              <span className="text-muted-foreground">Tipo:</span>
+              <span className="text-muted-foreground">Type:</span>
               <span className="col-span-2 font-medium">{txnDetails.type}</span>
               
               <span className="text-muted-foreground">Fee:</span>
               <span className="col-span-2 font-medium">{txnDetails.fee} ALGO</span>
               
-              <span className="text-muted-foreground">Da:</span>
+              <span className="text-muted-foreground">From:</span>
               <span className="col-span-2 font-medium break-all">{txnDetails.from}</span>
               
-              <span className="text-muted-foreground">A:</span>
+              <span className="text-muted-foreground">To:</span>
               <span className="col-span-2 font-medium break-all">{txnDetails.to}</span>
               
-              <span className="text-muted-foreground">Importo:</span>
+              <span className="text-muted-foreground">Amount:</span>
               <span className="col-span-2 font-medium">{txnDetails.amount} ALGO</span>
             </div>
           </div>
@@ -109,14 +110,14 @@ export const TransactionDialog = ({ isOpen, onClose, transaction, onSign }: Tran
 
         <DialogFooter className="gap-2">
           <Button variant="outline" onClick={onClose}>
-            Annulla
+            Cancel
           </Button>
           <Button 
             onClick={handleSign} 
             disabled={isLoading}
             className="bg-artence-purple hover:bg-artence-purple/90"
           >
-            {isLoading ? "Firma in corso..." : "Firma con Passkey"}
+            {isLoading ? "Signing..." : "Sign with Passkey"}
           </Button>
         </DialogFooter>
       </DialogContent>
