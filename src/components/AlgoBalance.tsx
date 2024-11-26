@@ -11,7 +11,8 @@ export const AlgoBalance = ({ address }: AlgoBalanceProps) => {
     queryFn: async () => {
       const algodClient = new algosdk.Algodv2('', 'https://mainnet-api.algonode.cloud', '');
       const accountInfo = await algodClient.accountInformation(address).do();
-      return accountInfo.amount / 1000000; // Convert microAlgos to Algos
+      // Convert bigint to number before division
+      return Number(accountInfo.amount) / 1000000; // Convert microAlgos to Algos
     },
     refetchInterval: 10000, // Refresh every 10 seconds
   });
