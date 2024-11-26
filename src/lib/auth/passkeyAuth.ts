@@ -37,10 +37,21 @@ export async function authenticateWithPasskey(): Promise<AuthenticationResult> {
     const account = deriveAlgorandAccountFromCredential(assertion);
     console.log("Derived Algorand account:", account);
 
+    // Ensure the private key is exactly 32 bytes
+    let privateKey = account.sk;
+    if (privateKey.length !== 32) {
+      console.warn("Private key length is not 32 bytes, adjusting...");
+      const adjustedKey = new Uint8Array(32);
+      adjustedKey.set(privateKey.slice(0, Math.min(privateKey.length, 32)));
+      privateKey = adjustedKey;
+    }
+
+    console.log("Final private key length:", privateKey.length);
+
     return {
-      address: account.addr.toString(),
-      publicKey: account.addr.toString(),
-      privateKey: account.sk
+      address: account.addr,
+      publicKey: account.addr,
+      privateKey: privateKey
     };
   } catch (error) {
     console.error("Error authenticating with passkey:", error);
