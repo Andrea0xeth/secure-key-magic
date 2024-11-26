@@ -5,7 +5,7 @@ import { SessionTypes } from '@walletconnect/types';
 export type TransactionCallback = (transaction: Transaction) => void;
 
 export interface AlgorandTransaction {
-  type: TransactionType;
+  type: TransactionType | 'pay';
   from: { publicKey: Uint8Array };
   to: { publicKey: Uint8Array };
   amount: bigint;
@@ -19,7 +19,7 @@ export interface AlgorandTransaction {
   signTxn: (privateKey: Uint8Array) => Uint8Array;
 }
 
-export interface SignClientType extends SignClient {
+export interface SignClientType extends Omit<SignClient, 'session'> {
   session: {
     values: SessionTypes.Struct[];
   };

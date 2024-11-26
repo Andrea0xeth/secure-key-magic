@@ -30,14 +30,14 @@ export const TransactionHandler = () => {
           const txnParams = params.request.params[0][0];
           console.log("Transaction params:", txnParams);
           
-          const decodedTxn = algosdk.decodeObj(Buffer.from(txnParams.txn, 'base64'));
+          const decodedTxn = algosdk.decodeObj(Buffer.from(txnParams.txn, 'base64')) as algosdk.TransactionParams;
           console.log("Decoded transaction:", decodedTxn);
           
           if (decodedTxn) {
             const transaction = {
               type: decodedTxn.type || 'pay',
-              from: { publicKey: decodedTxn.snd },
-              to: { publicKey: decodedTxn.rcv },
+              from: { publicKey: decodedTxn.snd || new Uint8Array() },
+              to: { publicKey: decodedTxn.rcv || new Uint8Array() },
               amount: BigInt(decodedTxn.amt || 0),
               fee: decodedTxn.fee || 0,
               firstRound: decodedTxn.fv || 0,
@@ -47,7 +47,7 @@ export const TransactionHandler = () => {
               genesisHash: decodedTxn.gh || '',
               group: decodedTxn.grp,
               signTxn: (privateKey: Uint8Array) => {
-                const txn = new algosdk.Transaction(decodedTxn as algosdk.TransactionParams);
+                const txn = new algosdk.Transaction(decodedTxn);
                 return txn.signTxn(privateKey);
               }
             };
@@ -69,15 +69,12 @@ export const TransactionHandler = () => {
     client.on("session_request", handleRequest);
 
     return () => {
-      // Cleanup listener when component unmounts
       client.off("session_request", handleRequest);
     };
   }, [toast]);
 
   const handleSign = async (signedTxn: Uint8Array) => {
     console.log("Transaction signed:", signedTxn);
-    // Here you would typically send the signed transaction back to the dApp
-    // This will be implemented in the next iteration
     setIsDialogOpen(false);
     setTransaction(null);
   };

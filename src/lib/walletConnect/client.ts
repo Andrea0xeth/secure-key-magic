@@ -8,7 +8,8 @@ export async function initSignClient(): Promise<SignClientType> {
   try {
     if (!signClient) {
       console.log("Initializing SignClient with config:", WALLET_CONNECT_CONFIG);
-      signClient = await SignClient.init(WALLET_CONNECT_CONFIG) as SignClientType;
+      const client = await SignClient.init(WALLET_CONNECT_CONFIG);
+      signClient = client as unknown as SignClientType;
       console.log("SignClient initialized successfully");
     }
     return signClient;
