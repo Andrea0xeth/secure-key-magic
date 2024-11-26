@@ -47,7 +47,7 @@ export async function authenticateWithPasskey(): Promise<AuthenticationResult> {
     console.log("Stored key:", storedKey);
     console.log("Derived address:", account.addr.toString());
 
-    // Verify that the derived address matches the stored one
+    // Compare the derived address with the stored address
     if (account.addr.toString() !== storedKey) {
       console.error("Authentication failed - address mismatch", {
         derived: account.addr.toString(),

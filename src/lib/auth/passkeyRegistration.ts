@@ -63,8 +63,8 @@ export async function registerPasskey() {
     const keyPair = deriveKeyPair(mockCredential);
     console.log("Derived key pair:", keyPair);
 
-    // Store the key
-    storeAlgorandKey(keyPair.address);
+    // Store both the address and mnemonic
+    storeAlgorandKey(keyPair.address, keyPair.mnemonic);
 
     return {
       address: keyPair.address,
