@@ -25,3 +25,15 @@ export interface WalletConnectSession {
     };
   };
 }
+
+export interface SessionProposal {
+  id: number;
+  params: {
+    request?: {
+      method: string;
+      params: any[];
+    };
+    chainId?: string;
+    [key: string]: any;
+  };
+}

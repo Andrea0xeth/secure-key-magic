@@ -14,10 +14,10 @@ export const handleTransactionRequest = async (
     console.log("Decoded transaction:", decodedTxn);
     
     const transaction = new algosdk.Transaction({
-      type: decodedTxn.type || algosdk.TransactionType.pay,
-      from: decodedTxn.snd || new Uint8Array(),
-      to: decodedTxn.rcv || new Uint8Array(),
-      amount: decodedTxn.amt ? Number(decodedTxn.amt) : 0,
+      type: decodedTxn.type as algosdk.TransactionType,
+      from: algosdk.encodeAddress(decodedTxn.snd || new Uint8Array()),
+      to: decodedTxn.rcv ? algosdk.encodeAddress(decodedTxn.rcv) : undefined,
+      amount: decodedTxn.amt || 0,
       fee: decodedTxn.fee || 0,
       firstRound: decodedTxn.fv || 0,
       lastRound: decodedTxn.lv || 0,
