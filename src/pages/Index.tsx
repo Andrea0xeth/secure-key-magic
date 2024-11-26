@@ -2,7 +2,8 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
-import { registerPasskey, authenticateWithPasskey, processWalletConnectUrl, exportPrivateKey, disconnectWalletConnect, type AuthenticationResult } from "@/lib/webauthn";
+import { registerPasskey, authenticateWithPasskey, processWalletConnectUrl, exportPrivateKey, type AuthenticationResult } from "@/lib/webauthn";
+import { disconnectWalletConnect } from "@/lib/walletConnect";
 import { Shield, Link, Download, LogOut } from "lucide-react";
 import { PasskeySection } from "@/components/PasskeySection";
 
