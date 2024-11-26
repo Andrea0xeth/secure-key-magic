@@ -32,35 +32,40 @@ export function handleTransactionRequest(params: any) {
       firstRound: decodedTxn.fv || 0,
       lastRound: decodedTxn.lv || 0,
       genesisID: decodedTxn.gen || '',
-      genesisHash: decodedTxn.gh || '',
+      genesisHash: Buffer.from(decodedTxn.gh || '', 'base64'),
       flatFee: true,
     };
 
-    // Validate and encode addresses
-    if (!decodedTxn.snd || !decodedTxn.rcv) {
-      console.error("Missing sender or receiver address", { snd: decodedTxn.snd, rcv: decodedTxn.rcv });
-      throw new Error("Missing transaction addresses");
+    // Validate sender address - this must exist
+    if (!decodedTxn.snd) {
+      console.error("Missing sender address");
+      throw new Error("Missing sender address");
     }
 
     const fromAddress = algosdk.encodeAddress(decodedTxn.snd);
-    const toAddress = algosdk.encodeAddress(decodedTxn.rcv);
+    
+    // For receiver, use a default if not provided (e.g., for special transactions)
+    const toAddress = decodedTxn.rcv ? algosdk.encodeAddress(decodedTxn.rcv) : fromAddress;
 
-    console.log("Encoded addresses:", { fromAddress, toAddress });
+    console.log("Transaction addresses:", { 
+      from: fromAddress, 
+      to: toAddress,
+      originalSnd: decodedTxn.snd,
+      originalRcv: decodedTxn.rcv 
+    });
 
     // Create transaction object
     const transaction = new algosdk.Transaction({
-      type: "pay",
       from: fromAddress,
       to: toAddress,
       amount: decodedTxn.amt || 0,
-      suggestedParams
+      ...suggestedParams
     });
     
     console.log("Created transaction object:", {
-      type: transaction.type,
-      from: fromAddress,
-      to: toAddress,
-      amount: decodedTxn.amt || 0,
+      from: transaction.from,
+      to: transaction.to,
+      amount: transaction.amount,
       fee: suggestedParams.fee
     });
 
