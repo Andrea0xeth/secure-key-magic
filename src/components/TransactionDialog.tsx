@@ -48,16 +48,18 @@ export const TransactionDialog = ({ isOpen, onClose, transaction, onSign }: Tran
         const txnBuffer = Buffer.from(transaction.txn, 'base64');
         const decodedTxn = algosdk.decodeUnsignedTransaction(txnBuffer);
         
-        let privateKeyUint8 = new Uint8Array(authResult.privateKey);
-        if (privateKeyUint8.length !== 32) {
-          const tempKey = new Uint8Array(32);
-          tempKey.set(privateKeyUint8.slice(0, 32));
-          privateKeyUint8 = tempKey;
+        console.log("Private key type:", typeof authResult.privateKey);
+        console.log("Private key length:", authResult.privateKey.length);
+        
+        const privateKey = authResult.privateKey instanceof Uint8Array 
+          ? authResult.privateKey 
+          : new Uint8Array(authResult.privateKey);
+
+        if (privateKey.length !== 32) {
+          throw new Error(`Invalid private key length: ${privateKey.length}. Expected 32 bytes.`);
         }
 
-        console.log("Private key length:", privateKeyUint8.length);
-        
-        const signedTxn = algosdk.signTransaction(decodedTxn, privateKeyUint8);
+        const signedTxn = algosdk.signTransaction(decodedTxn, privateKey);
         
         onSign(signedTxn.blob);
         
@@ -71,7 +73,7 @@ export const TransactionDialog = ({ isOpen, onClose, transaction, onSign }: Tran
         console.error("Error decoding/signing transaction:", error);
         toast({
           title: "Signing Failed",
-          description: "Failed to process the transaction. Error: " + error.message,
+          description: `Failed to process the transaction. Error: ${error.message}`,
           variant: "destructive",
         });
       }
