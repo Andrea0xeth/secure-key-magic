@@ -2,11 +2,12 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Shield, Link } from "lucide-react";
-import { authenticateWithPasskey } from "@/lib/webauthn";
+import { authenticateWithPasskey } from "@/lib/walletConnect/walletConnect";
 import { connectWithWalletConnect } from "@/lib/walletConnect/connection";
 import { ConnectedAppsList } from "@/components/ConnectedAppsList";
 import { AlgoBalance } from "@/components/AlgoBalance";
 import { AddressQRCode } from "@/components/AddressQRCode";
+import { TransactionHandler } from "@/components/TransactionHandler";
 
 const Index = () => {
   const [authResult, setAuthResult] = useState<{ address: string } | null>(null);
@@ -103,6 +104,8 @@ const Index = () => {
                   <ConnectedAppsList />
                 </div>
               </div>
+
+              <TransactionHandler />
             </div>
           )}
         </Card>

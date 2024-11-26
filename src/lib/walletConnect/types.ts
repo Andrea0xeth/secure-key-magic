@@ -19,13 +19,13 @@ export interface AlgorandTransaction {
   signTxn: (privateKey: Uint8Array) => Uint8Array;
 }
 
-export interface SessionProposal {
-  id: number;
-  params: SessionTypes.Proposal;
-}
-
 export interface SignClientType extends SignClient {
   session: {
     values: SessionTypes.Struct[];
   };
+  on: (event: string, callback: (event: any) => void) => void;
+  off: (event: string, callback: (event: any) => void) => void;
+  pair: (params: { uri: string }) => Promise<void>;
+  approve: (params: any) => Promise<void>;
+  disconnect: (params: { topic: string; reason: { code: number; message: string } }) => Promise<void>;
 }
