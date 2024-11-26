@@ -5,11 +5,15 @@ import { authenticateWithPasskey } from "@/lib/webauthn";
 import { useToast } from "@/components/ui/use-toast";
 import * as algosdk from "algosdk";
 import { Card } from "@/components/ui/card";
+import { decodeSignedTransaction, decodeUnsignedTransaction } from 'algosdk'
 
 interface TransactionDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  transaction: algosdk.Transaction | null;
+  transaction: {
+    txn: string;  // base64 encoded transaction
+    type?: string;
+  } | null;
   onSign: (signedTxn: Uint8Array) => void;
 }
 
@@ -39,20 +43,34 @@ export const TransactionDialog = ({ isOpen, onClose, transaction, onSign }: Tran
       }
 
       console.log("Successfully authenticated, signing transaction");
-      const signedTxn = algosdk.signTransaction(transaction, authResult.privateKey);
-      onSign(signedTxn.blob);
       
-      toast({
-        title: "Transaction Signed",
-        description: "Successfully signed the transaction",
-      });
-      
-      onClose();
+      try {
+        const txnBuffer = Buffer.from(transaction.txn, 'base64');
+        const decodedTxn = algosdk.decodeUnsignedTransaction(txnBuffer);
+        
+        const signedTxn = algosdk.signTransaction(decodedTxn, authResult.privateKey);
+        
+        onSign(signedTxn.blob);
+        
+        toast({
+          title: "Transaction Signed",
+          description: "Successfully signed the transaction",
+        });
+        
+        onClose();
+      } catch (error) {
+        console.error("Error decoding/signing transaction:", error);
+        toast({
+          title: "Signing Failed",
+          description: "Failed to process the transaction",
+          variant: "destructive",
+        });
+      }
     } catch (error) {
-      console.error("Error signing transaction:", error);
+      console.error("Error in authentication:", error);
       toast({
-        title: "Signing Failed",
-        description: "Failed to sign the transaction",
+        title: "Authentication Failed",
+        description: "Failed to authenticate with passkey",
         variant: "destructive",
       });
     } finally {
