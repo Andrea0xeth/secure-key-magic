@@ -18,15 +18,15 @@ export function handleTransactionRequest(txnParams: any) {
     
     const transaction = new algosdk.Transaction({
       type: decodedTxn.type,
-      from: decodedTxn.snd,
-      to: decodedTxn.rcv,
-      amount: decodedTxn.amt || 0,
+      snd: decodedTxn.snd,
+      rcv: decodedTxn.rcv,
+      amt: decodedTxn.amt || 0,
       fee: decodedTxn.fee || 0,
-      firstRound: decodedTxn.fv || 0,
-      lastRound: decodedTxn.lv || 0,
+      fv: decodedTxn.fv || 0,
+      lv: decodedTxn.lv || 0,
       note: decodedTxn.note,
-      genesisID: decodedTxn.gen || '',
-      genesisHash: decodedTxn.gh || '',
+      gen: decodedTxn.gen || '',
+      gh: decodedTxn.gh || '',
     });
     
     if (transactionCallback) {
