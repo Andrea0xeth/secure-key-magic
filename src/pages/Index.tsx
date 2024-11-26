@@ -8,10 +8,12 @@ import { ConnectedAppsList } from "@/components/ConnectedAppsList";
 import { AlgoBalance } from "@/components/AlgoBalance";
 import { AddressQRCode } from "@/components/AddressQRCode";
 import { QRScanner } from "@/components/QRScanner";
+import { useTheme } from "next-themes";
 
 const Index = () => {
   const [authResult, setAuthResult] = useState<{ address: string } | null>(null);
   const [wcUrl, setWcUrl] = useState<string>("");
+  const { theme, setTheme } = useTheme();
 
   const handleAuthenticate = async () => {
     console.log("Starting passkey authentication...");
@@ -32,18 +34,32 @@ const Index = () => {
     }
   };
 
+  const toggleTheme = () => {
+    setTheme(theme === "dark" ? "light" : "dark");
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-artence-light to-white dark:from-artence-dark dark:to-gray-800">
+      <div className="absolute top-4 right-4">
+        <Button 
+          variant="outline" 
+          size="icon"
+          onClick={toggleTheme}
+          className="rounded-full"
+        >
+          {theme === 'dark' ? '🌞' : '🌙'}
+        </Button>
+      </div>
       <div className="container max-w-2xl px-4 sm:px-6 pt-16 pb-8 animate-fade-in">
         <div className="text-center mb-12">
           <div className="flex justify-center mb-6">
             <img 
-              src="https://www.artence.net/assets/artence-logo-white.svg" 
+              src="/artence-logo-white.svg" 
               alt="Artence Logo" 
-              className="h-12 w-auto dark:block hidden"
+              className="h-12 w-auto hidden dark:block"
             />
             <img 
-              src="https://www.artence.net/assets/artence-logo-black.svg" 
+              src="/artence-logo-black.svg" 
               alt="Artence Logo" 
               className="h-12 w-auto dark:hidden"
             />
@@ -56,7 +72,7 @@ const Index = () => {
           </p>
         </div>
 
-        <Card className="p-4 sm:p-6 shadow-lg border-2 border-opacity-50 backdrop-blur-sm">
+        <Card className="p-4 sm:p-6 shadow-lg border-2 border-opacity-50 backdrop-blur-sm dark:bg-artence-dark/50">
           {!authResult ? (
             <div className="text-center">
               <Button
@@ -97,7 +113,7 @@ const Index = () => {
                     placeholder="Enter WalletConnect URL"
                     value={wcUrl}
                     onChange={(e) => setWcUrl(e.target.value)}
-                    className="flex-1 px-3 py-2 sm:px-4 sm:py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-artence-purple text-sm"
+                    className="flex-1 px-3 py-2 sm:px-4 sm:py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-artence-purple text-sm dark:bg-artence-dark dark:border-gray-700"
                   />
                   <div className="flex gap-2">
                     <QRScanner onResult={setWcUrl} />
