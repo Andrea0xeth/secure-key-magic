@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { authenticateWithPasskey } from "@/lib/webauthn";
 import { useToast } from "@/components/ui/use-toast";
 import * as algosdk from "algosdk";
+import { Card } from "@/components/ui/card";
 
 interface TransactionDialogProps {
   isOpen: boolean;
@@ -18,40 +19,40 @@ export const TransactionDialog = ({ isOpen, onClose, transaction, onSign }: Tran
 
   const handleSign = async () => {
     if (!transaction) {
-      console.error("No transaction to sign");
+      console.error("Nessuna transazione da firmare");
       return;
     }
 
     try {
       setIsLoading(true);
-      console.log("Starting transaction signing process");
+      console.log("Avvio processo di firma della transazione");
       
       const authResult = await authenticateWithPasskey();
       if (!authResult) {
-        console.error("Failed to authenticate with passkey");
+        console.error("Autenticazione con passkey fallita");
         toast({
-          title: "Authentication Failed",
-          description: "Failed to authenticate with passkey",
+          title: "Autenticazione Fallita",
+          description: "Impossibile autenticare con la passkey",
           variant: "destructive",
         });
         return;
       }
 
-      console.log("Successfully authenticated, signing transaction");
+      console.log("Autenticazione riuscita, firma della transazione in corso");
       const signedTxn = algosdk.signTransaction(transaction, authResult.privateKey);
       onSign(signedTxn.blob);
       
       toast({
-        title: "Transaction Signed",
-        description: "Successfully signed the transaction",
+        title: "Transazione Firmata",
+        description: "La transazione è stata firmata con successo",
       });
       
       onClose();
     } catch (error) {
-      console.error("Error signing transaction:", error);
+      console.error("Errore durante la firma della transazione:", error);
       toast({
-        title: "Signing Failed",
-        description: "Failed to sign the transaction",
+        title: "Firma Fallita",
+        description: "Impossibile firmare la transazione",
         variant: "destructive",
       });
     } finally {
@@ -71,34 +72,51 @@ export const TransactionDialog = ({ isOpen, onClose, transaction, onSign }: Tran
     fee: formatAlgoAmount(transaction.fee),
     from: algosdk.encodeAddress(transaction.from.publicKey),
     to: algosdk.encodeAddress(transaction.to.publicKey),
-    amount: formatAlgoAmount(transaction.amount || 0)
+    amount: formatAlgoAmount(transaction.amount)
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent>
+      <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Sign Transaction</DialogTitle>
-          <DialogDescription>Review and sign the transaction with your passkey</DialogDescription>
+          <DialogTitle>Firma Transazione</DialogTitle>
+          <DialogDescription>
+            Rivedi e firma la transazione con la tua passkey
+          </DialogDescription>
         </DialogHeader>
         
-        <div className="space-y-4">
-          <div className="rounded-lg border p-4">
-            <h4 className="text-sm font-medium mb-2">Transaction Details</h4>
-            <div className="space-y-2 text-sm text-muted-foreground">
-              <p>Type: {txnDetails.type}</p>
-              <p>Fee: {txnDetails.fee} ALGO</p>
-              <p>From: {txnDetails.from}</p>
-              <p>To: {txnDetails.to}</p>
-              <p>Amount: {txnDetails.amount} ALGO</p>
+        <Card className="p-4 space-y-3">
+          <div className="space-y-2">
+            <h4 className="text-sm font-medium">Dettagli Transazione</h4>
+            <div className="grid grid-cols-3 gap-2 text-sm">
+              <span className="text-muted-foreground">Tipo:</span>
+              <span className="col-span-2 font-medium">{txnDetails.type}</span>
+              
+              <span className="text-muted-foreground">Fee:</span>
+              <span className="col-span-2 font-medium">{txnDetails.fee} ALGO</span>
+              
+              <span className="text-muted-foreground">Da:</span>
+              <span className="col-span-2 font-medium break-all">{txnDetails.from}</span>
+              
+              <span className="text-muted-foreground">A:</span>
+              <span className="col-span-2 font-medium break-all">{txnDetails.to}</span>
+              
+              <span className="text-muted-foreground">Importo:</span>
+              <span className="col-span-2 font-medium">{txnDetails.amount} ALGO</span>
             </div>
           </div>
-        </div>
+        </Card>
 
-        <DialogFooter>
-          <Button variant="outline" onClick={onClose}>Cancel</Button>
-          <Button onClick={handleSign} disabled={isLoading}>
-            {isLoading ? "Signing..." : "Sign with Passkey"}
+        <DialogFooter className="gap-2">
+          <Button variant="outline" onClick={onClose}>
+            Annulla
+          </Button>
+          <Button 
+            onClick={handleSign} 
+            disabled={isLoading}
+            className="bg-artence-purple hover:bg-artence-purple/90"
+          >
+            {isLoading ? "Firma in corso..." : "Firma con Passkey"}
           </Button>
         </DialogFooter>
       </DialogContent>
