@@ -6,6 +6,7 @@ import { registerPasskey, authenticateWithPasskey, processWalletConnectUrl, expo
 import { disconnectWalletConnect } from "@/lib/walletConnect";
 import { Shield, Link, Download, LogOut } from "lucide-react";
 import { PasskeySection } from "@/components/PasskeySection";
+import { ConnectedAppsList } from "@/components/ConnectedAppsList";
 
 const Index = () => {
   const [authResult, setAuthResult] = useState<AuthenticationResult | null>(null);
@@ -57,9 +58,6 @@ const Index = () => {
       return;
     }
 
-    console.log("Processing WalletConnect URL:", wcUrl);
-    console.log("Using authenticated address:", authResult.address);
-
     try {
       const success = await processWalletConnectUrl(wcUrl, authResult.address);
       if (success) {
@@ -106,20 +104,20 @@ const Index = () => {
     }
   };
 
-  const handleDisconnect = async () => {
+  const handleDisconnectAll = async () => {
     try {
       const success = await disconnectWalletConnect();
       if (success) {
         toast({
           title: "Disconnected",
-          description: "Successfully disconnected from WalletConnect",
+          description: "Successfully disconnected from all dApps",
         });
       }
     } catch (error) {
       console.error("Error disconnecting:", error);
       toast({
         title: "Error",
-        description: "Failed to disconnect from WalletConnect",
+        description: "Failed to disconnect from dApps",
         variant: "destructive",
       });
     }
@@ -179,14 +177,20 @@ const Index = () => {
                       Connect
                     </Button>
                   </div>
+                  
+                  <div className="py-4">
+                    <ConnectedAppsList />
+                  </div>
+
                   <Button
-                    onClick={handleDisconnect}
+                    onClick={handleDisconnectAll}
                     variant="destructive"
                     className="w-full"
                   >
                     <LogOut className="mr-2 h-4 w-4" />
-                    Disconnect WalletConnect
+                    Disconnect All dApps
                   </Button>
+                  
                   <Button
                     onClick={handleExportKey}
                     variant="outline"
@@ -195,6 +199,7 @@ const Index = () => {
                     <Download className="mr-2 h-4 w-4" />
                     Export Private Key
                   </Button>
+                  
                   <Button
                     variant="outline"
                     onClick={() => setAuthResult(null)}
