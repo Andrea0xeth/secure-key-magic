@@ -1,3 +1,2 @@
-export { connectWithWalletConnect, disconnectWalletConnect } from './connection';
-export { handleTransactionRequest } from './transactionHandler';
-export type { TransactionCallback, WalletConnectSession } from './types';
+export { connectWithWalletConnect, disconnectWalletConnect, setTransactionCallback } from './connection';
+export type { TransactionCallback, AlgorandTransaction } from './types';

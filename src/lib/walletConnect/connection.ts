@@ -1,8 +1,7 @@
-import SignClient from '@walletconnect/sign-client';
-import { toast } from "@/hooks/use-toast";
+import { initSignClient } from './client';
+import { handleSessionProposal } from './sessionHandler';
 import { handleTransactionRequest } from './transactionHandler';
-import type { TransactionCallback, WalletConnectConfig } from './types';
-import { initSignClient, getSignClient } from './client';
+import type { TransactionCallback } from './types';
 
 let transactionCallback: TransactionCallback | null = null;
 
@@ -20,43 +19,22 @@ export async function connectWithWalletConnect(wcUrl: string, address: string): 
       throw new Error("Invalid WalletConnect URL format");
     }
 
-    const config: WalletConnectConfig = {
-      projectId: import.meta.env.VITE_WALLET_CONNECT_PROJECT_ID,
-      metadata: {
-        name: 'Algorand Passkeys',
-        description: 'Secure Algorand authentication using passkeys',
-        url: window.location.host,
-        icons: ['https://walletconnect.com/walletconnect-logo.png']
-      }
-    };
+    const client = await initSignClient();
 
-    const client = await initSignClient(config);
-    
+    // Set up event listeners
+    client.on("session_proposal", async (proposal) => {
+      await handleSessionProposal(client, proposal, address);
+    });
+
     client.on("session_request", async (event) => {
-      console.log("Received session request:", event);
-      
-      const { params } = event;
-      if (params.request.method === "algo_signTxn") {
-        console.log("Received sign transaction request");
-        
-        try {
-          const txnParams = params.request.params[0][0];
-          if (transactionCallback) {
-            await handleTransactionRequest(txnParams, transactionCallback);
-          }
-        } catch (error) {
-          console.error("Error processing transaction:", error);
-          toast({
-            title: "Error",
-            description: "Failed to process transaction",
-            variant: "destructive",
-          });
-        }
+      if (event.params.request.method === "algo_signTxn" && transactionCallback) {
+        await handleTransactionRequest(event.params.request.params[0][0], transactionCallback);
       }
     });
 
     // Pair with the URI
     await client.pair({ uri: wcUrl });
+    console.log("Successfully paired with WalletConnect URI");
 
     return true;
   } catch (error) {

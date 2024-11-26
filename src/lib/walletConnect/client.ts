@@ -1,24 +1,23 @@
 import SignClient from '@walletconnect/sign-client';
-import { toast } from "@/hooks/use-toast";
-import type { WalletConnectConfig } from './types';
+import { WALLET_CONNECT_CONFIG } from './config';
 
 let signClient: SignClient | null = null;
 
-export async function initSignClient(config: WalletConnectConfig): Promise<SignClient> {
+export async function initSignClient(): Promise<SignClient> {
   try {
     if (!signClient) {
       console.log("Initializing SignClient...");
-      signClient = await SignClient.init(config);
+      signClient = await SignClient.init({
+        ...WALLET_CONNECT_CONFIG,
+        core: {
+          projectId: WALLET_CONNECT_CONFIG.projectId
+        }
+      });
       console.log("SignClient initialized successfully");
     }
     return signClient;
   } catch (error) {
     console.error("Error initializing SignClient:", error);
-    toast({
-      title: "Connection Error",
-      description: "Failed to initialize WalletConnect",
-      variant: "destructive",
-    });
     throw error;
   }
 }
