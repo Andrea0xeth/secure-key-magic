@@ -10,9 +10,11 @@ export async function registerPasskey(): Promise<RegistrationResult> {
       throw new Error("WebAuthn is not supported in this browser");
     }
 
+    // Generate a random challenge
     const challenge = new Uint8Array(32);
     crypto.getRandomValues(challenge);
 
+    // Create credential options
     const createCredentialOptions: PublicKeyCredentialCreationOptions = {
       challenge,
       rp: {
@@ -20,8 +22,8 @@ export async function registerPasskey(): Promise<RegistrationResult> {
         id: window.location.hostname,
       },
       user: {
-        id: new Uint8Array(16),
-        name: "algorand-user",
+        id: crypto.getRandomValues(new Uint8Array(16)),
+        name: `algorand-user-${Date.now()}`,
         displayName: "Algorand User",
       },
       pubKeyCredParams: [
@@ -33,6 +35,7 @@ export async function registerPasskey(): Promise<RegistrationResult> {
       authenticatorSelection: {
         authenticatorAttachment: "platform",
         userVerification: "required",
+        residentKey: "required",
       },
     };
 
@@ -53,8 +56,8 @@ export async function registerPasskey(): Promise<RegistrationResult> {
     console.log("Derived Algorand account:", account);
 
     return {
-      address: account.addr.toString(),
-      publicKey: account.addr.toString()
+      address: account.addr,
+      publicKey: account.addr
     };
   } catch (error) {
     console.error("Error registering passkey:", error);

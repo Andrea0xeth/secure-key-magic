@@ -1,63 +1,40 @@
-import { toast } from "@/hooks/use-toast";
 import * as algosdk from "algosdk";
-import { AlgorandTransaction, EncodedTransaction } from "./types";
+import { SignClientTypes } from "@walletconnect/types";
+import { formatJsonRpcResult } from "@json-rpc-tools/utils";
 
-let transactionCallback: ((transaction: algosdk.Transaction) => void) | null = null;
-
-export function setTransactionCallback(callback: (transaction: algosdk.Transaction) => void) {
-  transactionCallback = callback;
-  console.log("Transaction callback set");
-}
-
-export function handleTransactionRequest(params: EncodedTransaction) {
+export async function handleTransactionRequest(
+  requestEvent: SignClientTypes.EventArguments["session_request"]
+): Promise<algosdk.Transaction[]> {
   try {
-    console.log("Transaction params received:", params);
-    
-    if (!params?.txn) {
-      console.error("No transaction data found in params");
-      return;
+    console.log("Processing transaction request:", requestEvent);
+
+    const { params } = requestEvent;
+    if (!params) {
+      throw new Error("No parameters provided in transaction request");
     }
 
-    const txnBuffer = Buffer.from(params.txn, 'base64');
-    const decodedTxn = algosdk.decodeSignedTransaction(txnBuffer);
-    console.log("Decoded transaction:", decodedTxn);
-    
-    if (!decodedTxn.txn) {
-      throw new Error("Failed to decode transaction");
-    }
-
-    const transaction = decodedTxn.txn;
-
-    // Validate sender address
-    if (!transaction.from) {
-      throw new Error("Missing sender address");
-    }
-
-    console.log("Transaction details:", {
-      type: transaction.type,
-      from: transaction.from.toString(),
-      to: transaction.to?.toString(),
-      amount: transaction.amount
-    });
-
-    if (transactionCallback) {
-      console.log("Calling transaction callback with transaction");
-      transactionCallback(transaction);
-    } else {
-      console.error("No transaction callback set");
-      toast({
-        title: "Error",
-        description: "Transaction handler not initialized",
-        variant: "destructive",
+    const txns = params.request.params.map((txnParams: any) => {
+      console.log("Processing transaction parameters:", txnParams);
+      
+      const txn = new algosdk.Transaction({
+        from: txnParams.sender,
+        to: txnParams.receiver,
+        amount: txnParams.amount,
+        fee: txnParams.fee,
+        firstRound: txnParams.firstRound,
+        lastRound: txnParams.lastRound,
+        genesisID: txnParams.genesisID,
+        genesisHash: txnParams.genesisHash,
+        type: txnParams.type,
       });
-    }
-  } catch (error) {
-    console.error("Error processing transaction:", error);
-    toast({
-      title: "Error",
-      description: "Failed to process transaction",
-      variant: "destructive",
+
+      console.log("Created transaction:", txn);
+      return txn;
     });
+
+    return txns;
+  } catch (error) {
+    console.error("Error processing transaction request:", error);
     throw error;
   }
 }

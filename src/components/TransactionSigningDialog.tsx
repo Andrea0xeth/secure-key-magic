@@ -76,9 +76,9 @@ export const TransactionSigningDialog = ({
   const txnDetails = {
     type: transaction.type,
     fee: formatAlgoAmount(transaction.fee),
-    from: transaction.from?.toString() || 'Unknown',
-    to: transaction.to?.toString() || 'Unknown',
-    amount: formatAlgoAmount(transaction.amount || 0)
+    from: transaction.sender,
+    to: transaction.receiver,
+    amount: formatAlgoAmount(transaction.amount)
   };
 
   return (
