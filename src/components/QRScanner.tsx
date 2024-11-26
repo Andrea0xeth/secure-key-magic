@@ -43,15 +43,6 @@ export const QRScanner = ({ onResult }: QRScannerProps) => {
     }
   };
 
-  const handleError = (error: any) => {
-    console.error("QR Scanner error:", error);
-    toast({
-      title: "Scanner Error",
-      description: "There was an error with the QR scanner",
-      variant: "destructive",
-    });
-  };
-
   if (!isMobile) {
     console.log("QR Scanner not rendered - desktop device detected");
     return null;
@@ -73,9 +64,9 @@ export const QRScanner = ({ onResult }: QRScannerProps) => {
           <QrReader
             constraints={{ facingMode: 'environment' }}
             onResult={handleScan}
-            onError={handleError}
             className="w-full h-full"
-            scanDelay={300}
+            scanDelay={1000}
+            ViewFinder={() => null}
           />
         </div>
       </DialogContent>
