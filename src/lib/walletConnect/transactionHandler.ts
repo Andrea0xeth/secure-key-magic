@@ -33,38 +33,33 @@ export function handleTransactionRequest(params: any) {
 
     const fromAddress = algosdk.encodeAddress(decodedTxn.snd);
     const toAddress = decodedTxn.rcv ? algosdk.encodeAddress(decodedTxn.rcv) : fromAddress;
-
+    
     console.log("Transaction addresses:", { 
       from: fromAddress, 
       to: toAddress
     });
 
     // Create suggested parameters
-    const suggestedParams: algosdk.SuggestedParams = {
+    const suggestedParams = {
       fee: decodedTxn.fee || 0,
       firstRound: decodedTxn.fv || 0,
       lastRound: decodedTxn.lv || 0,
       genesisID: decodedTxn.gen || '',
-      genesisHash: decodedTxn.gh ? Buffer.from(decodedTxn.gh, 'base64') : new Uint8Array(32),
-      flatFee: true,
+      genesisHash: decodedTxn.gh ? Buffer.from(decodedTxn.gh).toString('base64') : '',
+      flatFee: true
     };
 
     // Create transaction object
-    const transaction = algosdk.makePaymentTxnWithSuggestedParams(
-      fromAddress,
-      toAddress,
-      decodedTxn.amt || 0,
-      undefined, // note
-      undefined, // closeRemainderTo
-      suggestedParams
-    );
+    const transaction = new algosdk.Transaction({
+      from: fromAddress,
+      to: toAddress,
+      amount: decodedTxn.amt || 0,
+      ...suggestedParams
+    });
     
     console.log("Created transaction object:", {
       txnType: transaction.type,
-      sender: transaction.from.toString(),
-      receiver: transaction.to.toString(),
-      amount: transaction.amount,
-      fee: transaction.fee
+      params: transaction.get_obj_for_encoding()
     });
 
     if (transactionCallback) {
