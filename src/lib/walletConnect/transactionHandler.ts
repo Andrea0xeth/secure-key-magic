@@ -1,5 +1,5 @@
-import * as algosdk from "algosdk";
 import { toast } from "@/hooks/use-toast";
+import * as algosdk from "algosdk";
 import { DecodedAlgorandTransaction } from "./types";
 
 let transactionCallback: ((transaction: algosdk.Transaction) => void) | null = null;
@@ -36,17 +36,31 @@ export function handleTransactionRequest(params: any) {
       flatFee: true,
     };
 
-    // Create transaction object
+    // Ensure addresses are properly handled
+    const fromAddress = decodedTxn.snd ? algosdk.encodeAddress(decodedTxn.snd) : '';
+    const toAddress = decodedTxn.rcv ? algosdk.encodeAddress(decodedTxn.rcv) : '';
+
+    if (!fromAddress || !toAddress) {
+      throw new Error("Invalid addresses in transaction");
+    }
+
+    // Create transaction object with proper typing
     const transaction = new algosdk.Transaction({
-      suggestedParams,
-      type: decodedTxn.type,
-      from: algosdk.encodeAddress(decodedTxn.snd || new Uint8Array(32)),
-      to: algosdk.encodeAddress(decodedTxn.rcv || new Uint8Array(32)),
+      from: fromAddress,
+      to: toAddress,
       amount: decodedTxn.amt || 0,
+      ...suggestedParams
     });
     
+    console.log("Created transaction object:", {
+      from: fromAddress,
+      to: toAddress,
+      amount: decodedTxn.amt || 0,
+      fee: suggestedParams.fee
+    });
+
     if (transactionCallback) {
-      console.log("Calling transaction callback with transaction:", transaction);
+      console.log("Calling transaction callback with transaction");
       transactionCallback(transaction);
     } else {
       console.error("No transaction callback set");

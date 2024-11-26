@@ -67,22 +67,13 @@ export const TransactionSigningDialog = ({
     }
   };
 
-  const formatAlgoAmount = (amount: number | bigint): string => {
-    const value = typeof amount === 'bigint' ? Number(amount) : amount;
-    return (value / 1_000_000).toFixed(6);
+  const formatAlgoAmount = (amount: number): string => {
+    return (amount / 1_000_000).toFixed(6);
   };
 
   if (!transaction) {
     return null;
   }
-
-  const txnDetails = {
-    type: transaction.type,
-    fee: formatAlgoAmount(transaction.fee),
-    from: algosdk.encodeAddress(transaction.from.publicKey),
-    to: algosdk.encodeAddress(transaction.to.publicKey),
-    amount: formatAlgoAmount(transaction.amount)
-  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -98,11 +89,11 @@ export const TransactionSigningDialog = ({
           <div className="rounded-lg border p-4">
             <h4 className="text-sm font-medium mb-2">Transaction Details</h4>
             <div className="space-y-2 text-sm text-muted-foreground">
-              <p>Type: {txnDetails.type}</p>
-              <p>Fee: {txnDetails.fee} ALGO</p>
-              <p>From: {txnDetails.from}</p>
-              <p>To: {txnDetails.to}</p>
-              <p>Amount: {txnDetails.amount} ALGO</p>
+              <p>Type: {transaction.type}</p>
+              <p>Fee: {formatAlgoAmount(transaction.fee)} ALGO</p>
+              <p>From: {transaction.from}</p>
+              <p>To: {transaction.to}</p>
+              <p>Amount: {formatAlgoAmount(transaction.amount)} ALGO</p>
             </div>
           </div>
         </div>
