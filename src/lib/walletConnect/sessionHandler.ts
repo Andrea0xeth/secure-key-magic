@@ -1,10 +1,10 @@
 import { toast } from "@/hooks/use-toast";
 import SignClient from '@walletconnect/sign-client';
-import type { SessionProposalParams } from './types';
+import type { SessionProposalEvent } from './types';
 
 export async function handleSessionProposal(
   client: SignClient,
-  proposal: SessionProposalParams
+  proposal: SessionProposalEvent
 ): Promise<boolean> {
   console.log("Processing session proposal:", proposal);
 

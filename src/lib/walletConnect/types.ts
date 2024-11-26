@@ -26,17 +26,17 @@ export interface WalletConnectSession {
   };
 }
 
-export type SessionProposalParams = {
-  id: number;
-  params: {
-    request: {
-      method: string;
-    };
-    proposer: {
-      metadata: {
-        url?: string;
-      };
-    };
-  };
-  verifyContext: unknown;
-};
+export type SessionProposalEvent = SignClientTypes.EventArguments['session_proposal'];
+
+export interface TransactionParams {
+  type: algosdk.TransactionType;
+  snd: Uint8Array;
+  rcv?: Uint8Array;
+  amt?: number;
+  fee?: number;
+  fv?: number;
+  lv?: number;
+  note?: Uint8Array;
+  gen?: string;
+  gh?: string;
+}
