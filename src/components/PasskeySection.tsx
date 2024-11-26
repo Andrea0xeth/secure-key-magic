@@ -11,6 +11,11 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface PasskeySectionProps {
   authResult: AuthenticationResult | null;
@@ -73,15 +78,27 @@ export const PasskeySection = ({ authResult, onRegister, onAuthenticate }: Passk
           </div>
         </div>
         <Dialog>
-          <DialogTrigger asChild>
-            <Button
-              variant="outline"
-              className="w-full border-artence-purple text-artence-purple hover:bg-artence-purple/10 transition-colors duration-300"
-            >
-              <Shield className="mr-2 h-4 w-4" />
-              Authenticate with Passkey
-            </Button>
-          </DialogTrigger>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div>
+                <DialogTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="w-full border-artence-purple text-artence-purple hover:bg-artence-purple/10 transition-colors duration-300"
+                    disabled={!hasExistingKey}
+                  >
+                    <Shield className="mr-2 h-4 w-4" />
+                    Authenticate with Passkey
+                  </Button>
+                </DialogTrigger>
+              </div>
+            </TooltipTrigger>
+            {!hasExistingKey && (
+              <TooltipContent>
+                <p>Please register a passkey first</p>
+              </TooltipContent>
+            )}
+          </Tooltip>
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Authentication Options</DialogTitle>
