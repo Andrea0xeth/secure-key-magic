@@ -1,6 +1,7 @@
 import SignClient from '@walletconnect/sign-client';
-import { handleTransactionRequest } from './transactionHandler';
+import { handleSessionProposal } from './sessionHandler';
 import type { TransactionCallback } from './types';
+import { toast } from "@/hooks/use-toast";
 
 let signClient: SignClient | null = null;
 let transactionCallback: TransactionCallback | null = null;
@@ -23,12 +24,17 @@ export async function initSignClient(): Promise<SignClient | null> {
           icons: ['https://walletconnect.com/walletconnect-logo.png']
         }
       });
-      
-      signClient.on("session_request", async (event) => {
-        console.log("Received session request:", event);
-        
-        if (event.params.request.method === "algo_signTxn" && transactionCallback) {
-          handleTransactionRequest(event.params.request.params[0][0], transactionCallback);
+
+      signClient.on("session_proposal", async (event) => {
+        try {
+          await handleSessionProposal(signClient!, event, transactionCallback);
+        } catch (error) {
+          console.error("Error handling session proposal:", error);
+          toast({
+            title: "Connection Failed",
+            description: "Failed to establish connection. Please try again.",
+            variant: "destructive",
+          });
         }
       });
       
