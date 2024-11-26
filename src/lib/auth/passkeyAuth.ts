@@ -38,28 +38,11 @@ export async function authenticateWithPasskey(): Promise<AuthenticationResult> {
     const account = deriveAlgorandAccountFromCredential(assertion);
     console.log("Derived Algorand account:", account);
 
-    // Create a proper Ed25519 private key from the account secret key
-    const seed = account.sk.slice(0, 32); // Take first 32 bytes for the seed
-    const keypair = algosdk.generateAccount();
-    const privateKey = new Uint8Array(keypair.sk); // This ensures correct key format
-    privateKey.set(seed); // Copy our seed into the properly formatted key
-
-    console.log("Private key length:", privateKey.length);
-
-    // Verify the private key by attempting to derive the public key
-    try {
-      const testAccount = algosdk.mnemonicToSecretKey(algosdk.secretKeyToMnemonic(privateKey));
-      console.log("Test account derived successfully:", testAccount.addr);
-
-      return {
-        address: account.addr,
-        publicKey: account.addr,
-        privateKey: privateKey
-      };
-    } catch (error) {
-      console.error("Error verifying private key:", error);
-      throw new Error("Invalid private key derived from passkey");
-    }
+    return {
+      address: account.addr,
+      publicKey: account.addr,
+      privateKey: account.sk
+    };
   } catch (error) {
     console.error("Error authenticating with passkey:", error);
     throw error;
