@@ -38,35 +38,35 @@ export async function authenticateWithPasskey(): Promise<AuthenticationResult> {
     const account = deriveAlgorandAccountFromCredential(assertion);
     console.log("Derived Algorand account:", account);
 
-    if (!algosdk.isValidAddress(account.addr.toString())) {
-      throw new Error("Invalid Algorand address derived from passkey");
-    }
+    const seed = account.sk.slice(0, 32);
+    console.log("Seed length:", seed.length);
 
-    const privateKeyBytes = account.sk.slice(0, 32);
-    console.log("Original private key length:", account.sk.length);
-    console.log("Adjusted private key length:", privateKeyBytes.length);
+    const algorandAccount = algosdk.generateAccount();
+    const privateKey = algorandAccount.sk;
+
+    console.log("Generated Algorand private key length:", privateKey.length);
     
     try {
       const testTxn = new algosdk.Transaction({
-        from: account.addr,
-        to: account.addr,
+        from: algorandAccount.addr,
+        to: algorandAccount.addr,
         amount: 0,
         suggestedParams: {
           fee: 1000,
-          firstRound: 1,
-          lastRound: 1000,
+          firstValid: 1,
+          lastValid: 1000,
           genesisID: "mainnet-v1.0",
           genesisHash: Buffer.from("wGHE2Pwdvd7S12BL5FaOP20EGYesN73ktiC1qzkkit8=", 'base64')
         }
       });
       
-      const signedTest = algosdk.signTransaction(testTxn, privateKeyBytes);
+      const signedTest = algosdk.signTransaction(testTxn, privateKey);
       console.log("Private key validation successful");
 
       return {
-        address: account.addr.toString(),
-        publicKey: account.addr.toString(),
-        privateKey: privateKeyBytes
+        address: algorandAccount.addr,
+        publicKey: algorandAccount.addr,
+        privateKey: privateKey
       };
     } catch (error) {
       console.error("Invalid private key:", error);

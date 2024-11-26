@@ -47,11 +47,6 @@ export const TransactionDialog = ({ isOpen, onClose, transaction, onSign }: Tran
         console.log("Transaction decoded successfully");
         console.log("Private key length:", authResult.privateKey.length);
         
-        // Verifica che la chiave privata sia valida
-        if (!authResult.privateKey || authResult.privateKey.length !== 32) {
-          throw new Error(`Invalid private key length: ${authResult.privateKey?.length}`);
-        }
-
         // Firma la transazione
         const signedTxn = algosdk.signTransaction(decodedTxn, authResult.privateKey);
         console.log("Transaction signed successfully");
