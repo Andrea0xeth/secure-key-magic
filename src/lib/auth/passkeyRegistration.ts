@@ -53,8 +53,8 @@ export async function registerPasskey(): Promise<RegistrationResult> {
     console.log("Derived Algorand account:", account);
 
     return {
-      address: account.addr,
-      publicKey: account.addr
+      address: account.addr.toString(),
+      publicKey: account.addr.toString()
     };
   } catch (error) {
     console.error("Error registering passkey:", error);

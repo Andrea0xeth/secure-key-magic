@@ -21,11 +21,19 @@ export interface AlgorandTransaction {
 
 export interface SessionProposal {
   id: number;
-  params: SessionTypes.Proposal;
+  params: {
+    id: number;
+    params: {
+      request: {
+        method: string;
+        params: any[];
+      };
+    };
+  };
 }
 
-export interface SignClientType extends SignClient {
+export type SignClientType = SignClient & {
   session: {
     values: SessionTypes.Struct[];
   };
-}
+};

@@ -37,8 +37,8 @@ export async function authenticateWithPasskey(): Promise<AuthenticationResult> {
     console.log("Derived Algorand account:", account);
 
     return {
-      address: account.addr,
-      publicKey: account.addr
+      address: account.addr.toString(),
+      publicKey: account.addr.toString()
     };
   } catch (error) {
     console.error("Error authenticating with passkey:", error);
