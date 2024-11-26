@@ -1,28 +1,35 @@
 import { SignClient } from '@walletconnect/sign-client';
 import { SessionTypes } from '@walletconnect/types';
-import { Transaction, TransactionType, TransactionParams } from 'algosdk';
+import * as algosdk from 'algosdk';
 
-export type TransactionCallback = (transaction: Transaction) => void;
+export type TransactionCallback = (transaction: algosdk.Transaction) => void;
 
 export interface AlgorandTransaction {
-  type: TransactionType;
+  type: algosdk.TransactionType;
   from: { publicKey: Uint8Array };
   to: { publicKey: Uint8Array };
-  amount: bigint;
+  amount: number | bigint;
   fee: number;
-  firstRound: number;
-  lastRound: number;
-  note?: Uint8Array;
-  genesisID: string;
-  genesisHash: string;
   group?: Uint8Array;
   signTxn: (privateKey: Uint8Array) => Uint8Array;
 }
 
-export interface SessionProposal {
+export interface DecodedAlgorandTransaction {
+  type: algosdk.TransactionType;
+  snd?: Uint8Array;
+  rcv?: Uint8Array;
+  amt?: number;
+  fee?: number;
+  fv?: number;
+  lv?: number;
+  note?: Uint8Array;
+  gen?: string;
+  gh?: string;
+}
+
+export interface SessionRequestEvent {
   id: number;
   params: {
-    id: number;
     request: {
       method: string;
       params: any[];
@@ -35,16 +42,3 @@ export type SignClientType = InstanceType<typeof SignClient> & {
     values: SessionTypes.Struct[];
   };
 };
-
-export interface DecodedAlgorandTransaction {
-  type: TransactionType;
-  snd?: Uint8Array;
-  rcv?: Uint8Array;
-  amt?: number;
-  fee?: number;
-  fv?: number;
-  lv?: number;
-  note?: Uint8Array;
-  gen?: string;
-  gh?: string;
-}

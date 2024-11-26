@@ -5,7 +5,7 @@ export function deriveAlgorandAccountFromCredential(credential: PublicKeyCredent
   
   // Get the raw credential ID as bytes
   const rawId = new Uint8Array(credential.rawId);
-  console.log("Raw credential ID:", Buffer.from(rawId).toString('hex'));
+  console.log("Raw credential ID:", Array.from(rawId).map(b => b.toString(16).padStart(2, '0')).join(''));
   
   // Create a deterministic seed by using a consistent hashing method
   const encoder = new TextEncoder();
@@ -18,7 +18,7 @@ export function deriveAlgorandAccountFromCredential(credential: PublicKeyCredent
   }
   
   // Generate deterministic account from seed
-  const keypair = algosdk.generateAccountFromSeed(seed);
+  const keypair = algosdk.mnemonicToSecretKey(algosdk.secretKeyToMnemonic(seed));
   console.log("Generated deterministic account with address:", keypair.addr);
   
   return keypair;

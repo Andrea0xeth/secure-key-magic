@@ -1,6 +1,6 @@
-import * as algosdk from 'algosdk';
+import * as algosdk from "algosdk";
 import { toast } from "@/hooks/use-toast";
-import { DecodedAlgorandTransaction, TransactionCallback } from './types';
+import { DecodedAlgorandTransaction, TransactionCallback } from "./types";
 
 let transactionCallback: TransactionCallback | null = null;
 
@@ -13,20 +13,20 @@ export function handleTransactionRequest(txnParams: any) {
   try {
     console.log("Transaction params:", txnParams);
     
-    const decodedTxn = algosdk.decodeObj(Buffer.from(txnParams.txn, 'base64')) as DecodedAlgorandTransaction;
+    const decodedTxn = algosdk.decodeObj(new Uint8Array(Buffer.from(txnParams.txn, 'base64'))) as DecodedAlgorandTransaction;
     console.log("Decoded transaction:", decodedTxn);
     
     const transaction = new algosdk.Transaction({
       type: decodedTxn.type,
-      snd: decodedTxn.snd,
-      rcv: decodedTxn.rcv,
-      amt: decodedTxn.amt || 0,
+      from: algosdk.encodeAddress(decodedTxn.snd || new Uint8Array(32)),
+      to: algosdk.encodeAddress(decodedTxn.rcv || new Uint8Array(32)),
+      amount: decodedTxn.amt || 0,
       fee: decodedTxn.fee || 0,
-      fv: decodedTxn.fv || 0,
-      lv: decodedTxn.lv || 0,
+      firstRound: decodedTxn.fv || 0,
+      lastRound: decodedTxn.lv || 0,
       note: decodedTxn.note,
-      gen: decodedTxn.gen || '',
-      gh: decodedTxn.gh || '',
+      genesisID: decodedTxn.gen || '',
+      genesisHash: decodedTxn.gh || '',
     });
     
     if (transactionCallback) {
