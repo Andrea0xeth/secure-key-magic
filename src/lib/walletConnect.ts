@@ -16,7 +16,6 @@ export async function initSignClient(): Promise<SignClient | null> {
           icons: ['https://walletconnect.com/walletconnect-logo.png']
         }
       });
-
       console.log("SignClient initialized successfully");
     }
     return signClient;
@@ -44,24 +43,28 @@ export async function connectWithWalletConnect(wcUrl: string, address: string): 
     console.log("Pairing with URI...");
     const { uri, approval } = await client.pair({ uri: wcUrl });
 
-    // Then connect with the required namespaces
-    console.log("Connecting with required namespaces...");
-    const namespaces = {
-      algorand: {
-        methods: [
-          'algorand_signTransaction',
-          'algorand_signTxnGroup',
-        ],
-        chains: ['algorand:mainnet'],
-        events: ['accountsChanged'],
-        accounts: [`algorand:mainnet:${address}`]
-      }
-    };
-
     // Set up session proposal listener before connecting
     client.on('session_proposal', async (proposal: SignClientTypes.EventArguments['session_proposal']) => {
       console.log("Received session proposal:", proposal);
       try {
+        // Extract the required chains from the proposal
+        const requiredChains = proposal.params.requiredNamespaces.algorand.chains;
+        console.log("Required chains:", requiredChains);
+
+        // Create namespaces matching the required chains
+        const namespaces = {
+          algorand: {
+            methods: [
+              'algorand_signTransaction',
+              'algorand_signTxnGroup',
+            ],
+            chains: requiredChains,
+            events: ['accountsChanged'],
+            accounts: requiredChains.map(chain => `${chain}:${address}`)
+          }
+        };
+
+        console.log("Approving with namespaces:", namespaces);
         const { acknowledged } = await client.approve({
           id: proposal.id,
           namespaces
@@ -76,7 +79,7 @@ export async function connectWithWalletConnect(wcUrl: string, address: string): 
     });
 
     // Connect with the dApp
-    await client.connect({
+    const { topic, acknowledged } = await client.connect({
       pairingTopic: wcUrl.split('@')[0].substring(3),
       requiredNamespaces: {
         algorand: {
@@ -89,8 +92,9 @@ export async function connectWithWalletConnect(wcUrl: string, address: string): 
         }
       }
     });
-    
-    console.log("Connection successful");
+
+    await acknowledged();
+    console.log("Connection successful with topic:", topic);
     return true;
   } catch (error) {
     console.error("Error in WalletConnect connection:", error);
