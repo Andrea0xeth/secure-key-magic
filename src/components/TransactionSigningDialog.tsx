@@ -76,9 +76,9 @@ export const TransactionSigningDialog = ({
   const txnDetails = {
     type: transaction.type,
     fee: formatAlgoAmount(transaction.fee),
-    from: transaction.from?.toString() || 'Unknown',
-    to: transaction.to?.toString() || 'Unknown',
-    amount: formatAlgoAmount(transaction.amount || 0)
+    from: transaction.from.toString(),
+    to: transaction.to.toString(),
+    amount: formatAlgoAmount(transaction.amount)
   };
 
   return (
@@ -95,7 +95,7 @@ export const TransactionSigningDialog = ({
           <div className="rounded-lg border p-4">
             <h4 className="text-sm font-medium mb-2">Transaction Details</h4>
             <div className="space-y-2 text-sm text-muted-foreground">
-              <p>Type: {txnDetails.type || 'pay'}</p>
+              <p>Type: {txnDetails.type}</p>
               <p>Fee: {txnDetails.fee} ALGO</p>
               <p>From: {txnDetails.from}</p>
               <p>To: {txnDetails.to}</p>

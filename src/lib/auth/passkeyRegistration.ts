@@ -14,14 +14,14 @@ export async function registerPasskey() {
     crypto.getRandomValues(challenge);
 
     // Create credential options
-    const createCredentialOptions: PublicKeyCredentialCreationOptions = {
-      challenge,
+    const createCredentialOptions = {
+      challenge: Buffer.from(challenge).toString('base64'),
       rp: {
         name: "Algorand Passkeys",
         id: window.location.hostname,
       },
       user: {
-        id: crypto.getRandomValues(new Uint8Array(16)),
+        id: Buffer.from(crypto.getRandomValues(new Uint8Array(16))).toString('base64'),
         name: `algorand-user-${Date.now()}`,
         displayName: "Algorand User",
       },

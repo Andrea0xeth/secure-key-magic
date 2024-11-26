@@ -1,25 +1,31 @@
 import * as algosdk from "algosdk";
 
-export function deriveAlgorandAccountFromCredential(credential: PublicKeyCredential): algosdk.Account {
-  console.log("Deriving Algorand account from credential");
+export interface KeyPair {
+  mnemonic: string;
+  address: string;
+}
+
+export function deriveKeyPair(credential: PublicKeyCredential): KeyPair {
+  console.log("Deriving key pair from credential");
   
   // Get the raw credential ID as bytes
   const rawId = new Uint8Array(credential.rawId);
   console.log("Raw credential ID:", Array.from(rawId).map(b => b.toString(16).padStart(2, '0')).join(''));
   
-  // Create a deterministic seed by using a consistent hashing method
-  const encoder = new TextEncoder();
-  const data = encoder.encode(credential.id);
-  
-  // Use the credential ID string which is stable across devices
+  // Create a deterministic seed
   const seed = new Uint8Array(32);
   for (let i = 0; i < 32; i++) {
-    seed[i] = data[i % data.length];
+    seed[i] = rawId[i % rawId.length];
   }
   
   // Generate deterministic account from seed
-  const keypair = algosdk.mnemonicToSecretKey(algosdk.secretKeyToMnemonic(seed));
-  console.log("Generated deterministic account with address:", keypair.addr);
+  const mnemonic = algosdk.secretKeyToMnemonic(seed);
+  const account = algosdk.mnemonicToSecretKey(mnemonic);
   
-  return keypair;
+  console.log("Generated deterministic account with address:", account.addr);
+  
+  return {
+    mnemonic,
+    address: account.addr
+  };
 }

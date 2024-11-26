@@ -23,16 +23,17 @@ export async function handleTransactionRequest(
     const txns = params.request.params.map((txnParams: any) => {
       console.log("Processing transaction parameters:", txnParams);
       
-      const txn = new algosdk.Transaction({
-        type: algosdk.TransactionType.pay,
+      const txn = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
         from: txnParams.sender,
         to: txnParams.receiver,
         amount: txnParams.amount,
-        fee: txnParams.fee,
-        firstRound: txnParams.firstRound,
-        lastRound: txnParams.lastRound,
-        genesisID: txnParams.genesisID,
-        genesisHash: txnParams.genesisHash,
+        suggestedParams: {
+          fee: txnParams.fee,
+          firstRound: txnParams.firstRound,
+          lastRound: txnParams.lastRound,
+          genesisID: txnParams.genesisID,
+          genesisHash: txnParams.genesisHash,
+        }
       });
 
       console.log("Created transaction:", txn);
