@@ -5,8 +5,16 @@ interface AlgoBalanceProps {
   address: string;
 }
 
-interface AccountInfo {
+// Define the full account info type based on the API response
+interface AlgorandAccount {
+  address: string;
+  amount: number;
   "amount-without-pending-rewards": number;
+  "pending-rewards": number;
+  "reward-base": number;
+  rewards: number;
+  round: number;
+  status: string;
 }
 
 export const AlgoBalance = ({ address }: AlgoBalanceProps) => {
@@ -15,10 +23,25 @@ export const AlgoBalance = ({ address }: AlgoBalanceProps) => {
     queryFn: async () => {
       console.log("Fetching balance for address:", address);
       const algodClient = new algosdk.Algodv2('', 'https://mainnet-api.algonode.cloud', '');
-      const accountInfo = await algodClient.accountInformation(address).do() as AccountInfo;
-      console.log("Account info received:", accountInfo);
-      // Convert microAlgos to Algos (divide by 1,000,000)
-      return Number(accountInfo["amount-without-pending-rewards"]) / 1_000_000;
+      
+      try {
+        const accountInfo = await algodClient.accountInformation(address).do() as AlgorandAccount;
+        console.log("Account info received:", accountInfo);
+        
+        // Ensure we have the amount-without-pending-rewards value
+        if (typeof accountInfo["amount-without-pending-rewards"] !== 'number') {
+          console.error("Invalid amount received:", accountInfo["amount-without-pending-rewards"]);
+          return 0;
+        }
+        
+        // Convert microAlgos to Algos (divide by 1,000,000)
+        const algoBalance = accountInfo["amount-without-pending-rewards"] / 1_000_000;
+        console.log("Calculated ALGO balance:", algoBalance);
+        return algoBalance;
+      } catch (error) {
+        console.error("Error fetching account info:", error);
+        return 0;
+      }
     },
     refetchInterval: 10000, // Refresh every 10 seconds
   });
