@@ -1,8 +1,8 @@
 import { Button } from "@/components/ui/button";
-import { KeyRound, Shield, Trash2 } from "lucide-react";
+import { KeyRound, Shield } from "lucide-react";
 import { AuthenticationResult } from "@/lib/webauthn";
 import { useToast } from "@/components/ui/use-toast";
-import { clearStoredAlgorandKey, getStoredAlgorandKey } from "@/lib/storage/keyStorage";
+import { getStoredAlgorandKey } from "@/lib/storage/keyStorage";
 
 interface PasskeySectionProps {
   authResult: AuthenticationResult | null;
@@ -43,60 +43,19 @@ export const PasskeySection = ({ authResult, onRegister, onAuthenticate }: Passk
       });
     }
   };
-
-  const handleClearPasskey = () => {
-    try {
-      clearStoredAlgorandKey();
-      toast({
-        title: "Passkey Cleared",
-        description: "Your passkey has been removed. You can now register a new one.",
-      });
-      // Force reload to clear any cached state
-      window.location.reload();
-    } catch (error) {
-      console.error("Error clearing passkey:", error);
-      toast({
-        title: "Clear Failed",
-        description: "Failed to clear passkey. Please try again.",
-        variant: "destructive",
-      });
-    }
-  };
   
   return (
     <div className="space-y-6">
       <div className="text-center space-y-4">
         {hasExistingKey ? (
-          <>
-            <Button
-              onClick={handleAuthenticate}
-              variant="outline"
-              className="w-full border-artence-purple text-artence-purple hover:bg-artence-purple/10 transition-colors duration-300"
-            >
-              <Shield className="mr-2 h-4 w-4" />
-              Authenticate with Passkey
-            </Button>
-            
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t" />
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-background px-2 text-muted-foreground">
-                  Or
-                </span>
-              </div>
-            </div>
-
-            <Button
-              onClick={handleClearPasskey}
-              variant="destructive"
-              className="w-full"
-            >
-              <Trash2 className="mr-2 h-4 w-4" />
-              Clear Existing Passkey
-            </Button>
-          </>
+          <Button
+            onClick={handleAuthenticate}
+            variant="outline"
+            className="w-full border-artence-purple text-artence-purple hover:bg-artence-purple/10 transition-colors duration-300"
+          >
+            <Shield className="mr-2 h-4 w-4" />
+            Authenticate with Passkey
+          </Button>
         ) : (
           <Button
             onClick={handleRegister}
