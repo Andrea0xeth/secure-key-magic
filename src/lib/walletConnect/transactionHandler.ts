@@ -33,16 +33,17 @@ export const handleTransactionRequest = async (txnParams: any) => {
       fee: decodedTxn.fee || 0,
       firstRound: decodedTxn.fv || 0,
       lastRound: decodedTxn.lv || 0,
-      genesisHash: decodedTxn.gh || '',
+      genesisHash: decodedTxn.gh ? new Uint8Array(Buffer.from(decodedTxn.gh)) : new Uint8Array(),
       genesisID: decodedTxn.gen || '',
       flatFee: true
     };
 
     const transaction = new algosdk.Transaction({
-      from: Buffer.from(decodedTxn.snd || '').toString('base64'),
-      to: Buffer.from(decodedTxn.rcv || '').toString('base64'),
+      suggestedParams,
       amount: decodedTxn.amt || 0,
-      suggestedParams
+      from: algosdk.encodeAddress(decodedTxn.snd || new Uint8Array()),
+      to: algosdk.encodeAddress(decodedTxn.rcv || new Uint8Array()),
+      type: decodedTxn.type || algosdk.TransactionType.pay
     });
 
     console.log("Created transaction object:", transaction);
