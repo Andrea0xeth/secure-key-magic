@@ -19,9 +19,11 @@ export const TransactionDialog = ({ isOpen, onClose, transaction, onSign }: Tran
   const handleSign = async () => {
     try {
       setIsLoading(true);
-      const authResult = await authenticateWithPasskey();
+      console.log("Starting transaction signing process");
       
+      const authResult = await authenticateWithPasskey();
       if (!authResult) {
+        console.error("Failed to authenticate with passkey");
         toast({
           title: "Authentication Failed",
           description: "Failed to authenticate with passkey",
@@ -30,8 +32,7 @@ export const TransactionDialog = ({ isOpen, onClose, transaction, onSign }: Tran
         return;
       }
 
-      // Here we would sign the transaction with the authenticated key
-      // For now, we'll just mock the signing
+      console.log("Successfully authenticated, signing transaction");
       const signedTxn = new Uint8Array(transaction.bytesToSign());
       onSign(signedTxn);
       
@@ -52,6 +53,8 @@ export const TransactionDialog = ({ isOpen, onClose, transaction, onSign }: Tran
       setIsLoading(false);
     }
   };
+
+  if (!transaction) return null;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>

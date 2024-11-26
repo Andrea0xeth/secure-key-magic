@@ -1,8 +1,15 @@
 import SignClient from '@walletconnect/sign-client';
 import type { SignClientTypes } from '@walletconnect/types';
 import { toast } from "@/hooks/use-toast";
+import * as algosdk from "algosdk";
 
 let signClient: SignClient | null = null;
+let transactionCallback: ((transaction: algosdk.Transaction) => void) | null = null;
+
+export function setTransactionCallback(callback: (transaction: algosdk.Transaction) => void) {
+  transactionCallback = callback;
+  console.log("Transaction callback set");
+}
 
 export async function initSignClient(): Promise<SignClient | null> {
   try {
@@ -18,11 +25,28 @@ export async function initSignClient(): Promise<SignClient | null> {
         }
       });
       
-      // Set up transaction request handler
       signClient.on("session_request", async (event) => {
         console.log("Received session request:", event);
-        // Handle transaction signing requests here
-        // This will be implemented in the UI layer
+        
+        const { params } = event;
+        if (params.request.method === "algo_signTxn") {
+          console.log("Received sign transaction request");
+          
+          const txnParams = params.request.params[0][0];
+          const transaction = new algosdk.Transaction(txnParams);
+          
+          if (transactionCallback) {
+            console.log("Calling transaction callback with transaction:", transaction);
+            transactionCallback(transaction);
+          } else {
+            console.error("No transaction callback set");
+            toast({
+              title: "Error",
+              description: "Transaction handler not initialized",
+              variant: "destructive",
+            });
+          }
+        }
       });
       
       console.log("SignClient initialized successfully");

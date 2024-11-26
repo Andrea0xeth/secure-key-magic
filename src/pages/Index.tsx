@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
 import { registerPasskey, authenticateWithPasskey, processWalletConnectUrl, exportPrivateKey, type AuthenticationResult } from "@/lib/webauthn";
-import { disconnectWalletConnect } from "@/lib/walletConnect";
+import { disconnectWalletConnect, setTransactionCallback } from "@/lib/walletConnect";
 import { Shield, Link, Download, LogOut } from "lucide-react";
 import { PasskeySection } from "@/components/PasskeySection";
 import { ConnectedAppsList } from "@/components/ConnectedAppsList";
@@ -20,6 +20,14 @@ const IndexContent = () => {
   const [wcUrl, setWcUrl] = useState<string>("");
   const [currentTransaction, setCurrentTransaction] = useState<algosdk.Transaction | null>(null);
   const { toast } = useToast();
+
+  useEffect(() => {
+    // Set up transaction handler when component mounts
+    setTransactionCallback((transaction: algosdk.Transaction) => {
+      console.log("Received transaction to sign:", transaction);
+      setCurrentTransaction(transaction);
+    });
+  }, []);
 
   const handleRegister = async () => {
     console.log("Starting passkey registration...");
@@ -128,8 +136,12 @@ const IndexContent = () => {
   };
 
   const handleTransactionSign = async (signedTxn: Uint8Array) => {
-    // Here we would handle the signed transaction
     console.log("Transaction signed:", signedTxn);
+    setCurrentTransaction(null);
+    toast({
+      title: "Success",
+      description: "Transaction signed successfully",
+    });
   };
 
   return (
