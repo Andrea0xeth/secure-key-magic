@@ -25,7 +25,7 @@ export const AlgoBalance = ({ address }: AlgoBalanceProps) => {
       const algodClient = new algosdk.Algodv2('', 'https://mainnet-api.algonode.cloud', '');
       
       try {
-        const accountInfo = await algodClient.accountInformation(address).do() as AlgorandAccount;
+        const accountInfo = (await algodClient.accountInformation(address).do()) as unknown as AlgorandAccount;
         console.log("Account info received:", accountInfo);
         
         // Ensure we have the amount-without-pending-rewards value

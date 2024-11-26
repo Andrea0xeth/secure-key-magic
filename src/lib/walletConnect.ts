@@ -6,6 +6,19 @@ import * as algosdk from "algosdk";
 let signClient: SignClient | null = null;
 let transactionCallback: ((transaction: algosdk.Transaction) => void) | null = null;
 
+interface DecodedAlgorandTransaction {
+  type?: string;
+  snd?: Uint8Array;
+  rcv?: Uint8Array;
+  amt?: number;
+  fee?: number;
+  fv?: number;
+  lv?: number;
+  note?: Uint8Array;
+  gen?: string;
+  gh?: string;
+}
+
 export function setTransactionCallback(callback: (transaction: algosdk.Transaction) => void) {
   transactionCallback = callback;
   console.log("Transaction callback set");
@@ -37,22 +50,21 @@ export async function initSignClient(): Promise<SignClient | null> {
             console.log("Transaction params:", txnParams);
             
             // Decode the transaction from msgpack format
-            const decodedTxn = algosdk.decodeObj(Buffer.from(txnParams.txn, 'base64'));
+            const decodedTxn = algosdk.decodeObj(Buffer.from(txnParams.txn, 'base64')) as DecodedAlgorandTransaction;
             console.log("Decoded transaction:", decodedTxn);
             
-            // Create a new transaction object
+            // Create a new transaction object with proper typing
             const transaction = new algosdk.Transaction({
-              ...decodedTxn,
               type: decodedTxn.type || 'pay',
               from: decodedTxn.snd,
               to: decodedTxn.rcv,
               amount: decodedTxn.amt || 0,
               fee: decodedTxn.fee || 0,
-              firstRound: decodedTxn.fv,
-              lastRound: decodedTxn.lv,
+              firstRound: decodedTxn.fv || 0,
+              lastRound: decodedTxn.lv || 0,
               note: decodedTxn.note,
-              genesisID: decodedTxn.gen,
-              genesisHash: decodedTxn.gh,
+              genesisID: decodedTxn.gen || '',
+              genesisHash: decodedTxn.gh || '',
             });
             
             if (transactionCallback) {

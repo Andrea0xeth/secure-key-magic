@@ -77,11 +77,11 @@ export const TransactionDialog = ({ isOpen, onClose, transaction, onSign }: Tran
             <h4 className="text-sm font-medium mb-2">Transaction Details</h4>
             <div className="space-y-2 text-sm text-muted-foreground">
               <p>Type: {transaction.type}</p>
-              {transaction.group && <p>Group ID: {Buffer.from(transaction.group()).toString('base64')}</p>}
+              {transaction.group && <p>Group ID: {Buffer.from(transaction.group).toString('base64')}</p>}
               <p>Fee: {formatAlgoAmount(transaction.fee)} ALGO</p>
-              {transaction.from && <p>From: {algosdk.encodeAddress(transaction.from.publicKey)}</p>}
-              {transaction.to && <p>To: {algosdk.encodeAddress(transaction.to.publicKey)}</p>}
-              {transaction.amount && <p>Amount: {formatAlgoAmount(transaction.amount)} ALGO</p>}
+              <p>From: {transaction.from ? algosdk.encodeAddress(transaction.from) : 'Unknown'}</p>
+              <p>To: {transaction.to ? algosdk.encodeAddress(transaction.to) : 'Unknown'}</p>
+              <p>Amount: {formatAlgoAmount(transaction.amount || 0)} ALGO</p>
             </div>
           </div>
         </div>
