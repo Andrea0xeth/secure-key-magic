@@ -132,7 +132,9 @@ const Index = () => {
                     </Button>
                   </div>
                   <div className="flex gap-2">
+                    {/* Temporarily commented out QR Scanner
                     <QRScanner onResult={setWcUrl} />
+                    */}
                     <Button
                       onClick={handleWalletConnectUrl}
                       className="w-full sm:w-auto bg-artence-purple hover:bg-primary text-white transition-colors duration-300"
