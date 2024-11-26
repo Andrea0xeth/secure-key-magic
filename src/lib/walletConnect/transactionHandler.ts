@@ -1,6 +1,6 @@
 import * as algosdk from "algosdk";
 import { toast } from "@/hooks/use-toast";
-import { DecodedAlgorandTransaction } from "./transactionTypes";
+import { DecodedAlgorandTransaction } from "./types";
 
 let transactionCallback: ((transaction: algosdk.Transaction) => void) | null = null;
 
@@ -26,12 +26,13 @@ export function handleTransactionRequest(txnParams: any) {
       flatFee: true,
     };
 
-    // Create transaction with proper types
+    // Create transaction object
     const transaction = new algosdk.Transaction({
+      suggestedParams,
       from: algosdk.encodeAddress(decodedTxn.snd || new Uint8Array(32)),
       to: algosdk.encodeAddress(decodedTxn.rcv || new Uint8Array(32)),
       amount: decodedTxn.amt || 0,
-      suggestedParams: suggestedParams,
+      type: algosdk.TransactionType.pay
     });
     
     if (transactionCallback) {

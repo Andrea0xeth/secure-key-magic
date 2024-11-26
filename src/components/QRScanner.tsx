@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { QrReader } from 'react-qr-reader';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -9,8 +9,24 @@ interface QRScannerProps {
 }
 
 export const QRScanner = ({ onResult }: QRScannerProps) => {
+  const [open, setOpen] = useState(false);
+
+  const handleScan = (result: { getText(): string } | null) => {
+    if (result) {
+      const text = result.getText();
+      console.log("QR Scan result:", text);
+      
+      // Check if it's a WalletConnect URL (starts with "wc:")
+      if (text.startsWith('wc:')) {
+        console.log("Valid WalletConnect URL detected");
+        onResult(text);
+        setOpen(false); // Close the modal
+      }
+    }
+  };
+
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="outline" className="w-full sm:w-auto">
           <Scan className="mr-2 h-4 w-4" />
@@ -24,11 +40,7 @@ export const QRScanner = ({ onResult }: QRScannerProps) => {
         <div className="w-full aspect-square">
           <QrReader
             constraints={{ facingMode: 'environment' }}
-            onResult={(result) => {
-              if (result) {
-                onResult(result.getText());
-              }
-            }}
+            onResult={handleScan}
             className="w-full h-full"
           />
         </div>

@@ -4,10 +4,28 @@ import * as algosdk from 'algosdk';
 
 export type TransactionCallback = (transaction: algosdk.Transaction) => void;
 
+export interface TransactionRequest {
+  method: string;
+  params: any[];
+}
+
+export interface SessionProposal {
+  id: number;
+  params: {
+    request: TransactionRequest;
+    chainId?: string;
+    requiredNamespaces?: {
+      algorand?: {
+        methods: string[];
+      };
+    };
+  };
+}
+
 export interface AlgorandTransaction {
   type: algosdk.TransactionType;
-  from: { publicKey: Uint8Array };
-  to: { publicKey: Uint8Array };
+  from: string;
+  to: string;
   amount: number | bigint;
   fee: number;
   group?: Uint8Array;
@@ -42,8 +60,3 @@ export type SignClientType = InstanceType<typeof SignClient> & {
     values: SessionTypes.Struct[];
   };
 };
-
-export interface SessionProposal {
-  id: number;
-  params: ProposalTypes.Struct;
-}
