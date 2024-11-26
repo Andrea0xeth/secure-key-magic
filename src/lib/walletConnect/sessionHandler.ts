@@ -12,8 +12,9 @@ export const handleSessionProposal = async (
   try {
     const { id, params } = proposal;
     
-    // Check if required properties exist
-    if (!params || !params.requiredNamespaces || !params.requiredNamespaces.algorand) {
+    // Validate proposal structure
+    if (!params || !params.requiredNamespaces) {
+      console.error("Invalid proposal structure:", params);
       throw new Error("Invalid session proposal format");
     }
 
