@@ -1,8 +1,7 @@
 import { SignClientTypes } from "@walletconnect/types";
 import * as algosdk from "algosdk";
-import { AlgorandTransaction } from "./types";
+import { TransactionCallback } from "./types";
 
-type TransactionCallback = (transaction: AlgorandTransaction) => void;
 let transactionCallback: TransactionCallback | null = null;
 
 export function setTransactionCallback(callback: TransactionCallback) {
@@ -18,35 +17,32 @@ export function handleTransactionRequest(params: any) {
   }
 
   try {
+    console.log("Decoding transaction from base64:", params.txn);
     const decodedTxn = algosdk.decodeObj(Buffer.from(params.txn, 'base64'));
-    console.log("Decoded transaction params:", decodedTxn);
+    console.log("Decoded transaction:", decodedTxn);
 
     if (!decodedTxn) {
+      console.error("Failed to decode transaction");
       throw new Error("Invalid transaction parameters");
     }
 
-    const from = algosdk.encodeAddress((decodedTxn as any).snd);
-    const to = algosdk.encodeAddress((decodedTxn as any).rcv);
-    
-    const transaction: AlgorandTransaction = {
-      type: 'pay',
-      from: from,
-      to: to,
+    // Create a proper Algorand transaction object
+    const txn = new algosdk.Transaction({
+      from: algosdk.encodeAddress((decodedTxn as any).snd),
+      to: algosdk.encodeAddress((decodedTxn as any).rcv),
       amount: (decodedTxn as any).amt || 0,
       fee: (decodedTxn as any).fee || 0,
+      firstRound: (decodedTxn as any).fv,
+      lastRound: (decodedTxn as any).lv,
+      genesisHash: (decodedTxn as any).gh,
+      genesisID: (decodedTxn as any).gen,
+      type: (decodedTxn as any).type,
+      note: (decodedTxn as any).note,
       group: (decodedTxn as any).grp,
-      signTxn: (key: Uint8Array) => {
-        console.log("Creating transaction object for signing");
-        const txnObj = algosdk.Transaction.from_obj_for_encoding(decodedTxn as algosdk.TransactionParams);
-        console.log("Transaction object created:", txnObj);
-        const signedTxn = txnObj.signTxn(key);
-        console.log("Transaction signed successfully");
-        return signedTxn;
-      }
-    };
+    });
 
-    console.log("Created transaction object:", transaction);
-    transactionCallback(transaction);
+    console.log("Created Algorand transaction object:", txn);
+    transactionCallback(txn);
   } catch (error) {
     console.error("Error handling transaction request:", error);
     throw error;

@@ -1,4 +1,4 @@
-import { SignClientType, TransactionCallback, AlgorandTransaction } from './types';
+import { SignClientType, TransactionCallback } from './types';
 import * as algosdk from 'algosdk';
 
 export function setupSessionHandlers(client: SignClientType, callback: TransactionCallback) {
@@ -16,26 +16,22 @@ export function setupSessionHandlers(client: SignClientType, callback: Transacti
         console.log("Decoded transaction:", decodedTxn);
         
         if (callback && decodedTxn) {
-          const from = algosdk.encodeAddress((decodedTxn as any).snd);
-          const to = algosdk.encodeAddress((decodedTxn as any).rcv);
-          
-          const transaction: AlgorandTransaction = {
-            type: 'pay',
-            from: from,
-            to: to,
+          const txn = new algosdk.Transaction({
+            from: algosdk.encodeAddress((decodedTxn as any).snd),
+            to: algosdk.encodeAddress((decodedTxn as any).rcv),
             amount: (decodedTxn as any).amt || 0,
             fee: (decodedTxn as any).fee || 0,
+            firstRound: (decodedTxn as any).fv,
+            lastRound: (decodedTxn as any).lv,
+            genesisHash: (decodedTxn as any).gh,
+            genesisID: (decodedTxn as any).gen,
+            type: (decodedTxn as any).type,
+            note: (decodedTxn as any).note,
             group: (decodedTxn as any).grp,
-            signTxn: (key: Uint8Array) => {
-              console.log("Creating transaction object for signing");
-              const txn = algosdk.Transaction.from_obj_for_encoding(decodedTxn as algosdk.TransactionParams);
-              console.log("Transaction object created:", txn);
-              const signedTxn = txn.signTxn(key);
-              console.log("Transaction signed successfully");
-              return signedTxn;
-            }
-          };
-          callback(transaction);
+          });
+          
+          console.log("Created Algorand transaction object:", txn);
+          callback(txn);
         }
       } catch (error) {
         console.error("Error processing transaction:", error);
