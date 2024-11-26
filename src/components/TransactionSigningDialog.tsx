@@ -43,7 +43,6 @@ export const TransactionSigningDialog = ({
       }
 
       console.log("Successfully authenticated, signing transaction");
-      const txnParams = transaction.get_obj_for_encoding();
       const signedTxn = transaction.signTxn(new Uint8Array(32));
       onSign(signedTxn);
       
@@ -73,8 +72,6 @@ export const TransactionSigningDialog = ({
     return null;
   }
 
-  const txnParams = transaction.get_obj_for_encoding();
-
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent>
@@ -89,11 +86,11 @@ export const TransactionSigningDialog = ({
           <div className="rounded-lg border p-4">
             <h4 className="text-sm font-medium mb-2">Transaction Details</h4>
             <div className="space-y-2 text-sm text-muted-foreground">
-              <p>Type: {txnParams.type || 'pay'}</p>
-              <p>Fee: {formatAlgoAmount(Number(txnParams.fee))} ALGO</p>
-              <p>From: {algosdk.encodeAddress(txnParams.snd)}</p>
-              <p>To: {txnParams.rcv ? algosdk.encodeAddress(txnParams.rcv) : 'Unknown'}</p>
-              <p>Amount: {formatAlgoAmount(Number(txnParams.amt))} ALGO</p>
+              <p>Type: {transaction.type}</p>
+              <p>Fee: {formatAlgoAmount(transaction.fee)} ALGO</p>
+              <p>From: {transaction.from}</p>
+              <p>To: {transaction.to}</p>
+              <p>Amount: {formatAlgoAmount(transaction.amount)} ALGO</p>
             </div>
           </div>
         </div>
