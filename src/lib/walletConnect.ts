@@ -41,21 +41,9 @@ export async function connectWithWalletConnect(wcUrl: string, address: string): 
     // Extract the URI without query parameters
     const uri = wcUrl.split('?')[0];
     
-    console.log("Attempting to connect with URI:", uri);
+    console.log("Attempting to pair with URI:", uri);
 
-    const { uri: connectionUri, approval } = await client.connect({
-      requiredNamespaces: {
-        algorand: {
-          methods: [
-            'algorand_signTransaction',
-            'algorand_signTxnGroup',
-          ],
-          chains: ['algorand:mainnet'],
-          events: ['accountsChanged']
-        }
-      },
-      pairingTopic: uri.split(':')[1]
-    });
+    const { approval } = await client.pair({ uri });
 
     console.log("Pairing with dApp...");
     

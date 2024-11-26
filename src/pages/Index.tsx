@@ -37,22 +37,56 @@ const Index = () => {
     }
   };
 
+  const handleWalletConnectUrl = async () => {
+    if (!wcUrl) {
+      toast({
+        title: "Error",
+        description: "Please enter a WalletConnect URL",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!authResult?.address) {
+      toast({
+        title: "Error",
+        description: "Please authenticate first",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    console.log("Processing WalletConnect URL:", wcUrl);
+    console.log("Using authenticated address:", authResult.address);
+
+    try {
+      const success = await processWalletConnectUrl(wcUrl, authResult.address);
+      if (success) {
+        setWcUrl("");
+      }
+    } catch (error) {
+      console.error("Error processing WalletConnect URL:", error);
+      toast({
+        title: "Connection Failed",
+        description: "Failed to connect to dApp. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleExportKey = () => {
     try {
       const privateKey = exportPrivateKey();
       
-      // Create a blob with the private key
       const blob = new Blob([privateKey], { type: 'text/plain' });
       const url = window.URL.createObjectURL(blob);
       
-      // Create a temporary link and trigger download
       const a = document.createElement('a');
       a.href = url;
       a.download = 'algorand-private-key.txt';
       document.body.appendChild(a);
       a.click();
       
-      // Cleanup
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
 
