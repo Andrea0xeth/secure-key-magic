@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Shield, Scan, Clipboard } from "lucide-react";
-import { authenticateWithPasskey } from "@/lib/webauthn";
+import { authenticateWithPasskey, registerPasskey } from "@/lib/webauthn";
 import { connectWithWalletConnect } from "@/lib/walletConnect/connection";
 import { ConnectedAppsList } from "@/components/ConnectedAppsList";
 import { AlgoBalance } from "@/components/AlgoBalance";
@@ -10,11 +10,16 @@ import { AddressQRCode } from "@/components/AddressQRCode";
 import { QRScanner } from "@/components/QRScanner";
 import { useTheme } from "next-themes";
 import { toast } from "@/hooks/use-toast";
+import { TransactionSigningDialog } from "@/components/TransactionSigningDialog";
+import * as algosdk from "algosdk";
+import { setTransactionCallback } from "@/lib/walletConnect/transactionHandler";
 
 const Index = () => {
   const [authResult, setAuthResult] = useState<{ address: string } | null>(null);
   const [wcUrl, setWcUrl] = useState<string>("");
   const { theme, setTheme } = useTheme();
+  const [currentTransaction, setCurrentTransaction] = useState<algosdk.Transaction | null>(null);
+  const [isTransactionDialogOpen, setIsTransactionDialogOpen] = useState(false);
 
   const handleAuthenticate = async () => {
     console.log("Starting passkey authentication...");
@@ -22,6 +27,13 @@ const Index = () => {
     if (result) {
       console.log("Passkey authentication successful:", result);
       setAuthResult(result);
+      
+      // Set up transaction handling
+      setTransactionCallback((transaction: algosdk.Transaction) => {
+        console.log("Received transaction to sign:", transaction);
+        setCurrentTransaction(transaction);
+        setIsTransactionDialogOpen(true);
+      });
     }
   };
 
@@ -53,6 +65,17 @@ const Index = () => {
       });
     }
   };
+
+  const handleSignedTransaction = (signedTxn: Uint8Array) => {
+    console.log("Transaction signed:", signedTxn);
+    // Here you would normally send the signed transaction back to the dApp
+    toast({
+      title: "Transaction Signed",
+      description: "The transaction has been signed successfully",
+    });
+  };
+
+  // ... keep existing code (UI rendering)
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-gray-100 dark:from-artence-navy dark:to-gray-900 transition-colors duration-300">
@@ -152,6 +175,13 @@ const Index = () => {
             </div>
           )}
         </Card>
+
+        <TransactionSigningDialog
+          isOpen={isTransactionDialogOpen}
+          onClose={() => setIsTransactionDialogOpen(false)}
+          transaction={currentTransaction}
+          onSign={handleSignedTransaction}
+        />
       </div>
     </div>
   );
