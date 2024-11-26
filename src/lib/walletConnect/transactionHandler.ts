@@ -26,19 +26,8 @@ export function handleTransactionRequest(params: any) {
       throw new Error("Failed to decode transaction");
     }
 
-    // Create suggested params from decoded transaction
-    const suggestedParams: algosdk.SuggestedParams = {
-      fee: decodedTxn.fee || 0,
-      firstRound: decodedTxn.fv || 0,
-      lastRound: decodedTxn.lv || 0,
-      genesisID: decodedTxn.gen || '',
-      genesisHash: decodedTxn.gh || '',
-      flatFee: true,
-    };
-
-    // Validate sender address - this must exist
+    // Validate sender address
     if (!decodedTxn.snd) {
-      console.error("Missing sender address");
       throw new Error("Missing sender address");
     }
 
@@ -47,29 +36,33 @@ export function handleTransactionRequest(params: any) {
 
     console.log("Transaction addresses:", { 
       from: fromAddress, 
-      to: toAddress,
-      originalSnd: decodedTxn.snd,
-      originalRcv: decodedTxn.rcv 
+      to: toAddress
     });
 
-    // Create transaction object with explicit type
-    const transaction = new algosdk.Transaction({
-      type: algosdk.TransactionType.pay,
-      from: fromAddress,
-      to: toAddress,
-      amount: decodedTxn.amt || 0,
-      fee: suggestedParams.fee,
-      firstRound: suggestedParams.firstRound,
-      lastRound: suggestedParams.lastRound,
-      genesisID: suggestedParams.genesisID,
-      genesisHash: suggestedParams.genesisHash,
-      flatFee: suggestedParams.flatFee
-    });
+    // Create suggested parameters
+    const suggestedParams: algosdk.SuggestedParams = {
+      fee: decodedTxn.fee || 0,
+      firstRound: decodedTxn.fv || 0,
+      lastRound: decodedTxn.lv || 0,
+      genesisID: decodedTxn.gen || '',
+      genesisHash: decodedTxn.gh ? Buffer.from(decodedTxn.gh, 'base64') : new Uint8Array(32),
+      flatFee: true,
+    };
+
+    // Create transaction object
+    const transaction = algosdk.makePaymentTxnWithSuggestedParams(
+      fromAddress,
+      toAddress,
+      decodedTxn.amt || 0,
+      undefined, // note
+      undefined, // closeRemainderTo
+      suggestedParams
+    );
     
     console.log("Created transaction object:", {
-      type: transaction.type,
-      from: transaction.from,
-      to: transaction.to,
+      txnType: transaction.type,
+      sender: transaction.from.toString(),
+      receiver: transaction.to.toString(),
       amount: transaction.amount,
       fee: transaction.fee
     });
