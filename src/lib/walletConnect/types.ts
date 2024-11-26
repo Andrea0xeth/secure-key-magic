@@ -21,3 +21,17 @@ export interface EncodedTransaction {
   signer?: string;
   message?: string;
 }
+
+export interface DecodedTransaction {
+  snd?: Uint8Array;
+  rcv?: Uint8Array;
+  amt?: number;
+  fee?: number;
+  fv?: number;
+  lv?: number;
+  note?: Uint8Array;
+  gen?: string;
+  gh?: string;
+  type?: string;
+  grp?: Uint8Array;
+}

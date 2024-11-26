@@ -26,17 +26,26 @@ export function handleTransactionRequest(params: any) {
       throw new Error("Invalid transaction parameters");
     }
 
-    // Create a proper Algorand transaction object
+    // Ensure we have the required address fields
+    const senderAddress = (decodedTxn as any).snd ? algosdk.encodeAddress((decodedTxn as any).snd) : null;
+    const receiverAddress = (decodedTxn as any).rcv ? algosdk.encodeAddress((decodedTxn as any).rcv) : null;
+
+    if (!senderAddress) {
+      console.error("Sender address is missing in transaction");
+      throw new Error("Sender address must not be null or undefined");
+    }
+
+    // Create a proper Algorand transaction object with required fields
     const txn = new algosdk.Transaction({
-      from: algosdk.encodeAddress((decodedTxn as any).snd),
-      to: algosdk.encodeAddress((decodedTxn as any).rcv),
+      from: senderAddress,
+      to: receiverAddress || senderAddress, // fallback to sender if receiver is not specified
       amount: (decodedTxn as any).amt || 0,
-      fee: (decodedTxn as any).fee || 0,
-      firstRound: (decodedTxn as any).fv,
-      lastRound: (decodedTxn as any).lv,
-      genesisHash: (decodedTxn as any).gh,
-      genesisID: (decodedTxn as any).gen,
-      type: (decodedTxn as any).type,
+      fee: (decodedTxn as any).fee || 1000, // default minimum fee
+      firstRound: (decodedTxn as any).fv || 0,
+      lastRound: (decodedTxn as any).lv || 0,
+      genesisHash: (decodedTxn as any).gh || '',
+      genesisID: (decodedTxn as any).gen || '',
+      type: (decodedTxn as any).type || 'pay',
       note: (decodedTxn as any).note,
       group: (decodedTxn as any).grp,
     });

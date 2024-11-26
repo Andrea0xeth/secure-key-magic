@@ -15,24 +15,31 @@ export function setupSessionHandlers(client: SignClientType, callback: Transacti
         const decodedTxn = algosdk.decodeObj(Buffer.from(txnParams.txn, 'base64'));
         console.log("Decoded transaction:", decodedTxn);
         
-        if (callback && decodedTxn) {
-          const txn = new algosdk.Transaction({
-            from: algosdk.encodeAddress((decodedTxn as any).snd),
-            to: algosdk.encodeAddress((decodedTxn as any).rcv),
-            amount: (decodedTxn as any).amt || 0,
-            fee: (decodedTxn as any).fee || 0,
-            firstRound: (decodedTxn as any).fv,
-            lastRound: (decodedTxn as any).lv,
-            genesisHash: (decodedTxn as any).gh,
-            genesisID: (decodedTxn as any).gen,
-            type: (decodedTxn as any).type,
-            note: (decodedTxn as any).note,
-            group: (decodedTxn as any).grp,
-          });
-          
-          console.log("Created Algorand transaction object:", txn);
-          callback(txn);
+        if (!decodedTxn) {
+          throw new Error("Failed to decode transaction");
         }
+
+        const senderAddress = (decodedTxn as any).snd ? algosdk.encodeAddress((decodedTxn as any).snd) : null;
+        if (!senderAddress) {
+          throw new Error("Sender address must not be null or undefined");
+        }
+
+        const txn = new algosdk.Transaction({
+          from: senderAddress,
+          to: (decodedTxn as any).rcv ? algosdk.encodeAddress((decodedTxn as any).rcv) : senderAddress,
+          amount: (decodedTxn as any).amt || 0,
+          fee: (decodedTxn as any).fee || 1000,
+          firstRound: (decodedTxn as any).fv || 0,
+          lastRound: (decodedTxn as any).lv || 0,
+          genesisHash: (decodedTxn as any).gh || '',
+          genesisID: (decodedTxn as any).gen || '',
+          type: (decodedTxn as any).type || 'pay',
+          note: (decodedTxn as any).note,
+          group: (decodedTxn as any).grp,
+        });
+        
+        console.log("Created Algorand transaction object:", txn);
+        callback(txn);
       } catch (error) {
         console.error("Error processing transaction:", error);
         throw error;
