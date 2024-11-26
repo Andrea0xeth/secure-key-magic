@@ -13,8 +13,8 @@ export function clearTransactionCallback() {
   transactionCallback = null;
 }
 
-export async function handleTransactionRequest(params: any) {
-  console.log("Handling transaction request:", params);
+export async function handleTransactionRequest(txnParams: any) {
+  console.log("Handling transaction request:", txnParams);
   
   if (!transactionCallback) {
     console.error("No transaction callback set");
@@ -22,32 +22,36 @@ export async function handleTransactionRequest(params: any) {
   }
 
   try {
-    const txns = params.params.map((txnParams: any) => {
-      console.log("Processing transaction parameters:", txnParams);
-      
-      const suggestedParams: algosdk.SuggestedParams = {
-        fee: Number(txnParams.fee),
-        firstRound: txnParams.firstRound,
-        lastRound: txnParams.lastRound,
-        genesisID: txnParams.genesisID,
-        genesisHash: txnParams.genesisHash,
-        flatFee: true
-      };
+    if (!txnParams || !txnParams.txn) {
+      console.error("Invalid transaction parameters:", txnParams);
+      throw new Error("Invalid transaction parameters");
+    }
 
-      const txn = new algosdk.Transaction({
-        suggestedParams,
-        amount: txnParams.amount,
-        to: txnParams.receiver,
-        from: txnParams.sender,
-        type: txnParams.type
-      });
+    const decodedTxn = algosdk.decodeObj(Buffer.from(txnParams.txn, 'base64'));
+    console.log("Decoded transaction:", decodedTxn);
 
-      console.log("Created transaction:", txn);
-      return txn;
+    if (!decodedTxn) {
+      throw new Error("Failed to decode transaction");
+    }
+
+    const suggestedParams: algosdk.SuggestedParams = {
+      fee: 0,
+      firstRound: 0,
+      lastRound: 0,
+      genesisHash: '',
+      genesisID: '',
+      flatFee: true
+    };
+
+    const transaction = new algosdk.Transaction({
+      from: (decodedTxn as any).snd?.toString(),
+      to: (decodedTxn as any).rcv?.toString(),
+      amount: (decodedTxn as any).amt || 0,
+      suggestedParams
     });
 
-    console.log("Calling transaction callback with transaction:", txns[0]);
-    transactionCallback(txns[0]);
+    console.log("Created transaction object:", transaction);
+    transactionCallback(transaction);
 
   } catch (error) {
     console.error("Error processing transaction:", error);

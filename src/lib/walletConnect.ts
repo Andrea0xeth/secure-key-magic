@@ -25,10 +25,15 @@ export async function initSignClient(): Promise<SignClient | null> {
       signClient.on("session_request", async (event) => {
         console.log("Received session request:", event);
         
-        const { params } = event;
-        if (params.request.method === "algo_signTxn") {
-          console.log("Received sign transaction request");
-          handleTransactionRequest(params.request.params[0][0]);
+        if (!event.params?.request?.params) {
+          console.error("Invalid session request format:", event);
+          return;
+        }
+
+        const { request } = event.params;
+        if (request.method === "algo_signTxn" && Array.isArray(request.params) && request.params.length > 0) {
+          console.log("Received sign transaction request with params:", request.params);
+          handleTransactionRequest(request.params[0][0]);
         }
       });
       
@@ -59,10 +64,17 @@ export async function connectWithWalletConnect(wcUrl: string, address: string): 
     const pairResult = await client.pair({ uri: wcUrl });
 
     client.on('session_request', async (event: any) => {
-      console.log("Received session request:", event);
-      if (event.params?.request?.method === "algo_signTxn") {
-        console.log("Received sign transaction request");
-        handleTransactionRequest(event.params.request.params[0][0]);
+      console.log("Received session request in connect:", event);
+      
+      if (!event.params?.request?.params) {
+        console.error("Invalid session request format in connect:", event);
+        return;
+      }
+
+      const { request } = event.params;
+      if (request.method === "algo_signTxn" && Array.isArray(request.params) && request.params.length > 0) {
+        console.log("Received sign transaction request in connect with params:", request.params);
+        handleTransactionRequest(request.params[0][0]);
       }
     });
 
