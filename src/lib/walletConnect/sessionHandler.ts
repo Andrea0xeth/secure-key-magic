@@ -19,24 +19,35 @@ export function setupSessionHandlers(client: SignClientType, callback: Transacti
           throw new Error("Failed to decode transaction");
         }
 
-        const senderAddress = (decodedTxn as any).snd ? algosdk.encodeAddress((decodedTxn as any).snd) : null;
-        if (!senderAddress) {
+        const senderAddr = (decodedTxn as any).snd ? 
+          algosdk.encodeAddress((decodedTxn as any).snd) : 
+          null;
+
+        if (!senderAddr) {
           throw new Error("Sender address must not be null or undefined");
         }
 
-        const txn = new algosdk.Transaction({
-          from: senderAddress,
-          to: (decodedTxn as any).rcv ? algosdk.encodeAddress((decodedTxn as any).rcv) : senderAddress,
-          amount: (decodedTxn as any).amt || 0,
+        const receiverAddr = (decodedTxn as any).rcv ? 
+          algosdk.encodeAddress((decodedTxn as any).rcv) : 
+          senderAddr;
+
+        const suggestedParams: algosdk.SuggestedParams = {
           fee: (decodedTxn as any).fee || 1000,
           firstRound: (decodedTxn as any).fv || 0,
           lastRound: (decodedTxn as any).lv || 0,
-          genesisHash: (decodedTxn as any).gh || '',
           genesisID: (decodedTxn as any).gen || '',
-          type: (decodedTxn as any).type || 'pay',
-          note: (decodedTxn as any).note,
-          group: (decodedTxn as any).grp,
-        });
+          genesisHash: (decodedTxn as any).gh || '',
+          flatFee: true
+        };
+
+        const txn = algosdk.makePaymentTxnWithSuggestedParams(
+          senderAddr,
+          receiverAddr,
+          (decodedTxn as any).amt || 0,
+          undefined,
+          (decodedTxn as any).note ? new Uint8Array(Buffer.from((decodedTxn as any).note)) : undefined,
+          suggestedParams
+        );
         
         console.log("Created Algorand transaction object:", txn);
         callback(txn);

@@ -67,12 +67,11 @@ export const TransactionDialog = ({ isOpen, onClose, transaction, onSign }: Tran
 
   if (!transaction) return null;
 
-  // Extract transaction details safely
   const txnDetails = {
     type: "Payment",
     fee: formatAlgoAmount(transaction.fee),
-    from: algosdk.encodeAddress(transaction.sender),
-    to: algosdk.encodeAddress(transaction.receiver),
+    from: algosdk.encodeAddress(transaction.from),
+    to: algosdk.encodeAddress(transaction.to),
     amount: formatAlgoAmount(transaction.amount)
   };
 
