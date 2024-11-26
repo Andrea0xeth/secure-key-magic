@@ -25,17 +25,21 @@ export function handleTransactionRequest(params: any) {
       throw new Error("Invalid transaction parameters");
     }
 
-    const senderAddr = (decodedTxn as any).snd ? algosdk.encodeAddress((decodedTxn as any).snd) : null;
-    const receiverAddr = (decodedTxn as any).rcv ? algosdk.encodeAddress((decodedTxn as any).rcv) : null;
-
-    if (!senderAddr) {
-      console.error("Sender address is missing in transaction");
-      throw new Error("Sender address must not be null or undefined");
-    }
+    const senderAddr = (decodedTxn as any).snd ? 
+      algosdk.encodeAddress((decodedTxn as any).snd) : 
+      null;
+    
+    const receiverAddr = (decodedTxn as any).rcv ? 
+      algosdk.encodeAddress((decodedTxn as any).rcv) : 
+      null;
 
     console.log("Creating transaction with sender:", senderAddr, "receiver:", receiverAddr);
 
-    const suggestedParams: algosdk.SuggestedParams = {
+    if (!senderAddr) {
+      throw new Error("Sender address must not be null or undefined");
+    }
+
+    const suggestedParams = {
       fee: (decodedTxn as any).fee || 1000,
       firstRound: (decodedTxn as any).fv || 0,
       lastRound: (decodedTxn as any).lv || 0,
@@ -46,17 +50,12 @@ export function handleTransactionRequest(params: any) {
 
     console.log("Suggested parameters:", suggestedParams);
 
-    const txn = new algosdk.Transaction({
+    const txn = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
       from: senderAddr,
       to: receiverAddr || senderAddr,
       amount: (decodedTxn as any).amt || 0,
-      fee: suggestedParams.fee,
-      firstRound: suggestedParams.firstRound,
-      lastRound: suggestedParams.lastRound,
-      genesisHash: suggestedParams.genesisHash,
-      genesisID: suggestedParams.genesisID,
-      type: 'pay',
-      note: (decodedTxn as any).note
+      suggestedParams: suggestedParams,
+      note: (decodedTxn as any).note ? new Uint8Array(Buffer.from((decodedTxn as any).note)) : undefined
     });
 
     console.log("Created Algorand transaction object:", txn);
