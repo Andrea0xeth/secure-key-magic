@@ -1,9 +1,17 @@
 import { startRegistration } from "@simplewebauthn/browser";
 import * as algosdk from "algosdk";
 import { deriveKeyPair } from "../crypto/credentialDerivation";
+import { getStoredAlgorandKey, storeAlgorandKey } from "../storage/keyStorage";
 
 export async function registerPasskey() {
   try {
+    // Check if a passkey is already registered
+    const existingKey = getStoredAlgorandKey();
+    if (existingKey) {
+      console.error("A passkey is already registered");
+      throw new Error("A passkey is already registered for this device. Please use authentication instead.");
+    }
+
     if (!window.PublicKeyCredential) {
       console.error("WebAuthn is not supported");
       throw new Error("WebAuthn is not supported in this browser");
@@ -54,6 +62,9 @@ export async function registerPasskey() {
 
     const keyPair = deriveKeyPair(mockCredential);
     console.log("Derived key pair:", keyPair);
+
+    // Store the key
+    storeAlgorandKey(keyPair.address);
 
     return {
       address: keyPair.address,

@@ -13,7 +13,7 @@ export function clearTransactionCallback() {
   transactionCallback = null;
 }
 
-export async function handleTransactionRequest(params: SignClientTypes.EventArguments["session_request"]) {
+export async function handleTransactionRequest(params: any) {
   console.log("Handling transaction request:", params);
   
   if (!transactionCallback) {
@@ -22,22 +22,24 @@ export async function handleTransactionRequest(params: SignClientTypes.EventArgu
   }
 
   try {
-    const txns = params.request.params.map((txnParams: any) => {
+    const txns = params.params.map((txnParams: any) => {
       console.log("Processing transaction parameters:", txnParams);
       
-      const suggestedParams = {
-        ...txnParams,
+      const suggestedParams: algosdk.SuggestedParams = {
         fee: Number(txnParams.fee),
-        flatFee: true,
+        firstRound: txnParams.firstRound,
+        lastRound: txnParams.lastRound,
         genesisID: txnParams.genesisID,
         genesisHash: txnParams.genesisHash,
-      } as algosdk.SuggestedParams;
+        flatFee: true
+      };
 
       const txn = new algosdk.Transaction({
-        from: txnParams.sender,
-        to: txnParams.receiver,
+        suggestedParams,
         amount: txnParams.amount,
-        ...suggestedParams
+        to: txnParams.receiver,
+        from: txnParams.sender,
+        type: txnParams.type
       });
 
       console.log("Created transaction:", txn);
