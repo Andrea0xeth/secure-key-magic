@@ -3,7 +3,7 @@ import type { SignClientTypes } from '@walletconnect/types';
 
 let signClient: SignClient | null = null;
 
-export async function initSignClient(): Promise<SignClient | null> {
+export async function initSignClient(): Promise<typeof SignClient | null> {
   try {
     if (!signClient) {
       console.log("Initializing SignClient...");
@@ -47,17 +47,18 @@ export async function connectWithWalletConnect(wcUrl: string, address: string): 
     client.on('session_proposal', async (proposal: SignClientTypes.EventArguments['session_proposal']) => {
       console.log("Received session proposal:", proposal);
       try {
-        // Extract the required chains from the proposal
-        const requiredChains = proposal.params.requiredNamespaces.algorand.chains;
+        // Extract the required chains and methods from the proposal
+        const requiredNamespace = proposal.params.requiredNamespaces.algorand;
+        const requiredChains = requiredNamespace.chains;
+        const requiredMethods = requiredNamespace.methods;
+        
         console.log("Required chains:", requiredChains);
+        console.log("Required methods:", requiredMethods);
 
-        // Create namespaces matching the required chains
+        // Create namespaces matching the required chains and methods
         const namespaces = {
           algorand: {
-            methods: [
-              'algorand_signTransaction',
-              'algorand_signTxnGroup',
-            ],
+            methods: requiredMethods,
             chains: requiredChains,
             events: ['accountsChanged'],
             accounts: requiredChains.map(chain => `${chain}:${address}`)
@@ -78,7 +79,7 @@ export async function connectWithWalletConnect(wcUrl: string, address: string): 
       }
     });
 
-    // Connect with the dApp
+    // Connect with the dApp using the same required namespaces from the proposal
     const { topic, acknowledged } = await client.connect({
       pairingTopic: wcUrl.split('@')[0].substring(3),
       requiredNamespaces: {
