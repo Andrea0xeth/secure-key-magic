@@ -2,8 +2,8 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
-import { registerPasskey, authenticateWithPasskey, processWalletConnectUrl, exportPrivateKey, type AuthenticationResult } from "@/lib/webauthn";
-import { Shield, Link, Download } from "lucide-react";
+import { registerPasskey, authenticateWithPasskey, processWalletConnectUrl, exportPrivateKey, disconnectWalletConnect, type AuthenticationResult } from "@/lib/webauthn";
+import { Shield, Link, Download, LogOut } from "lucide-react";
 import { PasskeySection } from "@/components/PasskeySection";
 
 const Index = () => {
@@ -105,6 +105,25 @@ const Index = () => {
     }
   };
 
+  const handleDisconnect = async () => {
+    try {
+      const success = await disconnectWalletConnect();
+      if (success) {
+        toast({
+          title: "Disconnected",
+          description: "Successfully disconnected from WalletConnect",
+        });
+      }
+    } catch (error) {
+      console.error("Error disconnecting:", error);
+      toast({
+        title: "Error",
+        description: "Failed to disconnect from WalletConnect",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white dark:from-gray-900 dark:to-gray-800">
       <div className="container max-w-2xl pt-16 pb-8 animate-fade-in">
@@ -159,6 +178,14 @@ const Index = () => {
                       Connect
                     </Button>
                   </div>
+                  <Button
+                    onClick={handleDisconnect}
+                    variant="destructive"
+                    className="w-full"
+                  >
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Disconnect WalletConnect
+                  </Button>
                   <Button
                     onClick={handleExportKey}
                     variant="outline"

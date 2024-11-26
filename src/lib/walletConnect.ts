@@ -97,3 +97,31 @@ export async function connectWithWalletConnect(wcUrl: string, address: string): 
     throw error;
   }
 }
+
+export async function disconnectWalletConnect(): Promise<boolean> {
+  try {
+    if (!signClient) {
+      console.log("No active SignClient found");
+      return false;
+    }
+
+    const sessions = signClient.session.values;
+    console.log("Active sessions:", sessions);
+
+    for (const session of sessions) {
+      await signClient.disconnect({
+        topic: session.topic,
+        reason: {
+          code: 6000,
+          message: "User disconnected"
+        }
+      });
+    }
+
+    console.log("Successfully disconnected all sessions");
+    return true;
+  } catch (error) {
+    console.error("Error disconnecting WalletConnect:", error);
+    throw error;
+  }
+}
