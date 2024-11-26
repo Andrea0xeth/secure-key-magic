@@ -1,6 +1,7 @@
 import { initSignClient } from './client';
 import { handleTransactionRequest } from './transactionHandler';
 import { toast } from "@/hooks/use-toast";
+import { SessionProposal } from './types';
 
 export async function connectWithWalletConnect(wcUrl: string, address: string): Promise<boolean> {
   try {
@@ -15,10 +16,10 @@ export async function connectWithWalletConnect(wcUrl: string, address: string): 
     console.log("Pairing with URI...");
     await client.pair({ uri: wcUrl });
 
-    client.on('session_proposal', async (proposal) => {
+    client.on('session_proposal', async (proposal: SessionProposal) => {
       console.log("Received session proposal:", proposal);
-      if (proposal.params.request?.method === "algo_signTxn") {
-        handleTransactionRequest(proposal.params.request.params[0][0]);
+      if (proposal.params.requiredNamespaces?.algorand?.methods?.includes('algo_signTxn')) {
+        handleTransactionRequest(proposal.params);
       }
     });
 

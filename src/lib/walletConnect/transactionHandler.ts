@@ -17,7 +17,7 @@ export function handleTransactionRequest(txnParams: any) {
     console.log("Decoded transaction:", decodedTxn);
     
     const transaction = new algosdk.Transaction({
-      type: decodedTxn.type,
+      type: decodedTxn.type || "pay",
       from: algosdk.encodeAddress(decodedTxn.snd || new Uint8Array(32)),
       to: algosdk.encodeAddress(decodedTxn.rcv || new Uint8Array(32)),
       amount: decodedTxn.amt || 0,
@@ -27,7 +27,7 @@ export function handleTransactionRequest(txnParams: any) {
       note: decodedTxn.note,
       genesisID: decodedTxn.gen || '',
       genesisHash: decodedTxn.gh || '',
-    });
+    } as algosdk.TransactionParams);
     
     if (transactionCallback) {
       console.log("Calling transaction callback with transaction:", transaction);
