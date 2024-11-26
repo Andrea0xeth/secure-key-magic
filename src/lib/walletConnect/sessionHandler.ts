@@ -1,4 +1,4 @@
-import { SignClientType, TransactionCallback } from './types';
+import { SignClientType, TransactionCallback, AlgorandTransaction } from './types';
 import * as algosdk from 'algosdk';
 
 export function setupSessionHandlers(client: SignClientType, callback: TransactionCallback) {
@@ -16,8 +16,22 @@ export function setupSessionHandlers(client: SignClientType, callback: Transacti
         console.log("Decoded transaction:", decodedTxn);
         
         if (callback && decodedTxn) {
-          const transaction = new algosdk.Transaction(decodedTxn as algosdk.TransactionParams);
-          console.log("Calling transaction callback with transaction:", transaction);
+          const from = algosdk.encodeAddress((decodedTxn as any).snd);
+          const to = algosdk.encodeAddress((decodedTxn as any).rcv);
+          
+          const transaction: AlgorandTransaction = {
+            type: 'pay',
+            from: from,
+            to: to,
+            amount: (decodedTxn as any).amt || 0,
+            fee: (decodedTxn as any).fee || 0,
+            group: (decodedTxn as any).grp,
+            signTxn: (key: Uint8Array) => {
+              const txn = algosdk.Transaction.fromObject(decodedTxn as algosdk.TransactionParams);
+              const signedTxn = txn.signTxn(key);
+              return signedTxn;
+            }
+          };
           callback(transaction);
         }
       } catch (error) {
