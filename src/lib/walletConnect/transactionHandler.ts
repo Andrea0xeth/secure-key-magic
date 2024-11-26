@@ -1,5 +1,4 @@
 import * as algosdk from "algosdk";
-import { Buffer } from 'buffer';
 import { toast } from "@/hooks/use-toast";
 import type { TransactionCallback, DecodedAlgorandTransaction } from "./types";
 
@@ -14,7 +13,7 @@ export const handleTransactionRequest = async (
     console.log("Decoded transaction:", decodedTxn);
     
     const transaction = new algosdk.Transaction({
-      type: decodedTxn.type || algosdk.TransactionType.pay,
+      type: decodedTxn.type || 'pay',
       from: decodedTxn.snd ? algosdk.encodeAddress(decodedTxn.snd) : '',
       to: decodedTxn.rcv ? algosdk.encodeAddress(decodedTxn.rcv) : '',
       amount: decodedTxn.amt ? Number(decodedTxn.amt) : 0,

@@ -63,8 +63,8 @@ export const TransactionDialog = ({ isOpen, onClose, transaction, onSign }: Tran
 
   const txnDetails = {
     type: transaction.type,
-    from: algosdk.encodeAddress(transaction.from.publicKey || new Uint8Array()),
-    to: algosdk.encodeAddress(transaction.to?.publicKey || new Uint8Array()),
+    from: algosdk.encodeAddress(transaction.from.publicKey),
+    to: transaction.to ? algosdk.encodeAddress(transaction.to.publicKey) : '',
     amount: formatAlgoAmount(transaction.amount || BigInt(0)),
     fee: formatAlgoAmount(transaction.fee || 0),
     group: transaction.group ? Buffer.from(transaction.group).toString('base64') : undefined

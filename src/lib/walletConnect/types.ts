@@ -16,18 +16,25 @@ export interface DecodedAlgorandTransaction {
 
 export type TransactionCallback = (transaction: algosdk.Transaction) => void;
 
-export interface TransactionParams {
-  txn: string;
-  signers?: string[];
-  message?: string;
-}
-
 export interface WalletConnectSession {
   topic: string;
   peer: {
     metadata: {
       name: string;
       url?: string;
+    };
+  };
+}
+
+export interface SessionProposal extends SignClientTypes.EventArguments['session_proposal'] {
+  params: {
+    request: {
+      method: string;
+    };
+    proposer: {
+      metadata: {
+        url?: string;
+      };
     };
   };
 }
