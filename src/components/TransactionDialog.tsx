@@ -67,13 +67,65 @@ export const TransactionDialog = ({ isOpen, onClose, transaction, onSign }: Tran
 
   if (!transaction) return null;
 
-  const txnDetails = {
-    type: "Payment",
-    fee: formatAlgoAmount(transaction.fee),
-    from: algosdk.encodeAddress(transaction.from),
-    to: algosdk.encodeAddress(transaction.to),
-    amount: formatAlgoAmount(transaction.amount)
+  const getTransactionDetails = (txn: algosdk.Transaction) => {
+    const baseDetails = {
+      type: txn.type,
+      fee: formatAlgoAmount(txn.fee),
+    };
+
+    switch (txn.type) {
+      case algosdk.TransactionType.pay:
+        return {
+          ...baseDetails,
+          from: algosdk.encodeAddress(txn.from.publicKey),
+          to: algosdk.encodeAddress(txn.to.publicKey),
+          amount: formatAlgoAmount(txn.amount)
+        };
+      case algosdk.TransactionType.axfer:
+        return {
+          ...baseDetails,
+          from: algosdk.encodeAddress(txn.from.publicKey),
+          to: algosdk.encodeAddress(txn.to.publicKey),
+          assetIndex: txn.assetIndex,
+          amount: txn.amount.toString()
+        };
+      case algosdk.TransactionType.acfg:
+        return {
+          ...baseDetails,
+          from: algosdk.encodeAddress(txn.from.publicKey),
+          assetIndex: txn.assetIndex,
+          assetParams: {
+            total: txn.assetTotal,
+            decimals: txn.assetDecimals,
+            name: txn.assetName,
+            unitName: txn.assetUnitName,
+            url: txn.assetURL
+          }
+        };
+      case algosdk.TransactionType.afrz:
+        return {
+          ...baseDetails,
+          from: algosdk.encodeAddress(txn.from.publicKey),
+          assetIndex: txn.assetIndex,
+          freezeAccount: txn.freezeAccount,
+          freezeState: txn.freezeState
+        };
+      case algosdk.TransactionType.appl:
+        return {
+          ...baseDetails,
+          from: algosdk.encodeAddress(txn.from.publicKey),
+          applicationId: txn.appIndex,
+          appArgs: txn.appArgs?.length || 0,
+          accounts: txn.appAccounts?.length || 0,
+          foreignApps: txn.appForeignApps?.length || 0,
+          foreignAssets: txn.appForeignAssets?.length || 0
+        };
+      default:
+        return baseDetails;
+    }
   };
+
+  const txnDetails = getTransactionDetails(transaction);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -89,20 +141,14 @@ export const TransactionDialog = ({ isOpen, onClose, transaction, onSign }: Tran
           <div className="space-y-2">
             <h4 className="text-sm font-medium">Transaction Details</h4>
             <div className="grid grid-cols-3 gap-2 text-sm">
-              <span className="text-muted-foreground">Type:</span>
-              <span className="col-span-2 font-medium">{txnDetails.type}</span>
-              
-              <span className="text-muted-foreground">Fee:</span>
-              <span className="col-span-2 font-medium">{txnDetails.fee} ALGO</span>
-              
-              <span className="text-muted-foreground">From:</span>
-              <span className="col-span-2 font-medium break-all">{txnDetails.from}</span>
-              
-              <span className="text-muted-foreground">To:</span>
-              <span className="col-span-2 font-medium break-all">{txnDetails.to}</span>
-              
-              <span className="text-muted-foreground">Amount:</span>
-              <span className="col-span-2 font-medium">{txnDetails.amount} ALGO</span>
+              {Object.entries(txnDetails).map(([key, value]) => (
+                <React.Fragment key={key}>
+                  <span className="text-muted-foreground capitalize">{key}:</span>
+                  <span className="col-span-2 font-medium break-all">
+                    {typeof value === 'object' ? JSON.stringify(value) : value.toString()}
+                  </span>
+                </React.Fragment>
+              ))}
             </div>
           </div>
         </Card>

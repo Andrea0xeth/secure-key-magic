@@ -1,5 +1,6 @@
 import * as algosdk from "algosdk";
 import { TransactionCallback } from "./types";
+import { DecodedAlgorandTransaction, getTransactionType } from "./transactionTypes";
 
 let transactionCallback: TransactionCallback | null = null;
 
@@ -17,40 +18,100 @@ export function handleTransactionRequest(params: any) {
   }
 
   try {
-    const decodedTxn = algosdk.decodeObj(Buffer.from(params.txn, 'base64'));
+    const decodedTxn = algosdk.decodeObj(Buffer.from(params.txn, 'base64')) as DecodedAlgorandTransaction;
     console.log("Decoded transaction:", decodedTxn);
 
     if (!decodedTxn) {
       throw new Error("Failed to decode transaction");
     }
 
-    const senderAddr = (decodedTxn as any).snd ? 
-      algosdk.encodeAddress((decodedTxn as any).snd) : 
-      null;
+    const txnType = getTransactionType(decodedTxn);
+    console.log("Transaction type:", txnType);
 
-    if (!senderAddr) {
-      throw new Error("Sender address must not be null or undefined");
-    }
-
-    const receiverAddr = (decodedTxn as any).rcv ? 
-      algosdk.encodeAddress((decodedTxn as any).rcv) : 
-      senderAddr;
-
-    const suggestedParams = {
-      fee: (decodedTxn as any).fee || 1000,
-      firstRound: (decodedTxn as any).fv || 0,
-      lastRound: (decodedTxn as any).lv || 0,
-      genesisID: (decodedTxn as any).gen || '',
-      genesisHash: (decodedTxn as any).gh || '',
+    let txn: algosdk.Transaction;
+    const suggestedParams: algosdk.SuggestedParams = {
+      fee: decodedTxn.fee || 1000,
+      firstRound: decodedTxn.fv || 0,
+      lastRound: decodedTxn.lv || 0,
+      genesisID: decodedTxn.gen || '',
+      genesisHash: decodedTxn.gh || '',
       flatFee: true
     };
 
-    const txn = new algosdk.Transaction({
-      from: senderAddr,
-      to: receiverAddr,
-      amount: (decodedTxn as any).amt || 0,
-      ...suggestedParams
-    });
+    switch (txnType) {
+      case "pay":
+        txn = new algosdk.Transaction({
+          type: algosdk.TransactionType.pay,
+          from: algosdk.encodeAddress(decodedTxn.snd!),
+          to: algosdk.encodeAddress(decodedTxn.rcv!),
+          amount: decodedTxn.amt || 0,
+          ...suggestedParams
+        });
+        break;
+
+      case "axfer":
+        txn = new algosdk.Transaction({
+          type: algosdk.TransactionType.axfer,
+          from: algosdk.encodeAddress(decodedTxn.snd!),
+          to: algosdk.encodeAddress(decodedTxn.arcv || decodedTxn.rcv!),
+          assetIndex: decodedTxn.xaid!,
+          amount: decodedTxn.aamt || 0,
+          ...suggestedParams
+        });
+        break;
+
+      case "acfg":
+        txn = new algosdk.Transaction({
+          type: algosdk.TransactionType.acfg,
+          from: algosdk.encodeAddress(decodedTxn.snd!),
+          assetIndex: decodedTxn.caid,
+          assetTotal: decodedTxn.apar?.t,
+          assetDecimals: decodedTxn.apar?.dc,
+          assetDefaultFrozen: decodedTxn.apar?.df,
+          assetUnitName: decodedTxn.apar?.un,
+          assetName: decodedTxn.apar?.an,
+          assetURL: decodedTxn.apar?.au,
+          assetMetadataHash: decodedTxn.apar?.am ? new Uint8Array(Buffer.from(decodedTxn.apar.am)) : undefined,
+          ...suggestedParams
+        });
+        break;
+
+      case "afrz":
+        txn = new algosdk.Transaction({
+          type: algosdk.TransactionType.afrz,
+          from: algosdk.encodeAddress(decodedTxn.snd!),
+          freezeAccount: algosdk.encodeAddress(decodedTxn.fadd!),
+          assetIndex: decodedTxn.faid!,
+          freezeState: decodedTxn.afrz!,
+          ...suggestedParams
+        });
+        break;
+
+      case "appl":
+        txn = new algosdk.Transaction({
+          type: algosdk.TransactionType.appl,
+          from: algosdk.encodeAddress(decodedTxn.snd!),
+          appIndex: decodedTxn.apid || 0,
+          appOnComplete: decodedTxn.apan || 0,
+          appArgs: decodedTxn.apaa,
+          appAccounts: decodedTxn.apat?.map(addr => algosdk.encodeAddress(addr)),
+          appForeignApps: decodedTxn.apfa,
+          appForeignAssets: decodedTxn.apas,
+          ...suggestedParams
+        });
+        break;
+
+      default:
+        throw new Error(`Unsupported transaction type: ${txnType}`);
+    }
+
+    if (decodedTxn.note) {
+      txn.note = decodedTxn.note;
+    }
+
+    if (decodedTxn.grp) {
+      txn.group = decodedTxn.grp;
+    }
 
     console.log("Created Algorand transaction object:", txn);
     transactionCallback(txn);
