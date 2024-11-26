@@ -27,7 +27,8 @@ export interface WalletConnectSession {
 
 export type SessionProposalEvent = SignClientTypes.EventArguments['session_proposal'];
 
-export interface TransactionParams extends algosdk.TransactionParams {
+export type TransactionParams = {
+  type: algosdk.TransactionType;
   snd?: Uint8Array;
   rcv?: Uint8Array;
   amt?: number;
@@ -37,5 +38,4 @@ export interface TransactionParams extends algosdk.TransactionParams {
   note?: Uint8Array;
   gen?: string;
   gh?: string;
-  type?: algosdk.TransactionType;
-}
+};

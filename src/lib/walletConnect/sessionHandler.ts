@@ -12,6 +12,11 @@ export const handleSessionProposal = async (
   try {
     const { id, params } = proposal;
     
+    // Check if required properties exist
+    if (!params || !params.requiredNamespaces || !params.requiredNamespaces.algorand) {
+      throw new Error("Invalid session proposal format");
+    }
+
     const namespaces = {
       algorand: {
         accounts: [`algorand:wGHE2Pwdvd7S12BL5FaOP20EGYesN73k:${address}`],

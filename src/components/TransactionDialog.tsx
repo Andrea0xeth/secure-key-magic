@@ -61,13 +61,14 @@ export const TransactionDialog = ({ isOpen, onClose, transaction, onSign }: Tran
     return (amount / 1_000_000).toFixed(6);
   };
 
-  const txnObj = transaction.get_obj_for_encoding();
-  const txType = txnObj.type || 'pay';
-  const txFrom = algosdk.encodeAddress(txnObj.snd);
-  const txTo = txnObj.rcv ? algosdk.encodeAddress(txnObj.rcv) : '';
-  const txAmount = txnObj.amt || 0;
-  const txFee = transaction.fee;
-  const txGroup = transaction.group;
+  const txnDetails = {
+    type: transaction.type,
+    from: algosdk.encodeAddress(transaction.from.publicKey),
+    to: transaction.to ? algosdk.encodeAddress(transaction.to.publicKey) : '',
+    amount: formatAlgoAmount(transaction.amount || 0),
+    fee: formatAlgoAmount(transaction.fee),
+    group: transaction.group ? Buffer.from(transaction.group).toString('base64') : undefined
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -83,12 +84,12 @@ export const TransactionDialog = ({ isOpen, onClose, transaction, onSign }: Tran
           <div className="rounded-lg border p-4">
             <h4 className="text-sm font-medium mb-2">Transaction Details</h4>
             <div className="space-y-2 text-sm text-muted-foreground">
-              <p>Type: {txType}</p>
-              {txGroup && <p>Group ID: {Buffer.from(txGroup).toString('base64')}</p>}
-              <p>Fee: {formatAlgoAmount(txFee)} ALGO</p>
-              <p>From: {txFrom}</p>
-              <p>To: {txTo}</p>
-              <p>Amount: {formatAlgoAmount(txAmount)} ALGO</p>
+              <p>Type: {txnDetails.type}</p>
+              {txnDetails.group && <p>Group ID: {txnDetails.group}</p>}
+              <p>Fee: {txnDetails.fee} ALGO</p>
+              <p>From: {txnDetails.from}</p>
+              <p>To: {txnDetails.to}</p>
+              <p>Amount: {txnDetails.amount} ALGO</p>
             </div>
           </div>
         </div>
