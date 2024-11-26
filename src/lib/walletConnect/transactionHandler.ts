@@ -11,7 +11,7 @@ export function setTransactionCallback(callback: (transaction: algosdk.Transacti
 
 export function handleTransactionRequest(params: any) {
   try {
-    console.log("Transaction params:", params);
+    console.log("Transaction params received:", params);
     
     if (!params?.txn) {
       console.error("No transaction data found in params");
@@ -38,10 +38,11 @@ export function handleTransactionRequest(params: any) {
 
     // Create transaction object
     const transaction = new algosdk.Transaction({
+      suggestedParams,
+      type: decodedTxn.type,
       from: algosdk.encodeAddress(decodedTxn.snd || new Uint8Array(32)),
       to: algosdk.encodeAddress(decodedTxn.rcv || new Uint8Array(32)),
       amount: decodedTxn.amt || 0,
-      suggestedParams
     });
     
     if (transactionCallback) {

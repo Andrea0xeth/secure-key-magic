@@ -16,7 +16,17 @@ export async function connectWithWalletConnect(wcUrl: string, address: string): 
     console.log("Pairing with URI...");
     await client.pair({ uri: wcUrl });
 
-    client.on('session_proposal', async (event: { id: number, params: SessionTypes.Proposal }) => {
+    // Set up event listeners before connecting
+    client.on('session_request', async (event: any) => {
+      console.log("Received session request:", event);
+      
+      if (event.params?.request?.method === "algo_signTxn") {
+        console.log("Received sign transaction request, params:", event.params.request.params);
+        handleTransactionRequest(event.params.request.params[0][0]);
+      }
+    });
+
+    client.on('session_proposal', async (event: any) => {
       console.log("Received session proposal:", event);
       try {
         const { id, params } = event;
