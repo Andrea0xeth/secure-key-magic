@@ -1,6 +1,6 @@
 import { initSignClient } from './client';
+import { setupSessionHandlers } from './sessionHandler';
 import { toast } from "@/hooks/use-toast";
-import { SignClient } from '@walletconnect/sign-client';
 import { TransactionCallback } from './types';
 
 let transactionCallback: TransactionCallback | null = null;
@@ -20,6 +20,10 @@ export async function connectWithWalletConnect(wcUrl: string, address: string): 
 
     const client = await initSignClient();
     console.log("Attempting to pair with URI...");
+    
+    if (transactionCallback) {
+      setupSessionHandlers(client, transactionCallback);
+    }
     
     // First pair with the URI
     await client.pair({ uri: wcUrl });
