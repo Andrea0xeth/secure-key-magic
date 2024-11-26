@@ -32,17 +32,45 @@ export async function initSignClient(): Promise<SignClient | null> {
         if (params.request.method === "algo_signTxn") {
           console.log("Received sign transaction request");
           
-          const txnParams = params.request.params[0][0];
-          const transaction = new algosdk.Transaction(txnParams);
-          
-          if (transactionCallback) {
-            console.log("Calling transaction callback with transaction:", transaction);
-            transactionCallback(transaction);
-          } else {
-            console.error("No transaction callback set");
+          try {
+            const txnParams = params.request.params[0][0];
+            console.log("Transaction params:", txnParams);
+            
+            // Decode the transaction from msgpack format
+            const decodedTxn = algosdk.decodeObj(Buffer.from(txnParams.txn, 'base64'));
+            console.log("Decoded transaction:", decodedTxn);
+            
+            // Create a new transaction object
+            const transaction = new algosdk.Transaction({
+              ...decodedTxn,
+              type: decodedTxn.type || 'pay',
+              from: decodedTxn.snd,
+              to: decodedTxn.rcv,
+              amount: decodedTxn.amt || 0,
+              fee: decodedTxn.fee || 0,
+              firstRound: decodedTxn.fv,
+              lastRound: decodedTxn.lv,
+              note: decodedTxn.note,
+              genesisID: decodedTxn.gen,
+              genesisHash: decodedTxn.gh,
+            });
+            
+            if (transactionCallback) {
+              console.log("Calling transaction callback with transaction:", transaction);
+              transactionCallback(transaction);
+            } else {
+              console.error("No transaction callback set");
+              toast({
+                title: "Error",
+                description: "Transaction handler not initialized",
+                variant: "destructive",
+              });
+            }
+          } catch (error) {
+            console.error("Error processing transaction:", error);
             toast({
               title: "Error",
-              description: "Transaction handler not initialized",
+              description: "Failed to process transaction",
               variant: "destructive",
             });
           }

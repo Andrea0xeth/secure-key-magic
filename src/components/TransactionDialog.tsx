@@ -33,7 +33,7 @@ export const TransactionDialog = ({ isOpen, onClose, transaction, onSign }: Tran
       }
 
       console.log("Successfully authenticated, signing transaction");
-      const signedTxn = new Uint8Array(transaction.bytesToSign());
+      const signedTxn = transaction.signTxn(new Uint8Array(32)); // Placeholder for actual signing
       onSign(signedTxn);
       
       toast({
@@ -78,11 +78,10 @@ export const TransactionDialog = ({ isOpen, onClose, transaction, onSign }: Tran
             <div className="space-y-2 text-sm text-muted-foreground">
               <p>Type: {transaction.type}</p>
               {transaction.group && <p>Group ID: {Buffer.from(transaction.group()).toString('base64')}</p>}
-              {transaction.amount && <p>Amount: {formatAlgoAmount(transaction.amount)} ALGO</p>}
               <p>Fee: {formatAlgoAmount(transaction.fee)} ALGO</p>
-              {transaction.to && (
-                <p>To: {algosdk.encodeAddress(transaction.to)}</p>
-              )}
+              {transaction.from && <p>From: {algosdk.encodeAddress(transaction.from.publicKey)}</p>}
+              {transaction.to && <p>To: {algosdk.encodeAddress(transaction.to.publicKey)}</p>}
+              {transaction.amount && <p>Amount: {formatAlgoAmount(transaction.amount)} ALGO</p>}
             </div>
           </div>
         </div>
