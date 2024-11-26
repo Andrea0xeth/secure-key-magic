@@ -2,7 +2,6 @@ import { Button } from "@/components/ui/button";
 import { KeyRound, Shield, Smartphone } from "lucide-react";
 import { AuthenticationResult } from "@/lib/webauthn";
 import { useToast } from "@/components/ui/use-toast";
-import { getStoredAlgorandKey } from "@/lib/storage/keyStorage";
 import {
   Dialog,
   DialogContent,
@@ -11,11 +10,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 
 interface PasskeySectionProps {
   authResult: AuthenticationResult | null;
@@ -25,7 +19,6 @@ interface PasskeySectionProps {
 
 export const PasskeySection = ({ authResult, onRegister, onAuthenticate }: PasskeySectionProps) => {
   const { toast } = useToast();
-  const hasExistingKey = getStoredAlgorandKey() !== null;
 
   if (authResult) return null;
   
@@ -78,27 +71,15 @@ export const PasskeySection = ({ authResult, onRegister, onAuthenticate }: Passk
           </div>
         </div>
         <Dialog>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <div>
-                <DialogTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className="w-full border-artence-purple text-artence-purple hover:bg-artence-purple/10 transition-colors duration-300"
-                    disabled={!hasExistingKey}
-                  >
-                    <Shield className="mr-2 h-4 w-4" />
-                    Authenticate with Passkey
-                  </Button>
-                </DialogTrigger>
-              </div>
-            </TooltipTrigger>
-            {!hasExistingKey && (
-              <TooltipContent>
-                <p>Please register a passkey first</p>
-              </TooltipContent>
-            )}
-          </Tooltip>
+          <DialogTrigger asChild>
+            <Button
+              variant="outline"
+              className="w-full border-artence-purple text-artence-purple hover:bg-artence-purple/10 transition-colors duration-300"
+            >
+              <Shield className="mr-2 h-4 w-4" />
+              Authenticate with Passkey
+            </Button>
+          </DialogTrigger>
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Authentication Options</DialogTitle>
