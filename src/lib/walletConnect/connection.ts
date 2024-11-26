@@ -1,5 +1,14 @@
 import { initSignClient } from './client';
 import { toast } from "@/hooks/use-toast";
+import { SignClient } from '@walletconnect/sign-client';
+import { TransactionCallback } from './types';
+
+let transactionCallback: TransactionCallback | null = null;
+
+export function setTransactionCallback(callback: TransactionCallback) {
+  transactionCallback = callback;
+  console.log("Transaction callback set");
+}
 
 export async function connectWithWalletConnect(wcUrl: string, address: string): Promise<boolean> {
   try {
@@ -12,6 +21,10 @@ export async function connectWithWalletConnect(wcUrl: string, address: string): 
     const client = await initSignClient();
     console.log("Attempting to pair with URI...");
     
+    // First pair with the URI
+    await client.pair({ uri: wcUrl });
+    
+    // Then establish the session
     const { uri, approval } = await client.connect({
       requiredNamespaces: {
         algorand: {
@@ -19,8 +32,7 @@ export async function connectWithWalletConnect(wcUrl: string, address: string): 
           chains: ['algorand:wGHE2Pwdvd7S12BL5FaOP20EGYesN73k'],
           events: ['accountsChanged']
         }
-      },
-      pairingTopic: wcUrl.split('@')[0].substring(3)
+      }
     });
 
     console.log("Connection successful");
