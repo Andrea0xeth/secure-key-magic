@@ -1,7 +1,14 @@
 import SignClient from '@walletconnect/sign-client';
 import { initSignClient } from './client';
 import { handleTransactionRequest } from './transactionHandler';
-import type { TransactionCallback } from './types';
+import type { TransactionCallback, SessionProposal } from './types';
+import { toast } from "@/hooks/use-toast";
+
+let transactionCallback: TransactionCallback | null = null;
+
+export function setConnectionTransactionCallback(callback: TransactionCallback) {
+  transactionCallback = callback;
+}
 
 export async function connectWithWalletConnect(wcUrl: string, address: string): Promise<boolean> {
   try {
@@ -19,21 +26,27 @@ export async function connectWithWalletConnect(wcUrl: string, address: string): 
 
     const pairResult = await client.pair({ uri: wcUrl });
 
-    client.on('session_proposal', async (proposal) => {
+    client.on('session_proposal', async (proposal: SessionProposal) => {
       console.log("Received session proposal:", proposal);
-      if (proposal.params.request?.method === "algo_signTxn") {
-        handleTransactionRequest(proposal.params.request.params[0][0], transactionCallback!);
-      }
-    });
-
-    const connectResult = await client.connect({
-      pairingTopic: wcUrl.split('@')[0].substring(3),
-      requiredNamespaces: {
-        algorand: {
-          methods: ['algo_signTxn'],
-          chains: ['algorand:wGHE2Pwdvd7S12BL5FaOP20EGYesN73k'],
-          events: ['accountsChanged']
-        }
+      try {
+        // Connect with the dApp using the proposal parameters
+        await client.approve({
+          id: proposal.id,
+          namespaces: {
+            algorand: {
+              accounts: [`algorand:wGHE2Pwdvd7S12BL5FaOP20EGYesN73k:${address}`],
+              methods: ['algo_signTxn'],
+              events: ['accountsChanged']
+            }
+          }
+        });
+      } catch (error) {
+        console.error("Error handling session proposal:", error);
+        toast({
+          title: "Connection Failed",
+          description: "Failed to establish connection with dApp",
+          variant: "destructive",
+        });
       }
     });
 
@@ -43,12 +56,6 @@ export async function connectWithWalletConnect(wcUrl: string, address: string): 
     console.error("Error in WalletConnect connection:", error);
     throw error;
   }
-}
-
-let transactionCallback: TransactionCallback | null = null;
-
-export function setConnectionTransactionCallback(callback: TransactionCallback) {
-  transactionCallback = callback;
 }
 
 export async function disconnectWalletConnect(): Promise<boolean> {

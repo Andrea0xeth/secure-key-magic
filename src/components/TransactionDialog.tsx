@@ -61,9 +61,10 @@ export const TransactionDialog = ({ isOpen, onClose, transaction, onSign }: Tran
     return (amount / 1_000_000).toFixed(6);
   };
 
+  // Access transaction properties safely using algosdk methods
   const txType = transaction.type;
-  const txFrom = algosdk.encodeAddress(transaction.from.publicKey);
-  const txTo = algosdk.encodeAddress(transaction.to.publicKey);
+  const txFrom = algosdk.encodeAddress(transaction.sender);
+  const txTo = algosdk.encodeAddress(transaction.receiver);
   const txAmount = transaction.amount;
   const txFee = transaction.fee;
   const txGroup = transaction.group;

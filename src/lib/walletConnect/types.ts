@@ -5,7 +5,7 @@ export interface DecodedAlgorandTransaction {
   type: algosdk.TransactionType;
   snd?: Uint8Array;
   rcv?: Uint8Array;
-  amt?: number;
+  amt?: number | bigint;
   fee?: number;
   fv?: number;
   lv?: number;
@@ -15,3 +15,27 @@ export interface DecodedAlgorandTransaction {
 }
 
 export type TransactionCallback = (transaction: algosdk.Transaction) => void;
+
+export interface SessionProposal {
+  id: number;
+  params: {
+    id: number;
+    pairingTopic: string;
+    proposer: {
+      publicKey: string;
+      metadata: {
+        name: string;
+        description: string;
+        url: string;
+        icons: string[];
+      };
+    };
+    requiredNamespaces: {
+      algorand: {
+        chains: string[];
+        methods: string[];
+        events: string[];
+      };
+    };
+  };
+}
