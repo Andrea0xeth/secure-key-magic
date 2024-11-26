@@ -41,7 +41,7 @@ export async function connectWithWalletConnect(wcUrl: string, address: string): 
 
     // First pair with the URI
     console.log("Pairing with URI...");
-    const { uri, approval } = await client.pair({ uri: wcUrl });
+    const pairResult = await client.pair({ uri: wcUrl });
 
     // Set up session proposal listener before connecting
     client.on('session_proposal', async (proposal: SignClientTypes.EventArguments['session_proposal']) => {
@@ -66,12 +66,11 @@ export async function connectWithWalletConnect(wcUrl: string, address: string): 
         };
 
         console.log("Approving with namespaces:", namespaces);
-        const { acknowledged } = await client.approve({
+        const session = await client.approve({
           id: proposal.id,
           namespaces
         });
         
-        await acknowledged();
         console.log("Session approved and acknowledged");
       } catch (error) {
         console.error("Error handling session proposal:", error);
@@ -80,7 +79,7 @@ export async function connectWithWalletConnect(wcUrl: string, address: string): 
     });
 
     // Connect with the dApp using the same required namespaces from the proposal
-    const { topic, acknowledged } = await client.connect({
+    const connectResult = await client.connect({
       pairingTopic: wcUrl.split('@')[0].substring(3),
       requiredNamespaces: {
         algorand: {
@@ -91,8 +90,7 @@ export async function connectWithWalletConnect(wcUrl: string, address: string): 
       }
     });
 
-    await acknowledged();
-    console.log("Connection successful with topic:", topic);
+    console.log("Connection successful");
     return true;
   } catch (error) {
     console.error("Error in WalletConnect connection:", error);
