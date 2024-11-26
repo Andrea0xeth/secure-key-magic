@@ -33,33 +33,28 @@ export const TransactionDialog = ({ isOpen, onClose, transaction, onSign }: Tran
       
       const authResult = await authenticateWithPasskey();
       if (!authResult) {
-        console.error("Failed to authenticate with passkey");
-        toast({
-          title: "Authentication Failed",
-          description: "Failed to authenticate with passkey",
-          variant: "destructive",
-        });
-        return;
+        throw new Error("Failed to authenticate with passkey");
       }
 
       console.log("Successfully authenticated, signing transaction");
       
       try {
+        // Decodifica la transazione
         const txnBuffer = Buffer.from(transaction.txn, 'base64');
         const decodedTxn = algosdk.decodeUnsignedTransaction(txnBuffer);
         
-        console.log("Private key type:", typeof authResult.privateKey);
+        // Log per debugging
+        console.log("Transaction decoded successfully");
         console.log("Private key length:", authResult.privateKey.length);
         
-        const privateKey = authResult.privateKey instanceof Uint8Array 
-          ? authResult.privateKey 
-          : new Uint8Array(authResult.privateKey);
-
-        if (privateKey.length !== 32) {
-          throw new Error(`Invalid private key length: ${privateKey.length}. Expected 32 bytes.`);
+        // Verifica che la chiave privata sia valida
+        if (!authResult.privateKey || authResult.privateKey.length !== 32) {
+          throw new Error(`Invalid private key length: ${authResult.privateKey?.length}`);
         }
 
-        const signedTxn = algosdk.signTransaction(decodedTxn, privateKey);
+        // Firma la transazione
+        const signedTxn = algosdk.signTransaction(decodedTxn, authResult.privateKey);
+        console.log("Transaction signed successfully");
         
         onSign(signedTxn.blob);
         
@@ -70,18 +65,14 @@ export const TransactionDialog = ({ isOpen, onClose, transaction, onSign }: Tran
         
         onClose();
       } catch (error) {
-        console.error("Error decoding/signing transaction:", error);
-        toast({
-          title: "Signing Failed",
-          description: `Failed to process the transaction. Error: ${error.message}`,
-          variant: "destructive",
-        });
+        console.error("Error signing transaction:", error);
+        throw new Error(`Failed to sign transaction: ${error.message}`);
       }
     } catch (error) {
-      console.error("Error in authentication:", error);
+      console.error("Error in transaction process:", error);
       toast({
-        title: "Authentication Failed",
-        description: "Failed to authenticate with passkey",
+        title: "Transaction Failed",
+        description: error.message,
         variant: "destructive",
       });
     } finally {

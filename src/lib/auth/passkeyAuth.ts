@@ -1,5 +1,6 @@
 import { AuthenticationResult } from "../types/auth";
 import { deriveAlgorandAccountFromCredential } from "../crypto/credentialDerivation";
+import * as algosdk from "algosdk";
 
 export async function authenticateWithPasskey(): Promise<AuthenticationResult> {
   try {
@@ -37,21 +38,38 @@ export async function authenticateWithPasskey(): Promise<AuthenticationResult> {
     const account = deriveAlgorandAccountFromCredential(assertion);
     console.log("Derived Algorand account:", account);
 
-    // Ensure the private key is exactly 32 bytes
-    let privateKey = account.sk;
-    if (privateKey.length !== 32) {
-      console.warn("Private key length is not 32 bytes, adjusting...");
-      const adjustedKey = new Uint8Array(32);
-      adjustedKey.set(privateKey.slice(0, Math.min(privateKey.length, 32)));
-      privateKey = adjustedKey;
+    if (!algosdk.isValidAddress(account.addr.toString())) {
+      throw new Error("Invalid Algorand address derived from passkey");
     }
 
-    console.log("Final private key length:", privateKey.length);
+    const privateKeyBytes = account.sk;
+    console.log("Original private key length:", privateKeyBytes.length);
+    
+    try {
+      const testTxn = new algosdk.Transaction({
+        from: account.addr,
+        to: account.addr,
+        amount: 0,
+        suggestedParams: {
+          fee: 1000,
+          firstRound: 1,
+          lastRound: 1000,
+          genesisID: "mainnet-v1.0",
+          genesisHash: "wGHE2Pwdvd7S12BL5FaOP20EGYesN73ktiC1qzkkit8="
+        }
+      });
+      
+      algosdk.signTransaction(testTxn, privateKeyBytes);
+      console.log("Private key validation successful");
+    } catch (error) {
+      console.error("Invalid private key:", error);
+      throw new Error("Invalid private key derived from passkey");
+    }
 
     return {
-      address: account.addr,
-      publicKey: account.addr,
-      privateKey: privateKey
+      address: account.addr.toString(),
+      publicKey: account.addr.toString(),
+      privateKey: privateKeyBytes
     };
   } catch (error) {
     console.error("Error authenticating with passkey:", error);
