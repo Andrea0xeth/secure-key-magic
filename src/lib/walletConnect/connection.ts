@@ -15,16 +15,16 @@ export async function connectWithWalletConnect(wcUrl: string, address: string): 
       throw new Error("Failed to initialize SignClient");
     }
 
-    console.log("Pairing with URI...");
-    const pairResult = await client.pair({ uri: wcUrl });
-    console.log("Pairing result:", pairResult);
-
     // Configure client to skip verification
     (client as any).core.verify = {
       register: async () => true,
       resolve: async () => ({ attestationId: 'mock', verifyUrl: '' }),
     };
 
+    console.log("Pairing with URI...");
+    await client.pair({ uri: wcUrl });
+
+    console.log("Connection successful");
     return true;
   } catch (error) {
     console.error("Error in WalletConnect connection:", error);
