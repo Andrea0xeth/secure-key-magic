@@ -5,17 +5,17 @@ import type { TransactionCallback } from './types';
 
 export async function handleSessionProposal(
   client: SignClient,
-  proposal: SignClientTypes.EventArguments['session_proposal'],
-  transactionCallback: TransactionCallback | null
-) {
+  proposal: SignClientTypes.EventArguments['session_proposal']
+): Promise<boolean> {
   console.log("Processing session proposal:", proposal);
 
   try {
     const { id, params } = proposal;
 
+    // Define the required namespaces
     const namespaces = {
       algorand: {
-        accounts: [`algorand:wGHE2Pwdvd7S12BL5FaOP20EGYesN73k:${params.proposer.metadata?.url || ''}`],
+        accounts: [`algorand:wGHE2Pwdvd7S12BL5FaOP20EGYesN73k:${params.proposer.metadata.url || ''}`],
         methods: ['algo_signTxn'],
         events: ['accountsChanged'],
         chains: ['algorand:wGHE2Pwdvd7S12BL5FaOP20EGYesN73k']

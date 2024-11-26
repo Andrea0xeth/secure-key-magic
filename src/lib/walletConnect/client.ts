@@ -27,7 +27,7 @@ export async function initSignClient(): Promise<SignClient | null> {
 
       signClient.on("session_proposal", async (event) => {
         try {
-          await handleSessionProposal(signClient!, event, transactionCallback);
+          await handleSessionProposal(signClient!, event);
         } catch (error) {
           console.error("Error handling session proposal:", error);
           toast({
