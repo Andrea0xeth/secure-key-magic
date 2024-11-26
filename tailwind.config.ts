@@ -44,6 +44,11 @@ export default {
           DEFAULT: "#EF4444",
           foreground: "#ffffff",
         },
+        artence: {
+          purple: "#9b87f5",
+          dark: "#1A1F2C",
+          light: "#F1F0FB",
+        },
       },
       fontFamily: {
         sans: ["Space Grotesk", "sans-serif"],
