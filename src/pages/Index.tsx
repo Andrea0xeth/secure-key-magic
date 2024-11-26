@@ -1,46 +1,14 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { useToast } from "@/components/ui/use-toast";
-import { registerPasskey, authenticateWithPasskey, processWalletConnectUrl, exportPrivateKey, type AuthenticationResult } from "@/lib/webauthn";
-import { disconnectWalletConnect, setTransactionCallback } from "@/lib/walletConnect";
-import { Shield, Link, Download, LogOut } from "lucide-react";
-import { PasskeySection } from "@/components/PasskeySection";
+import { Shield, Link } from "lucide-react";
+import { authenticateWithPasskey } from "@/lib/webauthn";
+import { connectWithWalletConnect } from "@/lib/walletConnect/connection";
 import { ConnectedAppsList } from "@/components/ConnectedAppsList";
-import { AddressQRCode } from "@/components/AddressQRCode";
-import { AlgoBalance } from "@/components/AlgoBalance";
-import { TransactionDialog } from "@/components/TransactionDialog";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import * as algosdk from "algosdk";
 
-const queryClient = new QueryClient();
-
-const IndexContent = () => {
-  const [authResult, setAuthResult] = useState<AuthenticationResult | null>(null);
+const Index = () => {
+  const [authResult, setAuthResult] = useState<{ address: string } | null>(null);
   const [wcUrl, setWcUrl] = useState<string>("");
-  const [currentTransaction, setCurrentTransaction] = useState<algosdk.Transaction | null>(null);
-  const { toast } = useToast();
-
-  useEffect(() => {
-    // Set up transaction handler when component mounts
-    setTransactionCallback((transaction: algosdk.Transaction) => {
-      console.log("Received transaction to sign:", transaction);
-      setCurrentTransaction(transaction);
-    });
-  }, []);
-
-  const handleRegister = async () => {
-    console.log("Starting passkey registration...");
-    const result = await registerPasskey();
-    if (result) {
-      console.log("Passkey registration successful:", result);
-      setAuthResult(result);
-      toast({
-        title: "Registration Successful",
-        description: "Your passkey has been registered successfully!",
-      });
-    }
-  };
 
   const handleAuthenticate = async () => {
     console.log("Starting passkey authentication...");
@@ -48,100 +16,18 @@ const IndexContent = () => {
     if (result) {
       console.log("Passkey authentication successful:", result);
       setAuthResult(result);
-      toast({
-        title: "Authentication Successful",
-        description: "You've been authenticated successfully!",
-      });
     }
   };
 
   const handleWalletConnectUrl = async () => {
-    if (!wcUrl) {
-      toast({
-        title: "Error",
-        description: "Please enter a WalletConnect URL",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (!authResult?.address) {
-      toast({
-        title: "Error",
-        description: "Please authenticate first",
-        variant: "destructive",
-      });
-      return;
-    }
-
+    if (!wcUrl || !authResult?.address) return;
+    
     try {
-      const success = await processWalletConnectUrl(wcUrl, authResult.address);
-      if (success) {
-        setWcUrl("");
-      }
+      await connectWithWalletConnect(wcUrl, authResult.address);
+      setWcUrl("");
     } catch (error) {
-      console.error("Error processing WalletConnect URL:", error);
-      toast({
-        title: "Connection Failed",
-        description: "Failed to connect to dApp. Please try again.",
-        variant: "destructive",
-      });
+      console.error("Error connecting:", error);
     }
-  };
-
-  const handleExportKey = async () => {
-    try {
-      const privateKey = await exportPrivateKey();
-      if (privateKey) {
-        const blob = new Blob([privateKey], { type: 'text/plain' });
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'algorand-private-key.txt';
-        document.body.appendChild(a);
-        a.click();
-        window.URL.revokeObjectURL(url);
-        document.body.removeChild(a);
-        toast({
-          title: "Success",
-          description: "Private key exported successfully",
-        });
-      }
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to export private key",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleDisconnectAll = async () => {
-    try {
-      const success = await disconnectWalletConnect();
-      if (success) {
-        toast({
-          title: "Disconnected",
-          description: "Successfully disconnected from all dApps",
-        });
-      }
-    } catch (error) {
-      console.error("Error disconnecting:", error);
-      toast({
-        title: "Error",
-        description: "Failed to disconnect from dApps",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleTransactionSign = async (signedTxn: Uint8Array) => {
-    console.log("Transaction signed:", signedTxn);
-    setCurrentTransaction(null);
-    toast({
-      title: "Success",
-      description: "Transaction signed successfully",
-    });
   };
 
   return (
@@ -161,100 +47,57 @@ const IndexContent = () => {
 
         <Card className="p-6 shadow-lg border-2 border-opacity-50 backdrop-blur-sm">
           {!authResult ? (
-            <PasskeySection
-              authResult={authResult}
-              onRegister={handleRegister}
-              onAuthenticate={handleAuthenticate}
-            />
+            <div className="text-center">
+              <Button
+                onClick={handleAuthenticate}
+                className="bg-blue-500 hover:bg-blue-600 text-white"
+              >
+                <Shield className="mr-2 h-4 w-4" />
+                Authenticate with Passkey
+              </Button>
+            </div>
           ) : (
             <div className="space-y-6">
               <div className="text-center">
                 <div className="flex justify-center">
                   <Shield className="h-12 w-12 text-green-500" />
                 </div>
-                <div>
-                  <h2 className="text-xl font-semibold mb-2">Connected</h2>
-                  <div className="flex justify-center mb-4">
-                    <AlgoBalance address={authResult.address} />
-                  </div>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Your Algorand address:
-                  </p>
-                  <code className="px-4 py-2 bg-gray-100 dark:bg-gray-800 rounded-lg text-sm break-all block">
-                    {authResult.address}
-                  </code>
-                  <div className="mt-4">
-                    <AddressQRCode address={authResult.address} />
-                  </div>
-                </div>
-                <div className="mt-6 space-y-4">
-                  <div className="flex gap-2">
-                    <input
-                      type="text"
-                      placeholder="Enter WalletConnect URL"
-                      value={wcUrl}
-                      onChange={(e) => setWcUrl(e.target.value)}
-                      className="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                    <Button
-                      onClick={handleWalletConnectUrl}
-                      className="bg-blue-500 hover:bg-blue-600 text-white"
-                    >
-                      <Link className="mr-2 h-4 w-4" />
-                      Connect
-                    </Button>
-                  </div>
-                  
-                  <div className="py-4">
-                    <ConnectedAppsList />
-                  </div>
+                <h2 className="text-xl font-semibold mb-2">Connected</h2>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Your Algorand address:
+                </p>
+                <code className="px-4 py-2 bg-gray-100 dark:bg-gray-800 rounded-lg text-sm break-all block">
+                  {authResult.address}
+                </code>
+              </div>
 
+              <div className="space-y-4">
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    placeholder="Enter WalletConnect URL"
+                    value={wcUrl}
+                    onChange={(e) => setWcUrl(e.target.value)}
+                    className="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
                   <Button
-                    onClick={handleDisconnectAll}
-                    variant="destructive"
-                    className="w-full"
+                    onClick={handleWalletConnectUrl}
+                    className="bg-blue-500 hover:bg-blue-600 text-white"
                   >
-                    <LogOut className="mr-2 h-4 w-4" />
-                    Disconnect All dApps
+                    <Link className="mr-2 h-4 w-4" />
+                    Connect
                   </Button>
-                  
-                  <Button
-                    onClick={handleExportKey}
-                    variant="outline"
-                    className="w-full"
-                  >
-                    <Download className="mr-2 h-4 w-4" />
-                    Export Private Key
-                  </Button>
-                  
-                  <Button
-                    variant="outline"
-                    onClick={() => setAuthResult(null)}
-                    className="w-full"
-                  >
-                    Disconnect Passkey
-                  </Button>
+                </div>
+                
+                <div className="py-4">
+                  <ConnectedAppsList />
                 </div>
               </div>
             </div>
           )}
         </Card>
       </div>
-      <TransactionDialog 
-        isOpen={!!currentTransaction}
-        onClose={() => setCurrentTransaction(null)}
-        transaction={currentTransaction!}
-        onSign={handleTransactionSign}
-      />
     </div>
-  );
-};
-
-const Index = () => {
-  return (
-    <QueryClientProvider client={queryClient}>
-      <IndexContent />
-    </QueryClientProvider>
   );
 };
 

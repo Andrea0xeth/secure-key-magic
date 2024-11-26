@@ -1,8 +1,6 @@
-import { initSignClient, getSignClient } from './client';
-import { handleSessionProposal } from './sessionHandler';
-import { handleTransactionRequest } from './transactionHandler';
+import { initSignClient } from './client';
+import { toast } from "@/hooks/use-toast";
 import type { TransactionCallback } from './types';
-import type { SignClientTypes } from '@walletconnect/types';
 
 let transactionCallback: TransactionCallback | null = null;
 
@@ -14,45 +12,50 @@ export function setTransactionCallback(callback: TransactionCallback) {
 export async function connectWithWalletConnect(wcUrl: string, address: string): Promise<boolean> {
   try {
     console.log("Processing WalletConnect URL:", wcUrl);
-    console.log("Using Algorand address:", address);
     
     if (!wcUrl.startsWith('wc:')) {
       throw new Error("Invalid WalletConnect URL format");
     }
 
     const client = await initSignClient();
+    console.log("Pairing with URI...");
+    await client.pair({ uri: wcUrl });
 
-    client.on("session_proposal", async (proposal: SignClientTypes.EventArguments['session_proposal']) => {
-      await handleSessionProposal(client, proposal, address);
-    });
-
-    client.on("session_request", async (event: SignClientTypes.EventArguments['session_request']) => {
-      if (event.params.request.method === "algo_signTxn" && transactionCallback) {
-        await handleTransactionRequest(event.params.request.params[0][0], transactionCallback);
+    // Connect with the dApp
+    await client.connect({
+      pairingTopic: wcUrl.split('@')[0].substring(3),
+      requiredNamespaces: {
+        algorand: {
+          methods: ['algo_signTxn'],
+          chains: ['algorand:wGHE2Pwdvd7S12BL5FaOP20EGYesN73k'],
+          events: ['accountsChanged']
+        }
       }
     });
 
-    await client.pair({ uri: wcUrl });
-    console.log("Successfully paired with WalletConnect URI");
-
+    console.log("Connection successful");
+    toast({
+      title: "Connected",
+      description: "Successfully connected to dApp",
+    });
+    
     return true;
   } catch (error) {
     console.error("Error in WalletConnect connection:", error);
+    toast({
+      title: "Connection Failed",
+      description: "Failed to connect to dApp",
+      variant: "destructive",
+    });
     throw error;
   }
 }
 
 export async function disconnectWalletConnect(): Promise<boolean> {
   try {
-    const client = getSignClient();
-    if (!client) {
-      console.log("No active SignClient found");
-      return false;
-    }
-
+    const client = await initSignClient();
     const sessions = client.session.values;
-    console.log("Active sessions:", sessions);
-
+    
     for (const session of sessions) {
       await client.disconnect({
         topic: session.topic,
@@ -63,10 +66,18 @@ export async function disconnectWalletConnect(): Promise<boolean> {
       });
     }
 
-    console.log("Successfully disconnected all sessions");
+    toast({
+      title: "Disconnected",
+      description: "Successfully disconnected from all dApps",
+    });
     return true;
   } catch (error) {
     console.error("Error disconnecting WalletConnect:", error);
+    toast({
+      title: "Error",
+      description: "Failed to disconnect",
+      variant: "destructive",
+    });
     throw error;
   }
 }

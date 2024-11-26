@@ -1,9 +1,9 @@
-import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { LogOut } from "lucide-react";
-import { disconnectWalletConnect } from "@/lib/walletConnect";
+import { disconnectWalletConnect } from "@/lib/walletConnect/connection";
 import { useToast } from "@/components/ui/use-toast";
 import { useQuery } from "@tanstack/react-query";
+import { initSignClient } from "@/lib/walletConnect/client";
 
 interface ConnectedApp {
   name: string;
@@ -16,47 +16,22 @@ export const ConnectedAppsList = () => {
   const { data: connectedApps = [], refetch } = useQuery({
     queryKey: ['connectedApps'],
     queryFn: async () => {
-      const SignClient = (await import('@walletconnect/sign-client')).default;
-      const client = await SignClient.init({
-        projectId: import.meta.env.VITE_WALLET_CONNECT_PROJECT_ID,
-      });
+      const client = await initSignClient();
       const sessions = client.session.values;
       return sessions.map(session => ({
         name: session.peer.metadata.name,
         topic: session.topic
       }));
     },
-    refetchInterval: 5000, // Refresh every 5 seconds
+    refetchInterval: 5000,
   });
 
   const handleDisconnect = async (topic: string) => {
     try {
-      const SignClient = (await import('@walletconnect/sign-client')).default;
-      const client = await SignClient.init({
-        projectId: import.meta.env.VITE_WALLET_CONNECT_PROJECT_ID,
-      });
-
-      await client.disconnect({
-        topic,
-        reason: {
-          code: 6000,
-          message: "User disconnected"
-        }
-      });
-
+      await disconnectWalletConnect();
       refetch();
-      
-      toast({
-        title: "Disconnected",
-        description: "Successfully disconnected from the dApp",
-      });
     } catch (error) {
       console.error("Error disconnecting:", error);
-      toast({
-        title: "Error",
-        description: "Failed to disconnect from the dApp",
-        variant: "destructive",
-      });
     }
   };
 
