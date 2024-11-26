@@ -25,7 +25,6 @@ export function handleTransactionRequest(params: any) {
       throw new Error("Invalid transaction parameters");
     }
 
-    // Convert Uint8Array addresses to string format
     const from = algosdk.encodeAddress((decodedTxn as any).snd);
     const to = algosdk.encodeAddress((decodedTxn as any).rcv);
     
@@ -38,9 +37,9 @@ export function handleTransactionRequest(params: any) {
       group: (decodedTxn as any).grp,
       signTxn: (key: Uint8Array) => {
         console.log("Creating transaction object for signing");
-        const txn = algosdk.Transaction.from_obj(decodedTxn as algosdk.TransactionParams);
-        console.log("Transaction object created:", txn);
-        const signedTxn = txn.signTxn(key);
+        const txnObj = algosdk.Transaction.from_obj_for_encoding(decodedTxn as algosdk.TransactionParams);
+        console.log("Transaction object created:", txnObj);
+        const signedTxn = txnObj.signTxn(key);
         console.log("Transaction signed successfully");
         return signedTxn;
       }

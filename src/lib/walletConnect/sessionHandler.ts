@@ -28,7 +28,7 @@ export function setupSessionHandlers(client: SignClientType, callback: Transacti
             group: (decodedTxn as any).grp,
             signTxn: (key: Uint8Array) => {
               console.log("Creating transaction object for signing");
-              const txn = algosdk.Transaction.from_obj(decodedTxn as algosdk.TransactionParams);
+              const txn = algosdk.Transaction.from_obj_for_encoding(decodedTxn as algosdk.TransactionParams);
               console.log("Transaction object created:", txn);
               const signedTxn = txn.signTxn(key);
               console.log("Transaction signed successfully");
