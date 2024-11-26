@@ -34,22 +34,8 @@ const Index = () => {
     }
   };
 
-  const toggleTheme = () => {
-    setTheme(theme === "dark" ? "light" : "dark");
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-gray-100 dark:from-artence-navy dark:to-gray-900 transition-colors duration-300">
-      <div className="absolute top-4 right-4">
-        <Button 
-          variant="outline" 
-          size="icon"
-          onClick={toggleTheme}
-          className="rounded-full bg-white hover:bg-gray-100 dark:bg-artence-navy dark:hover:bg-artence-dark border-gray-200 dark:border-gray-700 transition-colors duration-300"
-        >
-          {theme === 'dark' ? '🌞' : '🌙'}
-        </Button>
-      </div>
       <div className="container max-w-2xl px-4 sm:px-6 pt-16 pb-8 animate-fade-in">
         <div className="text-center mb-12">
           <div className="flex justify-center mb-6">
