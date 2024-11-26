@@ -32,7 +32,7 @@ export function handleTransactionRequest(params: any) {
       firstRound: decodedTxn.fv || 0,
       lastRound: decodedTxn.lv || 0,
       genesisID: decodedTxn.gen || '',
-      genesisHash: Buffer.from(decodedTxn.gh || '', 'base64'),
+      genesisHash: decodedTxn.gh || '',
       flatFee: true,
     };
 
@@ -43,8 +43,6 @@ export function handleTransactionRequest(params: any) {
     }
 
     const fromAddress = algosdk.encodeAddress(decodedTxn.snd);
-    
-    // For receiver, use a default if not provided (e.g., for special transactions)
     const toAddress = decodedTxn.rcv ? algosdk.encodeAddress(decodedTxn.rcv) : fromAddress;
 
     console.log("Transaction addresses:", { 
@@ -54,19 +52,26 @@ export function handleTransactionRequest(params: any) {
       originalRcv: decodedTxn.rcv 
     });
 
-    // Create transaction object
+    // Create transaction object with explicit type
     const transaction = new algosdk.Transaction({
+      type: algosdk.TransactionType.pay,
       from: fromAddress,
       to: toAddress,
       amount: decodedTxn.amt || 0,
-      ...suggestedParams
+      fee: suggestedParams.fee,
+      firstRound: suggestedParams.firstRound,
+      lastRound: suggestedParams.lastRound,
+      genesisID: suggestedParams.genesisID,
+      genesisHash: suggestedParams.genesisHash,
+      flatFee: suggestedParams.flatFee
     });
     
     console.log("Created transaction object:", {
+      type: transaction.type,
       from: transaction.from,
       to: transaction.to,
       amount: transaction.amount,
-      fee: suggestedParams.fee
+      fee: transaction.fee
     });
 
     if (transactionCallback) {
