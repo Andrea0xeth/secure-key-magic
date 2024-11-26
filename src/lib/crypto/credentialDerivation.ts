@@ -5,8 +5,8 @@ export interface KeyPair {
   address: string;
 }
 
-export function deriveKeyPair(credential: PublicKeyCredential): KeyPair {
-  console.log("Deriving key pair from credential");
+export function deriveAlgorandAccountFromCredential(credential: PublicKeyCredential): algosdk.Account {
+  console.log("Deriving Algorand account from credential");
   
   // Get the raw credential ID as bytes
   const rawId = new Uint8Array(credential.rawId);
@@ -24,8 +24,13 @@ export function deriveKeyPair(credential: PublicKeyCredential): KeyPair {
   
   console.log("Generated deterministic account with address:", account.addr);
   
+  return account;
+}
+
+export function deriveKeyPair(credential: PublicKeyCredential): KeyPair {
+  const account = deriveAlgorandAccountFromCredential(credential);
   return {
-    mnemonic,
-    address: account.addr
+    mnemonic: algosdk.secretKeyToMnemonic(account.sk),
+    address: account.addr.toString()
   };
 }

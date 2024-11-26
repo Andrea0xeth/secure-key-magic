@@ -25,14 +25,12 @@ export async function registerPasskey() {
         name: `algorand-user-${Date.now()}`,
         displayName: "Algorand User",
       },
-      pubKeyCredParams: [
-        {
-          type: "public-key",
-          alg: -7, // ES256
-        },
-      ],
+      pubKeyCredParams: [{
+        type: "public-key" as const,
+        alg: -7, // ES256
+      }],
       timeout: 60000,
-      attestation: "direct",
+      attestation: "direct" as const,
       authenticatorSelection: {
         authenticatorAttachment: "platform",
         userVerification: "required",
@@ -44,14 +42,20 @@ export async function registerPasskey() {
     const credential = await startRegistration(createCredentialOptions);
     console.log("Passkey registration successful:", credential);
 
-    // Derive Algorand account from credential
-    const keyPair = await deriveKeyPair(credential);
-    const account = algosdk.mnemonicToSecretKey(keyPair.mnemonic);
-    console.log("Derived Algorand account:", account);
+    // Create a mock credential for deriveKeyPair since we can't convert RegistrationResponseJSON to PublicKeyCredential
+    const mockCredential = {
+      id: credential.id,
+      rawId: Buffer.from(credential.rawId),
+      type: 'public-key',
+      getClientExtensionResults: () => ({}),
+    } as PublicKeyCredential;
+
+    const keyPair = deriveKeyPair(mockCredential);
+    console.log("Derived key pair:", keyPair);
 
     return {
-      address: account.addr.toString(),
-      publicKey: account.addr.toString()
+      address: keyPair.address,
+      publicKey: keyPair.address
     };
   } catch (error) {
     console.error("Error registering passkey:", error);
