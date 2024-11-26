@@ -4,16 +4,20 @@ import { Button } from "@/components/ui/button";
 import { authenticateWithPasskey } from "@/lib/webauthn";
 import { useToast } from "@/components/ui/use-toast";
 import * as algosdk from "algosdk";
-import { AlgorandTransaction } from "@/lib/walletConnect/types";
 
 interface TransactionDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  transaction: AlgorandTransaction | null;
+  transaction: algosdk.Transaction | null;
   onSign: (signedTxn: Uint8Array) => void;
 }
 
-export const TransactionDialog = ({ isOpen, onClose, transaction, onSign }: TransactionDialogProps) => {
+export const TransactionDialog = ({ 
+  isOpen, 
+  onClose, 
+  transaction, 
+  onSign 
+}: TransactionDialogProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
@@ -38,9 +42,9 @@ export const TransactionDialog = ({ isOpen, onClose, transaction, onSign }: Tran
         return;
       }
 
-      console.log("Successfully authenticated, signing transaction with private key");
-      const signedTxn = algosdk.signTransaction(transaction, authResult.privateKey);
-      onSign(signedTxn.blob);
+      console.log("Successfully authenticated, signing transaction");
+      const signedTxn = transaction.signTxn(authResult.sk);
+      onSign(signedTxn);
       
       toast({
         title: "Transaction Signed",
@@ -60,9 +64,9 @@ export const TransactionDialog = ({ isOpen, onClose, transaction, onSign }: Tran
     }
   };
 
-  const formatAlgoAmount = (microAlgos: number | bigint): string => {
-    const amount = typeof microAlgos === 'bigint' ? Number(microAlgos) : microAlgos;
-    return (amount / 1_000_000).toFixed(6);
+  const formatAlgoAmount = (amount: number | bigint): string => {
+    const numericAmount = typeof amount === 'bigint' ? Number(amount) : amount;
+    return (numericAmount / 1_000_000).toFixed(6);
   };
 
   if (!transaction) {
@@ -71,11 +75,10 @@ export const TransactionDialog = ({ isOpen, onClose, transaction, onSign }: Tran
 
   const txnDetails = {
     type: transaction.type,
-    from: transaction.from,
-    to: transaction.to,
-    amount: formatAlgoAmount(transaction.amount),
     fee: formatAlgoAmount(transaction.fee),
-    group: transaction.group ? Buffer.from(transaction.group).toString('base64') : undefined
+    from: transaction.from?.toString() || 'Unknown',
+    to: transaction.to?.toString() || 'Unknown',
+    amount: formatAlgoAmount(transaction.amount || 0)
   };
 
   return (
@@ -93,7 +96,6 @@ export const TransactionDialog = ({ isOpen, onClose, transaction, onSign }: Tran
             <h4 className="text-sm font-medium mb-2">Transaction Details</h4>
             <div className="space-y-2 text-sm text-muted-foreground">
               <p>Type: {txnDetails.type}</p>
-              {txnDetails.group && <p>Group ID: {txnDetails.group}</p>}
               <p>Fee: {txnDetails.fee} ALGO</p>
               <p>From: {txnDetails.from}</p>
               <p>To: {txnDetails.to}</p>

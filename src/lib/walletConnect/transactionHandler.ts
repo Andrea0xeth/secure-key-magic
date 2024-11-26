@@ -26,7 +26,6 @@ export function handleTransactionRequest(params: any) {
       throw new Error("Invalid transaction parameters");
     }
 
-    // Ensure we have the required address fields
     const senderAddress = (decodedTxn as any).snd ? algosdk.encodeAddress((decodedTxn as any).snd) : null;
     const receiverAddress = (decodedTxn as any).rcv ? algosdk.encodeAddress((decodedTxn as any).rcv) : null;
 
@@ -36,18 +35,18 @@ export function handleTransactionRequest(params: any) {
     }
 
     // Create transaction object
-    const txn = algosdk.Transaction.from_obj_for_encoding({
-      snd: algosdk.decodeAddress(senderAddress).publicKey,
-      rcv: receiverAddress ? algosdk.decodeAddress(receiverAddress).publicKey : algosdk.decodeAddress(senderAddress).publicKey,
-      amt: (decodedTxn as any).amt || 0,
+    const txn = new algosdk.Transaction({
+      from: senderAddress,
+      to: receiverAddress || senderAddress,
+      amount: (decodedTxn as any).amt || 0,
       fee: (decodedTxn as any).fee || 1000,
-      fv: (decodedTxn as any).fv || 0,
-      lv: (decodedTxn as any).lv || 0,
-      gh: (decodedTxn as any).gh || '',
-      gen: (decodedTxn as any).gen || '',
+      firstRound: (decodedTxn as any).fv || 0,
+      lastRound: (decodedTxn as any).lv || 0,
+      genesisHash: (decodedTxn as any).gh || '',
+      genesisID: (decodedTxn as any).gen || '',
       type: (decodedTxn as any).type || 'pay',
       note: (decodedTxn as any).note,
-      grp: (decodedTxn as any).grp,
+      group: (decodedTxn as any).grp,
     });
 
     console.log("Created Algorand transaction object:", txn);
