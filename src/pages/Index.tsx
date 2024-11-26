@@ -9,13 +9,16 @@ import { PasskeySection } from "@/components/PasskeySection";
 import { ConnectedAppsList } from "@/components/ConnectedAppsList";
 import { AddressQRCode } from "@/components/AddressQRCode";
 import { AlgoBalance } from "@/components/AlgoBalance";
+import { TransactionDialog } from "@/components/TransactionDialog";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import * as algosdk from "algosdk";
 
 const queryClient = new QueryClient();
 
 const IndexContent = () => {
   const [authResult, setAuthResult] = useState<AuthenticationResult | null>(null);
   const [wcUrl, setWcUrl] = useState<string>("");
+  const [currentTransaction, setCurrentTransaction] = useState<algosdk.Transaction | null>(null);
   const { toast } = useToast();
 
   const handleRegister = async () => {
@@ -124,6 +127,11 @@ const IndexContent = () => {
     }
   };
 
+  const handleTransactionSign = async (signedTxn: Uint8Array) => {
+    // Here we would handle the signed transaction
+    console.log("Transaction signed:", signedTxn);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white dark:from-gray-900 dark:to-gray-800">
       <div className="container max-w-2xl pt-16 pb-8 animate-fade-in">
@@ -220,6 +228,12 @@ const IndexContent = () => {
           )}
         </Card>
       </div>
+      <TransactionDialog 
+        isOpen={!!currentTransaction}
+        onClose={() => setCurrentTransaction(null)}
+        transaction={currentTransaction!}
+        onSign={handleTransactionSign}
+      />
     </div>
   );
 };

@@ -1,5 +1,6 @@
 import SignClient from '@walletconnect/sign-client';
 import type { SignClientTypes } from '@walletconnect/types';
+import { toast } from "@/hooks/use-toast";
 
 let signClient: SignClient | null = null;
 
@@ -16,6 +17,14 @@ export async function initSignClient(): Promise<SignClient | null> {
           icons: ['https://walletconnect.com/walletconnect-logo.png']
         }
       });
+      
+      // Set up transaction request handler
+      signClient.on("session_request", async (event) => {
+        console.log("Received session request:", event);
+        // Handle transaction signing requests here
+        // This will be implemented in the UI layer
+      });
+      
       console.log("SignClient initialized successfully");
     }
     return signClient;
