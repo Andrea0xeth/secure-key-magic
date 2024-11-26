@@ -1,7 +1,7 @@
 import * as algosdk from "algosdk";
 import { Buffer } from 'buffer';
 import { toast } from "@/hooks/use-toast";
-import type { DecodedAlgorandTransaction, AlgorandTransactionParams } from "./types";
+import type { DecodedAlgorandTransaction } from "./types";
 
 export const handleTransactionRequest = (
   txnParams: any, 
@@ -13,10 +13,10 @@ export const handleTransactionRequest = (
     const decodedTxn = algosdk.decodeObj(Buffer.from(txnParams.txn, 'base64')) as DecodedAlgorandTransaction;
     console.log("Decoded transaction:", decodedTxn);
     
-    const params: AlgorandTransactionParams = {
-      type: decodedTxn.type || 'pay',
-      from: decodedTxn.snd || new Uint8Array(),
-      to: decodedTxn.rcv || new Uint8Array(),
+    const transaction = new algosdk.Transaction({
+      type: decodedTxn.type as algosdk.TransactionType,
+      from: decodedTxn.snd,
+      to: decodedTxn.rcv,
       amount: decodedTxn.amt ? Number(decodedTxn.amt) : 0,
       fee: decodedTxn.fee || 0,
       firstRound: decodedTxn.fv || 0,
@@ -24,9 +24,8 @@ export const handleTransactionRequest = (
       note: decodedTxn.note,
       genesisID: decodedTxn.gen || '',
       genesisHash: decodedTxn.gh || '',
-    };
+    });
     
-    const transaction = new algosdk.Transaction(params);
     callback(transaction);
   } catch (error) {
     console.error("Error processing transaction:", error);
