@@ -1,6 +1,6 @@
 import { SignClient } from '@walletconnect/sign-client';
 
-let signClient: typeof SignClient | null = null;
+let signClient: SignClient | null = null;
 
 export async function initSignClient() {
   try {
@@ -38,16 +38,14 @@ export async function connectWithWalletConnect(wcUrl: string, address: string): 
       throw new Error("Failed to initialize SignClient");
     }
     
-    // Extract the URI without query parameters
+    // Parse the URI and remove query parameters that might cause issues
     const uri = wcUrl.split('?')[0];
-    
     console.log("Attempting to pair with URI:", uri);
 
-    const { approval } = await client.pair({ uri });
-
-    console.log("Pairing with dApp...");
-    
     try {
+      const { approval } = await client.pair({ uri });
+      console.log("Pairing with dApp...");
+      
       const session = await approval();
       console.log("Session established:", session);
 
