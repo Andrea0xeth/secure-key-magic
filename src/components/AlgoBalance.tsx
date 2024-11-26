@@ -8,10 +8,10 @@ interface AlgoBalanceProps {
 interface AlgorandAccount {
   address: string;
   amount: number;
-  amountWithoutPendingRewards: number;
-  minBalance: number;
-  pendingRewards: number;
-  rewardBase: number;
+  "amount-without-pending-rewards": number;
+  "min-balance": number;
+  "pending-rewards": number;
+  "reward-base": number;
   rewards: number;
   round: number;
   status: string;
@@ -25,17 +25,17 @@ export const AlgoBalance = ({ address }: AlgoBalanceProps) => {
       const algodClient = new algosdk.Algodv2('', 'https://mainnet-api.algonode.cloud', '');
       
       try {
-        const accountInfo = await algodClient.accountInformation(address).do();
+        const accountInfo = await algodClient.accountInformation(address).do() as AlgorandAccount;
         console.log("Account info received:", accountInfo);
         
-        // Check if amountWithoutPendingRewards exists and is a valid number
-        if (typeof accountInfo.amountWithoutPendingRewards === 'undefined' || accountInfo.amountWithoutPendingRewards === null) {
-          console.error("Invalid amountWithoutPendingRewards in account info:", accountInfo);
+        // Check if amount-without-pending-rewards exists and is a valid number
+        if (typeof accountInfo["amount-without-pending-rewards"] === 'undefined' || accountInfo["amount-without-pending-rewards"] === null) {
+          console.error("Invalid amount-without-pending-rewards in account info:", accountInfo);
           return 0;
         }
         
         // Convert microAlgos to Algos
-        const algoBalance = Number(accountInfo.amountWithoutPendingRewards) / 1_000_000;
+        const algoBalance = Number(accountInfo["amount-without-pending-rewards"]) / 1_000_000;
         console.log("Calculated ALGO balance:", algoBalance);
         return algoBalance;
       } catch (error) {
