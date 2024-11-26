@@ -38,7 +38,7 @@ git clone <YOUR_GIT_URL>
 cd <YOUR_PROJECT_NAME>
 
 # Install dependencies
-npm i
+npm install --legacy-peer-deps
 
 # Start the development server
 npm run dev
