@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { QrReader } from 'react-qr-reader';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -10,20 +10,44 @@ interface QRScannerProps {
 
 export const QRScanner = ({ onResult }: QRScannerProps) => {
   const [open, setOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    // Check if device is mobile
+    const checkMobile = () => {
+      const mobile = window.innerWidth <= 768;
+      console.log("Device check - is mobile:", mobile);
+      setIsMobile(mobile);
+    };
+
+    // Initial check
+    checkMobile();
+
+    // Add resize listener
+    window.addEventListener('resize', checkMobile);
+
+    // Cleanup
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const handleScan = (result: { getText(): string } | null) => {
     if (result) {
       const text = result.getText();
       console.log("QR Scan result:", text);
       
-      // Check if it's a WalletConnect URL (starts with "wc:")
       if (text.startsWith('wc:')) {
         console.log("Valid WalletConnect URL detected");
         onResult(text);
-        setOpen(false); // Close the modal
+        setOpen(false);
       }
     }
   };
+
+  // If not mobile, don't render anything
+  if (!isMobile) {
+    console.log("QR Scanner not rendered - desktop device detected");
+    return null;
+  }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
