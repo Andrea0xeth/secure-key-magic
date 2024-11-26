@@ -3,7 +3,7 @@ import { Buffer } from 'buffer';
 import { toast } from "@/hooks/use-toast";
 import type { DecodedAlgorandTransaction } from "./types";
 
-export const handleTransactionRequest = (
+export const handleTransactionRequest = async (
   txnParams: any, 
   callback: (transaction: algosdk.Transaction) => void
 ) => {
@@ -14,9 +14,9 @@ export const handleTransactionRequest = (
     console.log("Decoded transaction:", decodedTxn);
     
     const transaction = new algosdk.Transaction({
-      type: decodedTxn.type as algosdk.TransactionType,
-      from: decodedTxn.snd,
-      to: decodedTxn.rcv,
+      type: decodedTxn.type || algosdk.TransactionType.pay,
+      from: decodedTxn.snd || new Uint8Array(),
+      to: decodedTxn.rcv || new Uint8Array(),
       amount: decodedTxn.amt ? Number(decodedTxn.amt) : 0,
       fee: decodedTxn.fee || 0,
       firstRound: decodedTxn.fv || 0,

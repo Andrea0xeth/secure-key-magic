@@ -1,7 +1,8 @@
 import SignClient from '@walletconnect/sign-client';
 import { initSignClient } from './client';
+import { handleSessionProposal } from './sessionHandler';
 import { handleTransactionRequest } from './transactionHandler';
-import type { TransactionCallback, SessionProposalEvent } from './types';
+import type { TransactionCallback } from './types';
 import { toast } from "@/hooks/use-toast";
 
 let transactionCallback: TransactionCallback | null = null;
@@ -24,35 +25,29 @@ export async function connectWithWalletConnect(wcUrl: string, address: string): 
       throw new Error("Failed to initialize SignClient");
     }
 
-    const pairResult = await client.pair({ uri: wcUrl });
+    console.log("Pairing with URI...");
+    await client.pair({ uri: wcUrl });
 
-    client.on('session_proposal', async (event: SessionProposalEvent) => {
-      console.log("Received session proposal:", event);
-      try {
-        await client.approve({
-          id: event.id,
-          namespaces: {
-            algorand: {
-              accounts: [`algorand:wGHE2Pwdvd7S12BL5FaOP20EGYesN73k:${address}`],
-              methods: ['algo_signTxn'],
-              events: ['accountsChanged']
-            }
-          }
-        });
-      } catch (error) {
-        console.error("Error handling session proposal:", error);
-        toast({
-          title: "Connection Failed",
-          description: "Failed to establish connection with dApp",
-          variant: "destructive",
-        });
+    client.on('session_proposal', async (proposal) => {
+      console.log("Received session proposal");
+      await handleSessionProposal(client, proposal, address);
+    });
+
+    client.on('session_request', async (event) => {
+      console.log("Received session request:", event);
+      if (event.params.request.method === "algo_signTxn" && transactionCallback) {
+        await handleTransactionRequest(event.params.request.params[0][0], transactionCallback);
       }
     });
 
-    console.log("Connection successful");
     return true;
   } catch (error) {
     console.error("Error in WalletConnect connection:", error);
+    toast({
+      title: "Connection Failed",
+      description: "Failed to connect to dApp. Please try again.",
+      variant: "destructive",
+    });
     throw error;
   }
 }
