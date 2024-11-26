@@ -42,8 +42,9 @@ export async function authenticateWithPasskey(): Promise<AuthenticationResult> {
       throw new Error("Invalid Algorand address derived from passkey");
     }
 
-    const privateKeyBytes = account.sk;
-    console.log("Original private key length:", privateKeyBytes.length);
+    const privateKeyBytes = account.sk.slice(0, 32);
+    console.log("Original private key length:", account.sk.length);
+    console.log("Adjusted private key length:", privateKeyBytes.length);
     
     try {
       const testTxn = new algosdk.Transaction({
@@ -55,22 +56,22 @@ export async function authenticateWithPasskey(): Promise<AuthenticationResult> {
           firstRound: 1,
           lastRound: 1000,
           genesisID: "mainnet-v1.0",
-          genesisHash: "wGHE2Pwdvd7S12BL5FaOP20EGYesN73ktiC1qzkkit8="
+          genesisHash: Buffer.from("wGHE2Pwdvd7S12BL5FaOP20EGYesN73ktiC1qzkkit8=", 'base64')
         }
       });
       
-      algosdk.signTransaction(testTxn, privateKeyBytes);
+      const signedTest = algosdk.signTransaction(testTxn, privateKeyBytes);
       console.log("Private key validation successful");
+
+      return {
+        address: account.addr.toString(),
+        publicKey: account.addr.toString(),
+        privateKey: privateKeyBytes
+      };
     } catch (error) {
       console.error("Invalid private key:", error);
       throw new Error("Invalid private key derived from passkey");
     }
-
-    return {
-      address: account.addr.toString(),
-      publicKey: account.addr.toString(),
-      privateKey: privateKeyBytes
-    };
   } catch (error) {
     console.error("Error authenticating with passkey:", error);
     throw error;
