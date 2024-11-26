@@ -61,12 +61,11 @@ export const TransactionDialog = ({ isOpen, onClose, transaction, onSign }: Tran
     return (amount / 1_000_000).toFixed(6);
   };
 
-  const txnObj = transaction.get_obj_for_encoding();
   const txnDetails = {
-    type: txnObj.type || 'pay',
-    from: algosdk.encodeAddress(txnObj.snd),
-    to: txnObj.rcv ? algosdk.encodeAddress(txnObj.rcv) : '',
-    amount: formatAlgoAmount(txnObj.amt || 0),
+    type: transaction.type || 'pay',
+    from: algosdk.encodeAddress(transaction.from.publicKey),
+    to: transaction.to ? algosdk.encodeAddress(transaction.to.publicKey) : '',
+    amount: formatAlgoAmount(transaction.amount || 0),
     fee: formatAlgoAmount(transaction.fee),
     group: transaction.group ? Buffer.from(transaction.group).toString('base64') : undefined
   };

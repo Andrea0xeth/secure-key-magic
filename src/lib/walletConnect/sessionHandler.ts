@@ -12,17 +12,20 @@ export const handleSessionProposal = async (
   try {
     const { id, params } = proposal;
     
-    // Validate proposal structure
-    if (!params || !params.requiredNamespaces) {
-      console.error("Invalid proposal structure:", params);
+    // Validate proposal structure and required namespaces
+    if (!params?.requiredNamespaces?.algorand) {
+      console.error("Invalid proposal structure or missing algorand namespace:", params);
       throw new Error("Invalid session proposal format");
     }
+
+    const { methods = [], chains = [], events = [] } = params.requiredNamespaces.algorand;
 
     const namespaces = {
       algorand: {
         accounts: [`algorand:wGHE2Pwdvd7S12BL5FaOP20EGYesN73k:${address}`],
-        methods: ['algo_signTxn'],
-        events: ['accountsChanged']
+        methods: methods.length ? methods : ['algo_signTxn'],
+        events: events.length ? events : ['accountsChanged'],
+        chains: chains.length ? chains : ['algorand:wGHE2Pwdvd7S12BL5FaOP20EGYesN73k']
       }
     };
 
