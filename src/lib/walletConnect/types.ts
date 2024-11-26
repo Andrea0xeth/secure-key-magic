@@ -1,37 +1,28 @@
-import * as algosdk from "algosdk";
 import type { SignClientTypes } from '@walletconnect/types';
+import type { Transaction, TransactionType } from 'algosdk';
 
 export type SessionProposalEvent = SignClientTypes.EventArguments['session_proposal'];
 
-export interface AlgorandTransaction extends algosdk.Transaction {
+export interface AlgorandTransaction extends Omit<Transaction, 'fee' | 'type'> {
   from?: { publicKey: Uint8Array };
   to?: { publicKey: Uint8Array };
   amount?: number | bigint;
-  type?: algosdk.TransactionType;
+  type?: TransactionType;
   fee?: number;
+  signTxn: (privateKey: Uint8Array) => Uint8Array;
 }
 
 export interface TransactionParams {
-  type: algosdk.TransactionType;
-  snd: Uint8Array;
-  rcv: Uint8Array;
-  amt: number;
-  fee: number;
-  fv: number;
-  lv: number;
+  type: TransactionType;
+  snd?: Uint8Array;
+  rcv?: Uint8Array;
+  amt?: number;
+  fee?: number;
+  fv?: number;
+  lv?: number;
   note?: Uint8Array;
   gen?: string;
   gh?: string;
 }
 
 export type TransactionCallback = (transaction: AlgorandTransaction) => void;
-
-export interface WalletConnectConfig {
-  projectId: string;
-  metadata: {
-    name: string;
-    description: string;
-    url: string;
-    icons: string[];
-  };
-}

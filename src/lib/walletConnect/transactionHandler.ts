@@ -1,6 +1,6 @@
 import * as algosdk from "algosdk";
 import { toast } from "@/hooks/use-toast";
-import type { TransactionCallback, TransactionParams } from "./types";
+import type { TransactionCallback, TransactionParams, AlgorandTransaction } from "./types";
 
 export const handleTransactionRequest = async (
   txnParams: { txn: string }, 
@@ -16,14 +16,14 @@ export const handleTransactionRequest = async (
       type: decodedTxn.type,
       from: decodedTxn.snd,
       to: decodedTxn.rcv,
-      amount: decodedTxn.amt,
-      fee: decodedTxn.fee,
-      firstRound: decodedTxn.fv,
-      lastRound: decodedTxn.lv,
+      amount: decodedTxn.amt || 0,
+      fee: decodedTxn.fee || 0,
+      firstRound: decodedTxn.fv || 0,
+      lastRound: decodedTxn.lv || 0,
       note: decodedTxn.note,
       genesisID: decodedTxn.gen || '',
       genesisHash: decodedTxn.gh || '',
-    });
+    }) as unknown as AlgorandTransaction;
     
     if (callback) {
       callback(transaction);

@@ -7,12 +7,7 @@ export async function initSignClient(): Promise<SignClient> {
   try {
     if (!signClient) {
       console.log("Initializing SignClient...");
-      signClient = await SignClient.init({
-        ...WALLET_CONNECT_CONFIG,
-        core: {
-          projectId: WALLET_CONNECT_CONFIG.projectId
-        }
-      });
+      signClient = await SignClient.init(WALLET_CONNECT_CONFIG);
       console.log("SignClient initialized successfully");
     }
     return signClient;

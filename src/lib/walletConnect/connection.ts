@@ -1,7 +1,8 @@
-import { initSignClient } from './client';
+import { initSignClient, getSignClient } from './client';
 import { handleSessionProposal } from './sessionHandler';
 import { handleTransactionRequest } from './transactionHandler';
 import type { TransactionCallback } from './types';
+import type { SignClientTypes } from '@walletconnect/types';
 
 let transactionCallback: TransactionCallback | null = null;
 
@@ -21,18 +22,16 @@ export async function connectWithWalletConnect(wcUrl: string, address: string): 
 
     const client = await initSignClient();
 
-    // Set up event listeners
-    client.on("session_proposal", async (proposal) => {
+    client.on("session_proposal", async (proposal: SignClientTypes.EventArguments['session_proposal']) => {
       await handleSessionProposal(client, proposal, address);
     });
 
-    client.on("session_request", async (event) => {
+    client.on("session_request", async (event: SignClientTypes.EventArguments['session_request']) => {
       if (event.params.request.method === "algo_signTxn" && transactionCallback) {
         await handleTransactionRequest(event.params.request.params[0][0], transactionCallback);
       }
     });
 
-    // Pair with the URI
     await client.pair({ uri: wcUrl });
     console.log("Successfully paired with WalletConnect URI");
 
