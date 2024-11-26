@@ -48,7 +48,7 @@ export const ConnectedAppsList = () => {
 
   if (!connectedApp) {
     return (
-      <div className="text-sm text-muted-foreground text-center">
+      <div className="text-sm text-gray-500 dark:text-gray-400 text-center transition-colors duration-300">
         No connected dApps
       </div>
     );
@@ -56,15 +56,15 @@ export const ConnectedAppsList = () => {
 
   return (
     <div className="space-y-2">
-      <h3 className="text-sm font-medium">Connected dApp</h3>
+      <h3 className="text-sm font-medium dark:text-white transition-colors duration-300">Connected dApp</h3>
       <div className="space-y-2">
-        <div className="flex items-center justify-between p-2 rounded-lg border bg-card">
-          <span className="text-sm">{connectedApp.name}</span>
+        <div className="flex items-center justify-between p-2 rounded-lg border bg-white dark:bg-gray-800 dark:border-gray-700 transition-colors duration-300">
+          <span className="text-sm dark:text-white">{connectedApp.name}</span>
           <Button
             variant="ghost"
             size="sm"
             onClick={() => handleDisconnect(connectedApp.topic)}
-            className="text-red-500 hover:text-red-600 hover:bg-red-50"
+            className="text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors duration-300"
           >
             <LogOut className="h-4 w-4" />
           </Button>

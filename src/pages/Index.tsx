@@ -39,13 +39,13 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-artence-light to-white dark:from-artence-dark dark:to-gray-800">
+    <div className="min-h-screen bg-gradient-to-b from-white to-gray-100 dark:from-artence-dark dark:to-gray-900 transition-colors duration-300">
       <div className="absolute top-4 right-4">
         <Button 
           variant="outline" 
           size="icon"
           onClick={toggleTheme}
-          className="rounded-full"
+          className="rounded-full bg-white dark:bg-artence-dark border-gray-200 dark:border-gray-700"
         >
           {theme === 'dark' ? '🌞' : '🌙'}
         </Button>
@@ -64,20 +64,20 @@ const Index = () => {
               className="h-12 w-auto dark:hidden"
             />
           </div>
-          <h1 className="text-3xl sm:text-4xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-artence-purple to-primary">
+          <h1 className="text-3xl sm:text-4xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-artence-purple to-primary dark:from-artence-purple dark:to-primary">
             Artence Passkey
           </h1>
-          <p className="text-base sm:text-lg text-gray-600 dark:text-gray-300 mb-6">
+          <p className="text-base sm:text-lg text-gray-600 dark:text-gray-300 transition-colors duration-300">
             Secure Algorand authentication using passkeys
           </p>
         </div>
 
-        <Card className="p-4 sm:p-6 shadow-lg border-2 border-opacity-50 backdrop-blur-sm dark:bg-artence-dark/50">
+        <Card className="p-4 sm:p-6 shadow-lg border-2 border-opacity-50 backdrop-blur-sm bg-white/90 dark:bg-artence-dark/90 dark:border-gray-700 transition-colors duration-300">
           {!authResult ? (
             <div className="text-center">
               <Button
                 onClick={handleAuthenticate}
-                className="w-full sm:w-auto bg-artence-purple hover:bg-primary text-white"
+                className="w-full sm:w-auto bg-artence-purple hover:bg-primary text-white transition-colors duration-300"
               >
                 <Shield className="mr-2 h-4 w-4" />
                 Authenticate with Passkey
@@ -89,11 +89,11 @@ const Index = () => {
                 <div className="flex justify-center">
                   <Shield className="h-10 w-10 sm:h-12 sm:w-12 text-artence-purple" />
                 </div>
-                <h2 className="text-xl font-semibold mb-2">Connected</h2>
-                <p className="text-sm text-muted-foreground mb-4">
+                <h2 className="text-xl font-semibold mb-2 dark:text-white transition-colors duration-300">Connected</h2>
+                <p className="text-sm text-gray-600 dark:text-gray-300 mb-4 transition-colors duration-300">
                   Your Algorand address:
                 </p>
-                <code className="px-3 py-2 sm:px-4 sm:py-2 bg-artence-light dark:bg-artence-dark rounded-lg text-xs sm:text-sm break-all block">
+                <code className="px-3 py-2 sm:px-4 sm:py-2 bg-gray-100 dark:bg-gray-800 rounded-lg text-xs sm:text-sm break-all block text-gray-800 dark:text-gray-200 transition-colors duration-300">
                   {authResult.address}
                 </code>
               </div>
@@ -113,13 +113,13 @@ const Index = () => {
                     placeholder="Enter WalletConnect URL"
                     value={wcUrl}
                     onChange={(e) => setWcUrl(e.target.value)}
-                    className="flex-1 px-3 py-2 sm:px-4 sm:py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-artence-purple text-sm dark:bg-artence-dark dark:border-gray-700"
+                    className="flex-1 px-3 py-2 sm:px-4 sm:py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-artence-purple text-sm bg-white dark:bg-gray-800 dark:border-gray-700 dark:text-white transition-colors duration-300"
                   />
                   <div className="flex gap-2">
                     <QRScanner onResult={setWcUrl} />
                     <Button
                       onClick={handleWalletConnectUrl}
-                      className="w-full sm:w-auto bg-artence-purple hover:bg-primary text-white"
+                      className="w-full sm:w-auto bg-artence-purple hover:bg-primary text-white transition-colors duration-300"
                     >
                       <Shield className="mr-2 h-4 w-4" />
                       Connect

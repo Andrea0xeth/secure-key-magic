@@ -45,13 +45,13 @@ export const AlgoBalance = ({ address }: AlgoBalanceProps) => {
   });
 
   if (isLoading) {
-    return <div className="animate-pulse bg-gray-200 h-6 w-24 rounded" />;
+    return <div className="animate-pulse bg-gray-200 dark:bg-gray-700 h-6 w-24 rounded transition-colors duration-300" />;
   }
 
   return (
-    <div className="flex items-center space-x-2 bg-blue-50 p-2 rounded-lg">
-      <span className="font-medium">{balance?.toFixed(6)}</span>
-      <span className="text-sm text-muted-foreground">ALGO</span>
+    <div className="flex items-center space-x-2 bg-blue-50 dark:bg-blue-900/20 p-2 rounded-lg transition-colors duration-300">
+      <span className="font-medium dark:text-white">{balance?.toFixed(6)}</span>
+      <span className="text-sm text-gray-600 dark:text-gray-300">ALGO</span>
     </div>
   );
 };
