@@ -24,23 +24,41 @@ export async function connectWithWalletConnect(wcUrl: string, address: string): 
     // First pair with the URI
     await client.pair({ uri: wcUrl });
     
-    // Then establish the session
-    const { uri, approval } = await client.connect({
-      requiredNamespaces: {
-        algorand: {
-          methods: ['algo_signTxn'],
-          chains: ['algorand:wGHE2Pwdvd7S12BL5FaOP20EGYesN73k'],
-          events: ['accountsChanged']
-        }
+    // Set up session proposal handler
+    client.on("session_proposal", async (proposal) => {
+      console.log("Received session proposal:", proposal);
+      
+      try {
+        const { id, params } = proposal;
+        
+        const approvalResponse = await client.approve({
+          id,
+          namespaces: {
+            algorand: {
+              accounts: [`algorand:wGHE2Pwdvd7S12BL5FaOP20EGYesN73k:${address}`],
+              methods: ['algo_signTxn'],
+              events: ['accountsChanged'],
+              chains: ['algorand:wGHE2Pwdvd7S12BL5FaOP20EGYesN73k']
+            }
+          }
+        });
+        
+        console.log("Session proposal approved:", approvalResponse);
+        toast({
+          title: "Connected",
+          description: "Successfully connected to dApp",
+        });
+      } catch (error) {
+        console.error("Error approving session proposal:", error);
+        toast({
+          title: "Connection Failed",
+          description: "Failed to approve session",
+          variant: "destructive",
+        });
       }
     });
 
     console.log("Connection successful");
-    toast({
-      title: "Connected",
-      description: "Successfully connected to dApp",
-    });
-    
     return true;
   } catch (error) {
     console.error("Error in WalletConnect connection:", error);

@@ -70,11 +70,11 @@ export const TransactionDialog = ({ isOpen, onClose, transaction, onSign }: Tran
   }
 
   const txnDetails = {
-    type: transaction.type || 'pay',
-    from: transaction.from ? algosdk.encodeAddress(transaction.from.publicKey) : '',
-    to: transaction.to ? algosdk.encodeAddress(transaction.to.publicKey) : '',
-    amount: formatAlgoAmount(transaction.amount || BigInt(0)),
-    fee: formatAlgoAmount(transaction.fee || 0),
+    type: transaction.type,
+    from: algosdk.encodeAddress(transaction.from.publicKey),
+    to: algosdk.encodeAddress(transaction.to.publicKey),
+    amount: formatAlgoAmount(transaction.amount),
+    fee: formatAlgoAmount(transaction.fee),
     group: transaction.group ? Buffer.from(transaction.group).toString('base64') : undefined
   };
 
