@@ -1,5 +1,6 @@
 import { initSignClient } from './client';
 import { toast } from "@/hooks/use-toast";
+import { handleTransactionRequest } from './transactionHandler';
 import type { TransactionCallback } from './types';
 
 let transactionCallback: TransactionCallback | null = null;
@@ -33,20 +34,25 @@ export async function connectWithWalletConnect(wcUrl: string, address: string): 
       }
     });
 
-    console.log("Connection successful");
-    toast({
-      title: "Connected",
-      description: "Successfully connected to dApp",
+    client.on('session_proposal', async (event) => {
+      try {
+        const { params } = event;
+        if (params.requiredNamespaces?.algorand?.methods?.includes('algo_signTxn')) {
+          console.log("Received sign transaction request");
+          if (transactionCallback && params.request?.params?.[0]?.[0]) {
+            await handleTransactionRequest(params.request.params[0][0], transactionCallback);
+          }
+        }
+      } catch (error) {
+        console.error("Error handling session proposal:", error);
+        throw error;
+      }
     });
-    
+
+    console.log("Connection successful");
     return true;
   } catch (error) {
     console.error("Error in WalletConnect connection:", error);
-    toast({
-      title: "Connection Failed",
-      description: "Failed to connect to dApp",
-      variant: "destructive",
-    });
     throw error;
   }
 }
@@ -66,18 +72,10 @@ export async function disconnectWalletConnect(): Promise<boolean> {
       });
     }
 
-    toast({
-      title: "Disconnected",
-      description: "Successfully disconnected from all dApps",
-    });
+    console.log("Successfully disconnected all sessions");
     return true;
   } catch (error) {
     console.error("Error disconnecting WalletConnect:", error);
-    toast({
-      title: "Error",
-      description: "Failed to disconnect",
-      variant: "destructive",
-    });
     throw error;
   }
 }

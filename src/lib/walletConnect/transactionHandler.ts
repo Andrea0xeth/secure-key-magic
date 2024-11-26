@@ -1,10 +1,10 @@
 import * as algosdk from "algosdk";
 import { toast } from "@/hooks/use-toast";
-import type { TransactionCallback, TransactionParams, AlgorandTransaction } from "./types";
+import type { TransactionParams, AlgorandTransaction } from "./types";
 
 export const handleTransactionRequest = async (
   txnParams: { txn: string }, 
-  callback: TransactionCallback
+  callback: (transaction: AlgorandTransaction) => void
 ) => {
   try {
     console.log("Processing transaction params:", txnParams);
@@ -23,13 +23,9 @@ export const handleTransactionRequest = async (
       note: decodedTxn.note,
       genesisID: decodedTxn.gen || '',
       genesisHash: decodedTxn.gh || '',
-    }) as unknown as AlgorandTransaction;
+    }) as AlgorandTransaction;
     
-    if (callback) {
-      callback(transaction);
-    } else {
-      throw new Error("No transaction callback set");
-    }
+    callback(transaction);
   } catch (error) {
     console.error("Error processing transaction:", error);
     toast({
