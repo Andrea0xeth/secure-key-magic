@@ -36,23 +36,28 @@ export function handleTransactionRequest(params: any) {
       flatFee: true,
     };
 
-    // Ensure addresses are properly handled
-    const fromAddress = decodedTxn.snd ? algosdk.encodeAddress(decodedTxn.snd) : '';
-    const toAddress = decodedTxn.rcv ? algosdk.encodeAddress(decodedTxn.rcv) : '';
-
-    if (!fromAddress || !toAddress) {
-      throw new Error("Invalid addresses in transaction");
+    // Validate and encode addresses
+    if (!decodedTxn.snd || !decodedTxn.rcv) {
+      console.error("Missing sender or receiver address", { snd: decodedTxn.snd, rcv: decodedTxn.rcv });
+      throw new Error("Missing transaction addresses");
     }
 
-    // Create transaction object with proper typing
+    const fromAddress = algosdk.encodeAddress(decodedTxn.snd);
+    const toAddress = algosdk.encodeAddress(decodedTxn.rcv);
+
+    console.log("Encoded addresses:", { fromAddress, toAddress });
+
+    // Create transaction object
     const transaction = new algosdk.Transaction({
+      type: "pay",
       from: fromAddress,
       to: toAddress,
       amount: decodedTxn.amt || 0,
-      ...suggestedParams
+      suggestedParams
     });
     
     console.log("Created transaction object:", {
+      type: transaction.type,
       from: fromAddress,
       to: toAddress,
       amount: decodedTxn.amt || 0,
@@ -77,5 +82,6 @@ export function handleTransactionRequest(params: any) {
       description: "Failed to process transaction",
       variant: "destructive",
     });
+    throw error;
   }
 }
