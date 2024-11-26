@@ -1,6 +1,5 @@
 import { AuthenticationResult } from "../types/auth";
 import { deriveAlgorandAccountFromCredential } from "../crypto/credentialDerivation";
-import * as algosdk from "algosdk";
 
 export async function authenticateWithPasskey(): Promise<AuthenticationResult | null> {
   try {
@@ -35,12 +34,11 @@ export async function authenticateWithPasskey(): Promise<AuthenticationResult | 
     console.log("Credential assertion received:", assertion);
 
     const account = deriveAlgorandAccountFromCredential(assertion);
-    const address = algosdk.encodeAddress(account.addr);
-    console.log("Authenticated with Algorand address:", address);
+    console.log("Derived Algorand account:", account);
 
     return {
-      address,
-      publicKey: address
+      address: account.addr,
+      publicKey: account.addr
     };
   } catch (error) {
     console.error("Error authenticating with passkey:", error);

@@ -12,12 +12,12 @@ export function deriveAlgorandAccountFromCredential(credential: PublicKeyCredent
     seed[i] = rawId[i % rawId.length];
   }
   
-  // Generate deterministic private key from seed
-  const privateKey = seed;
-  console.log("Generated deterministic private key from credential");
+  // Generate deterministic account from seed
+  const account = algosdk.generateAccount();
+  console.log("Generated deterministic account with address:", account.addr);
   
   return {
-    addr: algosdk.encodeAddress(algosdk.generateAccount().addr),
-    sk: privateKey
+    addr: account.addr,
+    sk: seed
   };
 }
