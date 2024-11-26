@@ -1,6 +1,6 @@
 import { initSignClient } from './client';
 import { toast } from "@/hooks/use-toast";
-import SignClient from '@walletconnect/sign-client';
+import * as algosdk from "algosdk";
 
 export async function connectWithWalletConnect(wcUrl: string, address: string): Promise<boolean> {
   try {
@@ -21,8 +21,23 @@ export async function connectWithWalletConnect(wcUrl: string, address: string): 
       resolve: async () => ({ attestationId: 'mock', verifyUrl: '' }),
     };
 
+    // Connect with required namespaces before pairing
+    const requiredNamespaces = {
+      algorand: {
+        methods: ['algo_signTxn'],
+        chains: ['algorand:wGHE2Pwdvd7S12BL5FaOP20EGYesN73k'],
+        events: ['accountsChanged']
+      }
+    };
+
     console.log("Pairing with URI...");
     await client.pair({ uri: wcUrl });
+
+    // Establish session with required namespaces
+    await client.connect({
+      requiredNamespaces,
+      pairingTopic: wcUrl.split('@')[0].substring(3)
+    });
 
     console.log("Connection successful");
     return true;
