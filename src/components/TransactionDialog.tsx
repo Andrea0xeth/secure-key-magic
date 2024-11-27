@@ -42,8 +42,12 @@ export const TransactionDialog = ({ isOpen, onClose, transaction, onSign }: Tran
         const txnBuffer = Buffer.from(transaction.txn, 'base64');
         const decodedTxn = algosdk.decodeUnsignedTransaction(txnBuffer);
         
-        // Sign the transaction
-        const signedTxn = algosdk.signTransaction(decodedTxn, authResult.privateKey);
+        // Convert the 64-byte private key to a 32-byte seed
+        const seed = authResult.privateKey.slice(0, 32);
+        console.log("Using 32-byte seed for signing");
+        
+        // Sign the transaction with the seed
+        const signedTxn = algosdk.signTransaction(decodedTxn, seed);
         console.log("Transaction signed successfully");
         
         onSign(signedTxn.blob);
