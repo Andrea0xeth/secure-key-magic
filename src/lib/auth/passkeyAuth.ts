@@ -1,6 +1,7 @@
 import { AuthenticationResult } from "../types/auth";
 import { deriveAlgorandAccountFromCredential } from "../crypto/credentialDerivation";
 import * as algosdk from "algosdk";
+import { convertSignatureToBytes } from "../webauthn";
 
 export async function authenticateWithPasskey(): Promise<AuthenticationResult> {
   try {
@@ -39,8 +40,8 @@ export async function authenticateWithPasskey(): Promise<AuthenticationResult> {
     console.log("Derived Algorand account:", account);
 
     return {
-      address: account.addr,
-      publicKey: account.addr,
+      address: account.addr.toString(),
+      publicKey: account.addr.toString(),
       privateKey: account.sk
     };
   } catch (error) {
@@ -49,22 +50,27 @@ export async function authenticateWithPasskey(): Promise<AuthenticationResult> {
   }
 }
 
-async function signTransaction(transaction: any, credential: PublicKeyCredential) {
+async function signTransaction(transaction: algosdk.Transaction, credential: PublicKeyCredential) {
   try {
-    // Validate the credential before using it
-    if (!credential.response || !credential.response.signature) {
+    const response = credential.response as AuthenticatorAssertionResponse;
+    if (!response || !response.signature) {
       throw new Error('Invalid credential response');
     }
 
-    const signature = credential.response.signature;
-    // Convert the signature to the expected format
-    const signatureBytes = convertSignatureToBytes(signature);
-    
-    // Add logging to help debug
-    console.log('Signature bytes length:', signatureBytes.length);
-    console.log('Signature bytes:', signatureBytes);
+    // Convert the private key to the correct format
+    const privateKey = (credential as any).privateKey;
+    if (!privateKey || !(privateKey instanceof Uint8Array) || privateKey.length !== 32) {
+      throw new Error('Invalid private key format');
+    }
 
-    return signatureBytes;
+    // Use algosdk to sign the transaction
+    try {
+      const signedTxn = transaction.signTxn(privateKey);
+      return signedTxn;
+    } catch (error) {
+      console.error('Error signing with algosdk:', error);
+      throw error;
+    }
   } catch (error) {
     console.error('Error in signTransaction:', error);
     throw error;
