@@ -1,11 +1,10 @@
-import { SignClientType } from './types';
 import * as algosdk from 'algosdk';
 import { getSignClient } from './client';
 
-let transactionCallback: ((transaction: algosdk.Transaction) => void) | null = null;
+let transactionCallback: ((transaction: algosdk.Transaction, requestEvent?: any) => void) | null = null;
 let currentRequest: { topic: string; id: number } | null = null;
 
-export function setTransactionCallback(callback: (transaction: algosdk.Transaction) => void) {
+export function setTransactionCallback(callback: (transaction: algosdk.Transaction, requestEvent?: any) => void) {
   console.log("Setting transaction callback");
   transactionCallback = callback;
 }
@@ -29,14 +28,14 @@ export async function handleTransactionRequest(txnParams: any, requestEvent?: an
   }
 
   try {
-    // Decode the base64 transaction
+    // Decode the transaction
     const txnBuffer = Buffer.from(txnParams.txn, 'base64');
     const decodedTxn = algosdk.decodeUnsignedTransaction(txnBuffer);
     
     console.log("Successfully decoded transaction:", decodedTxn);
     
     if (transactionCallback) {
-      transactionCallback(decodedTxn);
+      transactionCallback(decodedTxn, requestEvent);
     } else {
       console.error("No transaction callback set");
     }
@@ -54,6 +53,7 @@ export async function respondToWalletConnect(signedTxn: Uint8Array) {
     }
 
     if (!currentRequest) {
+      console.error("No active request found:", currentRequest);
       throw new Error("No active request to respond to");
     }
 

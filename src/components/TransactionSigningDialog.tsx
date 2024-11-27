@@ -10,6 +10,7 @@ interface TransactionSigningDialogProps {
   isOpen: boolean;
   onClose: () => void;
   transaction: algosdk.Transaction | null;
+  requestEvent?: any;
   onSign: (signedTxn: Uint8Array) => void;
 }
 
@@ -17,6 +18,7 @@ export const TransactionSigningDialog = ({
   isOpen, 
   onClose, 
   transaction, 
+  requestEvent,
   onSign 
 }: TransactionSigningDialogProps) => {
   const [isLoading, setIsLoading] = useState(false);
@@ -31,6 +33,7 @@ export const TransactionSigningDialog = ({
     try {
       setIsLoading(true);
       console.log("Starting transaction signing process");
+      console.log("Request event in dialog:", requestEvent);
       
       const authResult = await authenticateWithPasskey();
       if (!authResult) {
