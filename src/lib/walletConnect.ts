@@ -38,7 +38,7 @@ export async function initSignClient(): Promise<SignClient | null> {
           if (Array.isArray(txnArray) && txnArray.length > 0) {
             const firstTxn = txnArray[0];
             if (firstTxn && typeof firstTxn === 'object' && 'txn' in firstTxn) {
-              handleTransactionRequest(firstTxn);
+              handleTransactionRequest(firstTxn, event);
             } else {
               console.error("Invalid transaction format:", firstTxn);
             }
