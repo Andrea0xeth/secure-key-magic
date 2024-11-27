@@ -88,14 +88,18 @@ export const TransactionDialog = ({ isOpen, onClose, transaction, onSign }: Tran
     const txnBuffer = Buffer.from(transaction.txn, 'base64');
     const decodedTxn = algosdk.decodeUnsignedTransaction(txnBuffer);
     const txnObj = decodedTxn.get_obj_for_encoding();
+    
+    console.log("Decoded transaction:", txnObj);
 
     txnDetails = {
-      type: decodedTxn.type,
-      fee: formatAlgoAmount(decodedTxn.fee),
-      from: algosdk.encodeAddress(decodedTxn.from.publicKey),
-      to: decodedTxn.to ? algosdk.encodeAddress(decodedTxn.to.publicKey) : 'N/A',
+      type: txnObj.type || 'Unknown',
+      fee: formatAlgoAmount(txnObj.fee || 0),
+      from: algosdk.encodeAddress(txnObj.snd),
+      to: txnObj.rcv ? algosdk.encodeAddress(txnObj.rcv) : 'N/A',
       amount: txnObj.amt ? formatAlgoAmount(txnObj.amt) : '0'
     };
+
+    console.log("Transaction details:", txnDetails);
   } catch (error) {
     console.error("Error decoding transaction:", error);
     txnDetails = {
