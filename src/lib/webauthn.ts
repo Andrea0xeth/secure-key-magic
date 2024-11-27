@@ -1,4 +1,3 @@
-import { generateKeyPairFromSeed } from '@solana/web3.js';
 import { sha256 } from '@noble/hashes/sha256';
 import { bytesToHex } from '@noble/hashes/utils';
 

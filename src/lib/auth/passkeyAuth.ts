@@ -1,8 +1,6 @@
 import { AuthenticationResult } from "../types/auth";
 import { deriveAlgorandAccountFromCredential } from "../crypto/credentialDerivation";
 import * as algosdk from "algosdk";
-import { convertSignatureToBytes } from "../webauthn";
-import { generateKeyPairFromSeed } from '@solana/web3.js';
 
 export async function authenticateWithPasskey(): Promise<AuthenticationResult> {
   try {
@@ -41,27 +39,12 @@ export async function authenticateWithPasskey(): Promise<AuthenticationResult> {
     console.log("Derived Algorand account:", account);
 
     return {
-      address: account.addr.toString(),
-      publicKey: account.addr.toString(),
+      address: account.addr,
+      publicKey: account.addr,
       privateKey: account.sk
     };
   } catch (error) {
     console.error("Error authenticating with passkey:", error);
     throw error;
   }
-}
-
-async function signTransaction(transaction: algosdk.Transaction, credentialID: string): Promise<algosdk.Transaction> {
-  const privateKey = await getPrivateKey(credentialID);
-  if (!privateKey) {
-    throw new Error('Private key not found');
-  }
-
-  // Generate keypair from stored private key
-  const keypair = generateKeyPairFromSeed(privateKey);
-  
-  // Sign the transaction
-  transaction.sign(keypair);
-  
-  return transaction;
 }
