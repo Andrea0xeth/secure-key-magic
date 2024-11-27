@@ -41,7 +41,7 @@ export async function registerPasskey(): Promise<RegistrationResult> {
         alg: -7, // ES256
       }],
       timeout: 60000,
-      attestation: "direct" as const,
+      attestation: "none" as const,
       authenticatorSelection: {
         authenticatorAttachment: "platform" as AuthenticatorAttachment,
         userVerification: "required" as UserVerificationRequirement,
