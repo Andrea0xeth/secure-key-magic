@@ -45,7 +45,7 @@ export const TransactionSigningDialog = ({
       console.log("Successfully authenticated, signing transaction");
       
       // Create an Algorand account from the private key
-      const account = algosdk.makeAccountFromPrivateKey(authResult.privateKey);
+      const account = algosdk.mnemonicToSecretKey(algosdk.secretKeyToMnemonic(authResult.privateKey));
       console.log("Created account for signing with address:", account.addr);
       
       // Sign the transaction using the account's private key

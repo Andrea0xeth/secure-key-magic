@@ -2,7 +2,6 @@ import { sha256 } from '@noble/hashes/sha256';
 import { bytesToHex } from '@noble/hashes/utils';
 
 export { authenticateWithPasskey } from './auth/passkeyAuth';
-// Remove duplicate export and use the implementation from passkeyRegistration.ts
 export { registerPasskey } from './auth/passkeyRegistration';
 export type { AuthenticationResult, RegistrationResult } from './types/auth';
 
