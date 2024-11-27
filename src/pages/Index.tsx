@@ -25,7 +25,7 @@ const Index = () => {
     const checkRegistration = async () => {
       try {
         const result = await authenticateWithPasskey();
-        if (result && 'privateKey' in result) {
+        if (result) {
           setIsRegistered(true);
           const account = algosdk.mnemonicToSecretKey(algosdk.secretKeyToMnemonic(result.privateKey));
           setAddress(account.addr);
@@ -52,7 +52,7 @@ const Index = () => {
     try {
       setIsLoading(true);
       const result = await registerPasskey();
-      if (result && 'privateKey' in result) {
+      if (result) {
         setIsRegistered(true);
         const account = algosdk.mnemonicToSecretKey(algosdk.secretKeyToMnemonic(result.privateKey));
         setAddress(account.addr);
