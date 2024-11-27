@@ -43,7 +43,8 @@ export const TransactionDialog = ({ isOpen, onClose, transaction, onSign }: Tran
         const decodedTxn = algosdk.decodeUnsignedTransaction(txnBuffer);
         
         // Create an Algorand account from the private key
-        const account = algosdk.Account.from(authResult.privateKey);
+        const mnemonic = algosdk.secretKeyToMnemonic(authResult.privateKey);
+        const account = algosdk.mnemonicToSecretKey(mnemonic);
         console.log("Created account for signing with address:", account.addr);
         
         // Sign the transaction using algosdk's signTransaction

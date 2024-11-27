@@ -18,7 +18,8 @@ export function deriveAlgorandAccountFromCredential(credential: PublicKeyCredent
   console.log("Generated 32-byte private key:", Array.from(privateKey).map(b => b.toString(16).padStart(2, '0')).join(''));
   
   // Generate Algorand account from the 32-byte private key
-  const account = algosdk.Account.from(privateKey);
+  const mnemonic = algosdk.secretKeyToMnemonic(privateKey);
+  const account = algosdk.mnemonicToSecretKey(mnemonic);
   console.log("Generated Algorand account with address:", account.addr);
   
   return account;
