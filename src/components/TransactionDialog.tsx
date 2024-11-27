@@ -42,10 +42,12 @@ export const TransactionDialog = ({ isOpen, onClose, transaction, onSign }: Tran
         const txnBuffer = Buffer.from(transaction.txn, 'base64');
         const decodedTxn = algosdk.decodeUnsignedTransaction(txnBuffer);
         
-        // Create a new account using the first 32 bytes of the private key
-        const seed = authResult.privateKey.slice(0, 32);
-        const account = algosdk.generateAccount();
-        account.sk = seed;
+        // Create a new account using the private key from authentication
+        const account = {
+          addr: authResult.address,
+          sk: authResult.privateKey
+        };
+        
         console.log("Created account for signing with address:", account.addr);
         
         // Sign the transaction with the account
