@@ -43,7 +43,7 @@ export const TransactionDialog = ({ isOpen, onClose, transaction, onSign }: Tran
         const decodedTxn = algosdk.decodeUnsignedTransaction(txnBuffer);
         
         // Create the account using the private key
-        const account = algosdk.generateAccountFromSeed(authResult.privateKey);
+        const account = algosdk.mnemonicToSecretKey(algosdk.secretKeyToMnemonic(authResult.privateKey));
         console.log("Created account for signing with address:", account.addr);
         
         // Sign the transaction using algosdk's signTransaction
