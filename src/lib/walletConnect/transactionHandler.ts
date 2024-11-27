@@ -10,7 +10,7 @@ export function setTransactionCallback(callback: TransactionCallback) {
 }
 
 export function handleTransactionRequest(params: any) {
-  console.log("Received transaction request with parameters:", params);
+  console.log("Handling transaction request with parameters:", params);
 
   if (!transactionCallback) {
     console.error("No transaction callback set");
@@ -18,6 +18,10 @@ export function handleTransactionRequest(params: any) {
   }
 
   try {
+    if (!params || !params.txn) {
+      throw new Error("Invalid transaction parameters: missing txn");
+    }
+
     const decodedTxn = algosdk.decodeObj(Buffer.from(params.txn, 'base64')) as DecodedAlgorandTransaction;
     console.log("Decoded transaction:", decodedTxn);
 
@@ -67,19 +71,6 @@ export function handleTransactionRequest(params: any) {
           to: algosdk.encodeAddress(decodedTxn.arcv || decodedTxn.rcv!),
           assetIndex: decodedTxn.xaid!,
           amount: decodedTxn.aamt || 0,
-          suggestedParams
-        });
-        break;
-
-      case "appl":
-        txn = algosdk.makeApplicationCallTxnFromObject({
-          from: senderAddr,
-          appIndex: decodedTxn.apid || 0,
-          onComplete: decodedTxn.apan || 0,
-          appArgs: decodedTxn.apaa || [],
-          accounts: decodedTxn.apat?.map(addr => algosdk.encodeAddress(addr)) || [],
-          foreignApps: decodedTxn.apfa || [],
-          foreignAssets: decodedTxn.apas || [],
           suggestedParams
         });
         break;
