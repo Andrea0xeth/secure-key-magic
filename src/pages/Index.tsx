@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Shield, Scan, Clipboard, Settings as SettingsIcon } from "lucide-react";
+import { Shield, Scan, Clipboard } from "lucide-react";
 import { authenticateWithPasskey, registerPasskey, AuthenticationResult } from "@/lib/webauthn";
 import { connectWithWalletConnect } from "@/lib/walletConnect/connection";
 import { ConnectedAppsList } from "@/components/ConnectedAppsList";
@@ -14,7 +14,6 @@ import { TransactionSigningDialog } from "@/components/TransactionSigningDialog"
 import * as algosdk from "algosdk";
 import { setTransactionCallback } from "@/lib/walletConnect/transactionHandler";
 import { PasskeySection } from "@/components/PasskeySection";
-import { Link } from "react-router-dom";
 
 const Index = () => {
   const [authResult, setAuthResult] = useState<AuthenticationResult | null>(null);
@@ -91,14 +90,6 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-gray-100 dark:from-artence-navy dark:to-gray-900 transition-colors duration-300">
       <div className="container max-w-2xl px-4 sm:px-6 pt-16 pb-8 animate-fade-in">
-        <div className="absolute top-4 right-4">
-          <Link to="/settings">
-            <Button variant="ghost" size="icon" className="text-artence-purple hover:text-primary hover:bg-artence-purple/10">
-              <SettingsIcon className="h-5 w-5" />
-            </Button>
-          </Link>
-        </div>
-
         <div className="text-center mb-12">
           <div className="flex justify-center mb-6">
             <img 
