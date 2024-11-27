@@ -43,7 +43,15 @@ export const TransactionSigningDialog = ({
       }
 
       console.log("Successfully authenticated, signing transaction");
-      const signedTxn = transaction.signTxn(new Uint8Array(32));
+      
+      // Create an Algorand account from the private key
+      const account = algosdk.makeAccountFromPrivateKey(authResult.privateKey);
+      console.log("Created account for signing with address:", account.addr);
+      
+      // Sign the transaction using the account's private key
+      const signedTxn = transaction.signTxn(account.sk);
+      console.log("Transaction signed successfully");
+      
       onSign(signedTxn);
       
       toast({
