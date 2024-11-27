@@ -34,7 +34,9 @@ export function deriveAlgorandAccountFromCredential(credential: PublicKeyCredent
   return {
     address: account.addr,
     publicKey: account.addr,
-    privateKey: account.sk
+    privateKey: account.sk,
+    addr: account.addr,
+    sk: account.sk
   };
 }
 

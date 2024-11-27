@@ -38,14 +38,26 @@ const Index = () => {
   };
 
   const handleRegister = async () => {
-    console.log("Starting passkey registration...");
-    const result = await registerPasskey();
-    if (result) {
-      console.log("Passkey registration successful:", result);
-      setAuthResult(result);
+    try {
+      console.log("Starting passkey registration...");
+      const result = await registerPasskey();
+      if (result) {
+        console.log("Passkey registration successful:", result);
+        setAuthResult({
+          ...result,
+          privateKey: new Uint8Array(32), // This will be properly set during authentication
+        });
+        toast({
+          title: "Registration Successful",
+          description: "Your passkey has been registered successfully.",
+        });
+      }
+    } catch (error) {
+      console.error("Error during passkey registration:", error);
       toast({
-        title: "Registration Successful",
-        description: "Your passkey has been registered successfully.",
+        title: "Registration Failed",
+        description: "Failed to register passkey. Please try again.",
+        variant: "destructive",
       });
     }
   };
@@ -191,3 +203,4 @@ const Index = () => {
 };
 
 export default Index;
+

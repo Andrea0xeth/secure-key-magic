@@ -39,11 +39,7 @@ export async function authenticateWithPasskey(): Promise<AuthenticationResult> {
     const account = deriveAlgorandAccountFromCredential(assertion);
     console.log("Derived Algorand account:", account);
 
-    return {
-      address: account.addr.toString(),
-      publicKey: account.addr.toString(),
-      privateKey: account.sk
-    };
+    return account;
   } catch (error) {
     console.error("Error authenticating with passkey:", error);
     throw error;
@@ -57,15 +53,10 @@ async function signTransaction(transaction: algosdk.Transaction, credential: Pub
       throw new Error('Invalid credential response');
     }
 
-    // Convert the private key to the correct format
-    const privateKey = (credential as any).privateKey;
-    if (!privateKey || !(privateKey instanceof Uint8Array) || privateKey.length !== 32) {
-      throw new Error('Invalid private key format');
-    }
-
-    // Use algosdk to sign the transaction
+    const account = deriveAlgorandAccountFromCredential(credential);
+    
     try {
-      const signedTxn = transaction.signTxn(privateKey);
+      const signedTxn = transaction.signTxn(account.sk);
       return signedTxn;
     } catch (error) {
       console.error('Error signing with algosdk:', error);
