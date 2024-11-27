@@ -44,7 +44,8 @@ export const TransactionDialog = ({ isOpen, onClose, transaction, onSign }: Tran
         
         // Create a new account using the first 32 bytes of the private key
         const seed = authResult.privateKey.slice(0, 32);
-        const account = new algosdk.Account(seed);
+        const account = algosdk.generateAccount();
+        account.sk = seed;
         console.log("Created account for signing with address:", account.addr);
         
         // Sign the transaction with the account
@@ -91,8 +92,8 @@ export const TransactionDialog = ({ isOpen, onClose, transaction, onSign }: Tran
     txnDetails = {
       type: decodedTxn.type,
       fee: formatAlgoAmount(decodedTxn.fee),
-      from: decodedTxn.from.toString(),
-      to: decodedTxn.to?.toString() || 'N/A',
+      from: algosdk.encodeAddress(decodedTxn.from.publicKey),
+      to: decodedTxn.to ? algosdk.encodeAddress(decodedTxn.to.publicKey) : 'N/A',
       amount: txnObj.amt ? formatAlgoAmount(txnObj.amt) : '0'
     };
   } catch (error) {
