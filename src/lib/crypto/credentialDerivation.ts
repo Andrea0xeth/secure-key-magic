@@ -27,8 +27,13 @@ export function deriveAlgorandAccountFromCredential(credential: PublicKeyCredent
   // Generate the private key
   const privateKey = generateDeterministicPrivateKey(credential);
   
-  // Generate the Algorand account from the private key
-  const account = algosdk.Account.from(privateKey);
+  // Create the account using algosdk
+  const keys = algosdk.generateAccount();
+  const account = {
+    addr: keys.addr,
+    sk: privateKey
+  };
+  
   console.log("Generated Algorand account with address:", account.addr);
   
   return {
@@ -39,7 +44,13 @@ export function deriveAlgorandAccountFromCredential(credential: PublicKeyCredent
 }
 
 export function deriveKeyPair(credential: PublicKeyCredential): KeyPair {
-  const account = algosdk.Account.from(generateDeterministicPrivateKey(credential));
+  const privateKey = generateDeterministicPrivateKey(credential);
+  const keys = algosdk.generateAccount();
+  const account = {
+    addr: keys.addr,
+    sk: privateKey
+  };
+  
   return {
     mnemonic: algosdk.secretKeyToMnemonic(account.sk),
     address: account.addr
