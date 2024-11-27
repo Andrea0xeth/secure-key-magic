@@ -31,9 +31,20 @@ export async function initSignClient(): Promise<SignClient | null> {
         }
 
         const { request } = event.params;
-        if (request.method === "algo_signTxn" && Array.isArray(request.params) && request.params.length > 0) {
+        if (request.method === "algo_signTxn") {
           console.log("Received sign transaction request with params:", request.params);
-          handleTransactionRequest(request.params[0][0]);
+          // Ensure we're accessing the correct part of the transaction params array
+          const txnArray = request.params[0];
+          if (Array.isArray(txnArray) && txnArray.length > 0) {
+            const firstTxn = txnArray[0];
+            if (firstTxn && typeof firstTxn === 'object' && 'txn' in firstTxn) {
+              handleTransactionRequest(firstTxn);
+            } else {
+              console.error("Invalid transaction format:", firstTxn);
+            }
+          } else {
+            console.error("Invalid transaction array format:", txnArray);
+          }
         }
       });
       

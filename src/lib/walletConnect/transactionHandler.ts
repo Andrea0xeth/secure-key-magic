@@ -2,12 +2,6 @@ import { SignClientType } from './types';
 import * as algosdk from 'algosdk';
 import { getSignClient } from './client';
 
-let currentRequest: {
-  topic: string;
-  id: number;
-  params: any[];
-} | null = null;
-
 let transactionCallback: ((transaction: algosdk.Transaction) => void) | null = null;
 
 export function setTransactionCallback(callback: (transaction: algosdk.Transaction) => void) {
@@ -15,55 +9,26 @@ export function setTransactionCallback(callback: (transaction: algosdk.Transacti
   transactionCallback = callback;
 }
 
-export async function handleTransactionRequest(params: any) {
-  console.log("Received transaction request with parameters:", params);
+export async function handleTransactionRequest(txnParams: any) {
+  console.log("Handling transaction request with parameters:", txnParams);
   
-  if (!transactionCallback) {
-    console.error("No transaction callback set");
+  if (!txnParams || !txnParams.txn) {
+    console.error("Invalid transaction parameters:", txnParams);
     return;
   }
 
   try {
-    const txnParams = params[0];
-    console.log("Transaction params:", txnParams);
+    // Decode the base64 transaction
+    const txnBuffer = Buffer.from(txnParams.txn, 'base64');
+    const decodedTxn = algosdk.decodeUnsignedTransaction(txnBuffer);
     
-    const decodedTxn = algosdk.decodeObj(Buffer.from(txnParams.txn, 'base64'));
-    console.log("Decoded transaction:", decodedTxn);
+    console.log("Successfully decoded transaction:", decodedTxn);
     
-    if (!decodedTxn) {
-      throw new Error("Failed to decode transaction");
+    if (transactionCallback) {
+      transactionCallback(decodedTxn);
+    } else {
+      console.error("No transaction callback set");
     }
-
-    const senderAddr = (decodedTxn as any).snd ? 
-      algosdk.encodeAddress((decodedTxn as any).snd) : 
-      null;
-
-    if (!senderAddr) {
-      throw new Error("Sender address must not be null or undefined");
-    }
-
-    const receiverAddr = (decodedTxn as any).rcv ? 
-      algosdk.encodeAddress((decodedTxn as any).rcv) : 
-      senderAddr;
-
-    const suggestedParams = {
-      fee: (decodedTxn as any).fee || 1000,
-      firstRound: (decodedTxn as any).fv || 0,
-      lastRound: (decodedTxn as any).lv || 0,
-      genesisID: (decodedTxn as any).gen || '',
-      genesisHash: (decodedTxn as any).gh || '',
-      flatFee: true
-    };
-
-    const txn = new algosdk.Transaction({
-      from: senderAddr,
-      to: receiverAddr,
-      amount: (decodedTxn as any).amt || 0,
-      ...suggestedParams
-    });
-    
-    console.log("Created Algorand transaction object:", txn);
-    transactionCallback(txn);
   } catch (error) {
     console.error("Error processing transaction:", error);
     throw error;
@@ -88,7 +53,7 @@ export async function respondToWalletConnect(signedTxn: Uint8Array) {
     // Format the response as expected by WalletConnect
     const response = [Buffer.from(signedTxn).toString('base64')];
     
-    console.log("Responding to WalletConnect with signed transaction:", response);
+    console.log("Responding to WalletConnect with signed transaction");
     
     // Send the response back through WalletConnect
     await client.respond({
