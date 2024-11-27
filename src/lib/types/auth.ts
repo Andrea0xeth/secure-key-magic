@@ -2,8 +2,8 @@ export interface AuthenticationResult {
   address: string;
   publicKey: string;
   privateKey: Uint8Array;
-  addr?: string;  // Adding this for compatibility with algosdk account
-  sk?: Uint8Array; // Adding this for compatibility with algosdk account
+  addr: string;  // For compatibility with algosdk account
+  sk: Uint8Array; // For compatibility with algosdk account
 }
 
 export interface RegistrationResult {

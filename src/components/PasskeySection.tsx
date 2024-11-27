@@ -3,9 +3,7 @@ import { Button } from "@/components/ui/button";
 import { KeyRound, Shield } from "lucide-react";
 import { AuthenticationResult } from "@/lib/webauthn";
 import { useToast } from "@/components/ui/use-toast";
-import { decodeUnsignedTransaction } from 'algosdk'
 import { TransactionDialog } from "./TransactionDialog";
-import * as algosdk from "algosdk";
 
 interface PasskeySectionProps {
   authResult: AuthenticationResult | null;
@@ -45,46 +43,6 @@ export const PasskeySection = ({ authResult, onRegister, onAuthenticate }: Passk
       toast({
         title: "Registration Failed",
         description: "Failed to register passkey. Please try again.",
-        variant: "destructive",
-      });
-    }
-  };
-  
-  const handleWalletConnectTransaction = async (txnRequest: any) => {
-    try {
-      if (!txnRequest.txn) {
-        throw new Error('Transaction data is missing');
-      }
-
-      // Salva la transazione nello stato per mostrarla nel dialog
-      setCurrentTransaction({
-        txn: txnRequest.txn,
-        type: txnRequest.type
-      });
-      
-    } catch (error) {
-      console.error('Error processing transaction:', error);
-      toast({
-        title: "Transaction Error",
-        description: "Failed to process the transaction request",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleSignTransaction = async (signedTxn: Uint8Array) => {
-    try {
-      // Qui puoi inviare la transazione firmata a WalletConnect
-      // o gestirla come necessario
-      console.log("Transaction signed:", signedTxn);
-      
-      // Pulisci la transazione corrente
-      setCurrentTransaction(null);
-    } catch (error) {
-      console.error("Error handling signed transaction:", error);
-      toast({
-        title: "Transaction Error",
-        description: "Failed to process the signed transaction",
         variant: "destructive",
       });
     }

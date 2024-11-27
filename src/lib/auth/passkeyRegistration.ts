@@ -2,9 +2,12 @@ import { startRegistration } from "@simplewebauthn/browser";
 import * as algosdk from "algosdk";
 import { deriveKeyPair } from "../crypto/credentialDerivation";
 import { getStoredAlgorandKey, storeAlgorandKey } from "../storage/keyStorage";
+import { RegistrationResult } from "../types/auth";
 
-export async function registerPasskey() {
+export async function registerPasskey(): Promise<RegistrationResult> {
   try {
+    console.log("Starting passkey registration process...");
+    
     // Check if a passkey is already registered
     const existingKey = getStoredAlgorandKey();
     if (existingKey) {
@@ -46,9 +49,9 @@ export async function registerPasskey() {
       },
     };
 
-    console.log("Starting passkey registration...");
+    console.log("Initiating registration with options:", createCredentialOptions);
     const credential = await startRegistration(createCredentialOptions);
-    console.log("Passkey registration successful:", credential);
+    console.log("Registration credential received:", credential);
 
     // Create a credential object for key derivation
     const mockCredential = {
@@ -71,7 +74,7 @@ export async function registerPasskey() {
       publicKey: keyPair.address
     };
   } catch (error) {
-    console.error("Error registering passkey:", error);
+    console.error("Error in registerPasskey:", error);
     throw error;
   }
 }
