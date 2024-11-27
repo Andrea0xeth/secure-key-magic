@@ -42,15 +42,8 @@ export const TransactionDialog = ({ isOpen, onClose, transaction, onSign }: Tran
         const txnBuffer = Buffer.from(transaction.txn, 'base64');
         const decodedTxn = algosdk.decodeUnsignedTransaction(txnBuffer);
         
-        // Convert the private key to the correct format for signing
-        const privateKeyUint8 = new Uint8Array(authResult.privateKey);
-        
         // Create an Algorand account from the private key
-        const account = {
-          addr: algosdk.encodeAddress(algosdk.decodeAddress(authResult.address).publicKey),
-          sk: privateKeyUint8
-        };
-        
+        const account = algosdk.Account.from(authResult.privateKey);
         console.log("Created account for signing with address:", account.addr);
         
         // Sign the transaction using algosdk's signTransaction
