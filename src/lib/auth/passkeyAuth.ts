@@ -48,3 +48,25 @@ export async function authenticateWithPasskey(): Promise<AuthenticationResult> {
     throw error;
   }
 }
+
+async function signTransaction(transaction: any, credential: PublicKeyCredential) {
+  try {
+    // Validate the credential before using it
+    if (!credential.response || !credential.response.signature) {
+      throw new Error('Invalid credential response');
+    }
+
+    const signature = credential.response.signature;
+    // Convert the signature to the expected format
+    const signatureBytes = convertSignatureToBytes(signature);
+    
+    // Add logging to help debug
+    console.log('Signature bytes length:', signatureBytes.length);
+    console.log('Signature bytes:', signatureBytes);
+
+    return signatureBytes;
+  } catch (error) {
+    console.error('Error in signTransaction:', error);
+    throw error;
+  }
+}
