@@ -1,7 +1,6 @@
 import { AuthenticationResult } from "../types/auth";
 import { deriveAlgorandAccountFromCredential } from "../crypto/credentialDerivation";
 import * as algosdk from "algosdk";
-import { convertSignatureToBytes } from "../webauthn";
 
 export async function authenticateWithPasskey(): Promise<AuthenticationResult> {
   try {
@@ -40,39 +39,12 @@ export async function authenticateWithPasskey(): Promise<AuthenticationResult> {
     console.log("Derived Algorand account:", account);
 
     return {
-      address: account.addr.toString(),
-      publicKey: account.addr.toString(),
+      address: account.addr,
+      publicKey: account.addr,
       privateKey: account.sk
     };
   } catch (error) {
     console.error("Error authenticating with passkey:", error);
-    throw error;
-  }
-}
-
-async function signTransaction(transaction: algosdk.Transaction, credential: PublicKeyCredential) {
-  try {
-    const response = credential.response as AuthenticatorAssertionResponse;
-    if (!response || !response.signature) {
-      throw new Error('Invalid credential response');
-    }
-
-    // Convert the private key to the correct format
-    const privateKey = (credential as any).privateKey;
-    if (!privateKey || !(privateKey instanceof Uint8Array) || privateKey.length !== 32) {
-      throw new Error('Invalid private key format');
-    }
-
-    // Use algosdk to sign the transaction
-    try {
-      const signedTxn = transaction.signTxn(privateKey);
-      return signedTxn;
-    } catch (error) {
-      console.error('Error signing with algosdk:', error);
-      throw error;
-    }
-  } catch (error) {
-    console.error('Error in signTransaction:', error);
     throw error;
   }
 }

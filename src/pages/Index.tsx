@@ -1,191 +1,162 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Shield, Scan, Clipboard } from "lucide-react";
-import { authenticateWithPasskey, registerPasskey, AuthenticationResult } from "@/lib/webauthn";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useToast } from "@/components/ui/use-toast";
 import { connectWithWalletConnect } from "@/lib/walletConnect/connection";
-import { ConnectedAppsList } from "@/components/ConnectedAppsList";
-import { AlgoBalance } from "@/components/AlgoBalance";
-import { AddressQRCode } from "@/components/AddressQRCode";
-import { QRScanner } from "@/components/QRScanner";
-import { useTheme } from "next-themes";
-import { toast } from "@/hooks/use-toast";
-import { TransactionSigningDialog } from "@/components/TransactionSigningDialog";
-import * as algosdk from "algosdk";
 import { setTransactionCallback } from "@/lib/walletConnect/transactionHandler";
-import { PasskeySection } from "@/components/PasskeySection";
+import { TransactionSigningDialog } from "@/components/TransactionSigningDialog";
+import { ConnectedAppsList } from "@/components/ConnectedAppsList";
+import { authenticateWithPasskey, registerPasskey } from "@/lib/webauthn";
+import * as algosdk from "algosdk";
 
 const Index = () => {
-  const [authResult, setAuthResult] = useState<AuthenticationResult | null>(null);
-  const [wcUrl, setWcUrl] = useState<string>("");
-  const { theme, setTheme } = useTheme();
-  const [currentTransaction, setCurrentTransaction] = useState<algosdk.Transaction | null>(null);
-  const [isTransactionDialogOpen, setIsTransactionDialogOpen] = useState(false);
+  const [wcUri, setWcUri] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [isRegistered, setIsRegistered] = useState(false);
+  const [address, setAddress] = useState<string | null>(null);
+  const { toast } = useToast();
 
-  const handleAuthenticate = async () => {
-    console.log("Starting passkey authentication...");
-    const result = await authenticateWithPasskey();
-    if (result) {
-      console.log("Passkey authentication successful:", result);
-      setAuthResult(result);
-      
-      setTransactionCallback((transaction: algosdk.Transaction) => {
-        console.log("Received transaction to sign:", transaction);
-        setCurrentTransaction(transaction);
-        setIsTransactionDialogOpen(true);
-      });
-    }
-  };
+  const [isTransactionDialogOpen, setIsTransactionDialogOpen] = useState(false);
+  const [currentTransaction, setCurrentTransaction] = useState<algosdk.Transaction | null>(null);
+  const [currentRequestEvent, setCurrentRequestEvent] = useState<any>(null);
+
+  useEffect(() => {
+    const checkRegistration = async () => {
+      try {
+        const result = await authenticateWithPasskey();
+        if (result) {
+          setIsRegistered(true);
+          const account = algosdk.mnemonicToSecretKey(algosdk.secretKeyToMnemonic(result.privateKey));
+          setAddress(account.addr);
+        }
+      } catch (error) {
+        console.error("Error checking registration:", error);
+      }
+    };
+
+    checkRegistration();
+  }, []);
+
+  useEffect(() => {
+    setTransactionCallback((transaction: algosdk.Transaction, requestEvent?: any) => {
+      console.log("Transaction callback triggered with transaction:", transaction);
+      console.log("Request event in callback:", requestEvent);
+      setCurrentTransaction(transaction);
+      setCurrentRequestEvent(requestEvent);
+      setIsTransactionDialogOpen(true);
+    });
+  }, []);
 
   const handleRegister = async () => {
-    console.log("Starting passkey registration...");
-    const result = await registerPasskey();
-    if (result) {
-      console.log("Passkey registration successful:", result);
-      setAuthResult(result);
-      toast({
-        title: "Registration Successful",
-        description: "Your passkey has been registered successfully.",
-      });
-    }
-  };
-
-  const handleWalletConnectUrl = async () => {
-    if (!wcUrl || !authResult?.address) return;
     try {
-      await connectWithWalletConnect(wcUrl, authResult.address);
-      setWcUrl("");
+      setIsLoading(true);
+      const result = await registerPasskey();
+      if (result) {
+        setIsRegistered(true);
+        const account = algosdk.mnemonicToSecretKey(algosdk.secretKeyToMnemonic(result.privateKey));
+        setAddress(account.addr);
+        toast({
+          title: "Registration Successful",
+          description: "Your passkey has been registered successfully",
+        });
+      }
     } catch (error) {
-      console.error("Error connecting:", error);
-    }
-  };
-
-  const handlePaste = async () => {
-    try {
-      const text = await navigator.clipboard.readText();
-      console.log("Pasted text:", text);
-      setWcUrl(text);
+      console.error("Registration error:", error);
       toast({
-        title: "Text pasted",
-        description: "Clipboard content has been pasted",
-      });
-    } catch (error) {
-      console.error("Failed to paste:", error);
-      toast({
-        title: "Paste failed",
-        description: "Unable to access clipboard",
+        title: "Registration Failed",
+        description: "Failed to register passkey",
         variant: "destructive",
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const handleSignedTransaction = (signedTxn: Uint8Array) => {
-    console.log("Transaction signed:", signedTxn);
-    toast({
-      title: "Transaction Signed",
-      description: "The transaction has been signed successfully",
-    });
+  const handleConnect = async () => {
+    if (!address) {
+      toast({
+        title: "Error",
+        description: "Please register or authenticate first",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      await connectWithWalletConnect(wcUri, address);
+      setWcUri("");
+      toast({
+        title: "Connection Successful",
+        description: "Successfully connected to dApp",
+      });
+    } catch (error) {
+      console.error("Connection error:", error);
+      toast({
+        title: "Connection Failed",
+        description: "Failed to connect to dApp",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleTransactionSign = (signedTxn: Uint8Array) => {
+    console.log("Transaction signed successfully");
+    setCurrentTransaction(null);
+    setCurrentRequestEvent(null);
+    setIsTransactionDialogOpen(false);
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-gray-100 dark:from-artence-navy dark:to-gray-900 transition-colors duration-300">
-      <div className="container max-w-2xl px-4 sm:px-6 pt-16 pb-8 animate-fade-in">
-        <div className="text-center mb-12">
-          <div className="flex justify-center mb-6">
-            <img 
-              src="/artence-logo-white.svg" 
-              alt="Artence Logo" 
-              className="h-12 w-auto hidden dark:block"
-            />
-            <img 
-              src="/artence-logo-black.svg" 
-              alt="Artence Logo" 
-              className="h-12 w-auto dark:hidden"
-            />
-          </div>
-          <h1 className="text-3xl sm:text-4xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-artence-purple to-primary dark:from-artence-purple dark:to-primary">
-            Artence Passkey
-          </h1>
-          <p className="text-base sm:text-lg text-gray-600 dark:text-gray-300 transition-colors duration-300">
-            Secure Algorand authentication using passkeys
-          </p>
-        </div>
-
-        <Card className="p-4 sm:p-6 shadow-lg border-2 border-opacity-50 backdrop-blur-sm bg-white/90 dark:bg-artence-navy/90 dark:border-gray-700 transition-colors duration-300">
-          <PasskeySection 
-            authResult={authResult}
-            onRegister={handleRegister}
-            onAuthenticate={handleAuthenticate}
-          />
-
-          {authResult && (
-            <div className="space-y-6">
-              <div className="text-center">
-                <div className="flex justify-center">
-                  <Shield className="h-10 w-10 sm:h-12 sm:w-12 text-artence-purple" />
-                </div>
-                <h2 className="text-xl font-semibold mb-2 dark:text-white transition-colors duration-300">Connected</h2>
-                <p className="text-sm text-gray-600 dark:text-gray-300 mb-4 transition-colors duration-300">
-                  Your Algorand address:
-                </p>
-                <code className="px-3 py-2 sm:px-4 sm:py-2 bg-gray-100 dark:bg-gray-800 rounded-lg text-xs sm:text-sm break-all block text-gray-800 dark:text-gray-200 transition-colors duration-300">
-                  {authResult.address}
-                </code>
+    <div className="container mx-auto p-4 space-y-8">
+      <Card>
+        <CardHeader>
+          <CardTitle>Algorand Passkey Wallet</CardTitle>
+          <CardDescription>Secure your Algorand wallet with passkeys</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {!isRegistered ? (
+            <Button onClick={handleRegister} disabled={isLoading}>
+              {isLoading ? "Registering..." : "Register Passkey"}
+            </Button>
+          ) : (
+            <div className="space-y-4">
+              <div className="p-4 rounded-lg bg-secondary">
+                <p className="text-sm font-medium">Your Algorand Address:</p>
+                <p className="text-xs font-mono break-all">{address}</p>
+              </div>
+              
+              <div className="space-y-2">
+                <Input
+                  placeholder="Enter WalletConnect URI"
+                  value={wcUri}
+                  onChange={(e) => setWcUri(e.target.value)}
+                />
+                <Button 
+                  onClick={handleConnect} 
+                  disabled={isLoading || !wcUri}
+                  className="w-full"
+                >
+                  {isLoading ? "Connecting..." : "Connect to dApp"}
+                </Button>
               </div>
 
-              <div className="flex justify-center">
-                <AlgoBalance address={authResult.address} />
-              </div>
-
-              <div className="flex justify-center">
-                <AddressQRCode address={authResult.address} />
-              </div>
-
-              <div className="space-y-4">
-                <div className="flex flex-col sm:flex-row gap-2">
-                  <div className="flex-1 flex gap-2">
-                    <input
-                      type="text"
-                      placeholder="Enter WalletConnect URL"
-                      value={wcUrl}
-                      onChange={(e) => setWcUrl(e.target.value)}
-                      className="flex-1 px-3 py-2 sm:px-4 sm:py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-artence-purple text-sm bg-white dark:bg-gray-800 dark:border-gray-700 dark:text-white transition-colors duration-300"
-                    />
-                    <Button
-                      onClick={handlePaste}
-                      variant="outline"
-                      size="icon"
-                      className="flex-shrink-0"
-                    >
-                      <Clipboard className="h-4 w-4" />
-                    </Button>
-                  </div>
-                  <div className="flex gap-2">
-                    <Button
-                      onClick={handleWalletConnectUrl}
-                      className="w-full sm:w-auto bg-artence-purple hover:bg-primary text-white transition-colors duration-300"
-                    >
-                      <Shield className="mr-2 h-4 w-4" />
-                      Connect
-                    </Button>
-                  </div>
-                </div>
-                
-                <div className="py-4">
-                  <ConnectedAppsList />
-                </div>
-              </div>
+              <ConnectedAppsList />
             </div>
           )}
-        </Card>
+        </CardContent>
+      </Card>
 
-        <TransactionSigningDialog
-          isOpen={isTransactionDialogOpen}
-          onClose={() => setIsTransactionDialogOpen(false)}
-          transaction={currentTransaction}
-          onSign={handleSignedTransaction}
-        />
-      </div>
+      <TransactionSigningDialog
+        isOpen={isTransactionDialogOpen}
+        onClose={() => setIsTransactionDialogOpen(false)}
+        transaction={currentTransaction}
+        requestEvent={currentRequestEvent}
+        onSign={handleTransactionSign}
+      />
     </div>
   );
 };

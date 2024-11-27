@@ -4,11 +4,13 @@ import { Button } from "@/components/ui/button";
 import { authenticateWithPasskey } from "@/lib/webauthn";
 import { useToast } from "@/components/ui/use-toast";
 import * as algosdk from "algosdk";
+import { respondToWalletConnect } from "@/lib/walletConnect/transactionHandler";
 
 interface TransactionSigningDialogProps {
   isOpen: boolean;
   onClose: () => void;
   transaction: algosdk.Transaction | null;
+  requestEvent?: any;
   onSign: (signedTxn: Uint8Array) => void;
 }
 
@@ -16,6 +18,7 @@ export const TransactionSigningDialog = ({
   isOpen, 
   onClose, 
   transaction, 
+  requestEvent,
   onSign 
 }: TransactionSigningDialogProps) => {
   const [isLoading, setIsLoading] = useState(false);
@@ -30,6 +33,7 @@ export const TransactionSigningDialog = ({
     try {
       setIsLoading(true);
       console.log("Starting transaction signing process");
+      console.log("Request event in dialog:", requestEvent);
       
       const authResult = await authenticateWithPasskey();
       if (!authResult) {
@@ -43,12 +47,23 @@ export const TransactionSigningDialog = ({
       }
 
       console.log("Successfully authenticated, signing transaction");
-      const signedTxn = transaction.signTxn(new Uint8Array(32));
+      
+      // Create an Algorand account from the private key
+      const account = algosdk.mnemonicToSecretKey(algosdk.secretKeyToMnemonic(authResult.privateKey));
+      console.log("Created account for signing with address:", account.addr);
+      
+      // Sign the transaction using the account's private key
+      const signedTxn = transaction.signTxn(account.sk);
+      console.log("Transaction signed successfully");
+      
+      // Send the signed transaction back to WalletConnect
+      await respondToWalletConnect(signedTxn);
+      
       onSign(signedTxn);
       
       toast({
         title: "Transaction Signed",
-        description: "Successfully signed the transaction",
+        description: "Successfully signed and sent the transaction",
       });
       
       onClose();

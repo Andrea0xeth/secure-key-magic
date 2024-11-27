@@ -1,3 +1,6 @@
+import { sha256 } from '@noble/hashes/sha256';
+import { bytesToHex } from '@noble/hashes/utils';
+
 export { authenticateWithPasskey } from './auth/passkeyAuth';
 export { registerPasskey } from './auth/passkeyRegistration';
 export type { AuthenticationResult, RegistrationResult } from './types/auth';

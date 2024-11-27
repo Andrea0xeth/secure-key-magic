@@ -1,97 +1,83 @@
-import * as algosdk from "algosdk";
-import { TransactionCallback } from "./types";
-import { DecodedAlgorandTransaction, getTransactionType } from "./transactionTypes";
+import * as algosdk from 'algosdk';
+import { getSignClient } from './client';
 
-let transactionCallback: TransactionCallback | null = null;
+let transactionCallback: ((transaction: algosdk.Transaction, requestEvent?: any) => void) | null = null;
+let currentRequest: { topic: string; id: number } | null = null;
 
-export function setTransactionCallback(callback: TransactionCallback) {
+export function setTransactionCallback(callback: (transaction: algosdk.Transaction, requestEvent?: any) => void) {
   console.log("Setting transaction callback");
   transactionCallback = callback;
 }
 
-export function handleTransactionRequest(params: any) {
-  console.log("Received transaction request with parameters:", params);
-
-  if (!transactionCallback) {
-    console.error("No transaction callback set");
+export async function handleTransactionRequest(txnParams: any, requestEvent?: any) {
+  console.log("Handling transaction request with parameters:", txnParams);
+  console.log("Request event:", requestEvent);
+  
+  if (!txnParams || !txnParams.txn) {
+    console.error("Invalid transaction parameters:", txnParams);
     return;
   }
 
-  try {
-    const decodedTxn = algosdk.decodeObj(Buffer.from(params.txn, 'base64')) as DecodedAlgorandTransaction;
-    console.log("Decoded transaction:", decodedTxn);
-
-    if (!decodedTxn) {
-      throw new Error("Failed to decode transaction");
-    }
-
-    if (!decodedTxn.snd) {
-      throw new Error("Transaction must have a sender address");
-    }
-
-    const senderAddr = algosdk.encodeAddress(decodedTxn.snd);
-    console.log("Sender address:", senderAddr);
-
-    const suggestedParams: algosdk.SuggestedParams = {
-      fee: decodedTxn.fee || 1000,
-      firstRound: decodedTxn.fv || 0,
-      lastRound: decodedTxn.lv || 0,
-      genesisID: decodedTxn.gen || '',
-      genesisHash: decodedTxn.gh || '',
-      flatFee: true
+  // Store the request details for later response
+  if (requestEvent) {
+    currentRequest = {
+      topic: requestEvent.topic,
+      id: requestEvent.id
     };
+    console.log("Stored current request details:", currentRequest);
+  }
 
-    let txn: algosdk.Transaction;
-    const txnType = getTransactionType(decodedTxn);
-    console.log("Transaction type:", txnType);
+  try {
+    // Decode the transaction
+    const txnBuffer = Buffer.from(txnParams.txn, 'base64');
+    const decodedTxn = algosdk.decodeUnsignedTransaction(txnBuffer);
+    
+    console.log("Successfully decoded transaction:", decodedTxn);
+    
+    if (transactionCallback) {
+      transactionCallback(decodedTxn, requestEvent);
+    } else {
+      console.error("No transaction callback set");
+    }
+  } catch (error) {
+    console.error("Error processing transaction:", error);
+    throw error;
+  }
+}
 
-    switch (txnType) {
-      case "pay":
-        if (!decodedTxn.rcv) {
-          throw new Error("Payment transaction must have a receiver address");
-        }
-        txn = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
-          from: senderAddr,
-          to: algosdk.encodeAddress(decodedTxn.rcv),
-          amount: decodedTxn.amt || 0,
-          suggestedParams
-        });
-        break;
-
-      case "axfer":
-        if (!decodedTxn.arcv && !decodedTxn.rcv) {
-          throw new Error("Asset transfer must have a receiver address");
-        }
-        txn = algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
-          from: senderAddr,
-          to: algosdk.encodeAddress(decodedTxn.arcv || decodedTxn.rcv!),
-          assetIndex: decodedTxn.xaid!,
-          amount: decodedTxn.aamt || 0,
-          suggestedParams
-        });
-        break;
-
-      case "appl":
-        txn = algosdk.makeApplicationCallTxnFromObject({
-          from: senderAddr,
-          appIndex: decodedTxn.apid || 0,
-          onComplete: decodedTxn.apan || 0,
-          appArgs: decodedTxn.apaa || [],
-          accounts: decodedTxn.apat?.map(addr => algosdk.encodeAddress(addr)) || [],
-          foreignApps: decodedTxn.apfa || [],
-          foreignAssets: decodedTxn.apas || [],
-          suggestedParams
-        });
-        break;
-
-      default:
-        throw new Error(`Unsupported transaction type: ${txnType}`);
+export async function respondToWalletConnect(signedTxn: Uint8Array) {
+  try {
+    const client = getSignClient();
+    if (!client) {
+      throw new Error("WalletConnect client not initialized");
     }
 
-    console.log("Created Algorand transaction object:", txn);
-    transactionCallback(txn);
+    if (!currentRequest) {
+      console.error("No active request found:", currentRequest);
+      throw new Error("No active request to respond to");
+    }
+
+    console.log("Responding to WalletConnect with request:", currentRequest);
+    
+    // Format the response as expected by WalletConnect
+    const response = [Buffer.from(signedTxn).toString('base64')];
+    
+    // Send the response back through WalletConnect
+    await client.respond({
+      topic: currentRequest.topic,
+      response: {
+        id: currentRequest.id,
+        jsonrpc: '2.0',
+        result: response
+      }
+    });
+
+    console.log("Successfully sent signed transaction response");
+    
+    // Clear the current request after successful response
+    currentRequest = null;
   } catch (error) {
-    console.error("Error handling transaction request:", error);
+    console.error("Error responding to WalletConnect:", error);
     throw error;
   }
 }
