@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { authenticateWithPasskey } from "@/lib/webauthn";
 import { useToast } from "@/components/ui/use-toast";
 import * as algosdk from "algosdk";
+import { respondToWalletConnect } from "@/lib/walletConnect/transactionHandler";
 
 interface TransactionSigningDialogProps {
   isOpen: boolean;
@@ -52,11 +53,14 @@ export const TransactionSigningDialog = ({
       const signedTxn = transaction.signTxn(account.sk);
       console.log("Transaction signed successfully");
       
+      // Send the signed transaction back to WalletConnect
+      await respondToWalletConnect(signedTxn);
+      
       onSign(signedTxn);
       
       toast({
         title: "Transaction Signed",
-        description: "Successfully signed the transaction",
+        description: "Successfully signed and sent the transaction",
       });
       
       onClose();
