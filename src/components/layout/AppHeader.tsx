@@ -32,12 +32,14 @@ export const AppHeader = () => {
           variant="ghost" 
           size="icon"
           onClick={() => setExpanded(!expanded)}
-          className="transition-all duration-300"
+          className="transition-all duration-300 hover:bg-gray-100 dark:hover:bg-gray-800"
         >
           {session ? (
-            <ChevronRight className={`h-5 w-5 transition-transform duration-300 ${expanded ? 'rotate-180' : ''}`} />
+            <ChevronRight 
+              className={`h-6 w-6 text-gray-600 dark:text-gray-300 transition-all duration-300 ease-in-out transform ${expanded ? 'rotate-180' : ''}`} 
+            />
           ) : (
-            <LogIn className="h-5 w-5" />
+            <LogIn className="h-6 w-6 text-gray-600 dark:text-gray-300" />
           )}
         </Button>
       </div>
