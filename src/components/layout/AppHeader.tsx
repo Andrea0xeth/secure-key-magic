@@ -30,12 +30,12 @@ export const AppHeader = () => {
 
   return (
     <header className="fixed top-0 left-0 right-0 z-[100] bg-white/5 dark:bg-black/20 backdrop-blur-md border-b border-gray-200/10 dark:border-gray-800/50">
-      <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+      <div className="container mx-auto px-6 h-16 flex items-center justify-between">
         <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-artence-purple to-primary">
           Artence Passkey
         </h1>
         
-        <div className="flex gap-2 items-center">
+        <div className="flex items-center space-x-4">
           {!session && (
             <Button 
               onClick={handleLoginClick}

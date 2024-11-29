@@ -40,11 +40,13 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <SidebarProvider defaultExpanded={false}>
-          <AppContent />
-        </SidebarProvider>
+        <div className="relative">
+          <Toaster className="z-[100]" />
+          <Sonner className="z-[100]" />
+          <SidebarProvider defaultExpanded={false}>
+            <AppContent />
+          </SidebarProvider>
+        </div>
       </TooltipProvider>
     </QueryClientProvider>
   );
