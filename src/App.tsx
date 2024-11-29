@@ -7,7 +7,7 @@ import { SidebarProvider, useSidebar } from "@/components/ui/sidebar";
 import Index from "./pages/Index";
 import { WalletSidebar } from "./components/wallet/WalletSidebar";
 import { Button } from "@/components/ui/button";
-import { Expand, Collapse } from "lucide-react";
+import { ChevronRight, ChevronLeft } from "lucide-react";
 import "./App.css";
 
 const queryClient = new QueryClient();
@@ -27,9 +27,9 @@ function AppContent() {
             >
               <div className="transition-transform duration-200">
                 {expanded ? (
-                  <Collapse className="h-4 w-4" />
+                  <ChevronRight className="h-4 w-4" />
                 ) : (
-                  <Expand className="h-4 w-4" />
+                  <ChevronLeft className="h-4 w-4" />
                 )}
               </div>
             </Button>
