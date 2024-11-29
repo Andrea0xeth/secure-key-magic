@@ -73,6 +73,14 @@ export const AuthForm = () => {
         localization={{
           variables: {
             sign_up: {
+              email_label: 'Email address',
+              password_label: 'Password (minimum 6 characters)',
+              button_label: 'Sign up',
+              loading_button_label: 'Signing up...',
+              social_provider_text: 'Sign in with',
+              link_text: 'Don\'t have an account? Sign up',
+            },
+            sign_in: {
               password_label: 'Password (minimum 6 characters)',
             },
           },
