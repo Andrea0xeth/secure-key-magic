@@ -115,7 +115,27 @@ export const AuthForm = () => {
             },
           },
         }}
-        onError={handleAuthError}
+        options={{
+          emailRedirectTo: `${window.location.origin}`,
+          data: {
+            first_name: '',
+            last_name: '',
+          }
+        }}
+        extendedSignUpFields={[
+          {
+            id: 'first_name',
+            label: 'Nome',
+            type: 'text',
+            required: true,
+          },
+          {
+            id: 'last_name',
+            label: 'Cognome',
+            type: 'text',
+            required: true,
+          },
+        ]}
       />
     </div>
   );
