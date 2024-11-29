@@ -45,7 +45,9 @@ export function Sidebar({
         className
       )}
     >
-      {children}
+      <div className="max-w-lg mx-auto px-4 sm:px-6 h-full">
+        {children}
+      </div>
     </aside>
   )
 }
