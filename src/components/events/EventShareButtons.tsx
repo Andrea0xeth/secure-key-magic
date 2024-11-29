@@ -25,20 +25,17 @@ export const EventShareButtons = ({ event }: EventShareProps) => {
   };
 
   const shareToInstagram = () => {
-    // Try to open Instagram app with deep linking
-    const instagramUrl = `instagram://share?text=${encodeURIComponent(`${event.title}\n\n${event.description}\n\nCheck it out at: ${currentUrl}`)}`;
+    // Instagram story sharing URL scheme
+    const storyUrl = `instagram-stories://share?source_application=your_app_id&background_image=${encodeURIComponent(event.image_url)}&attribution_link=${encodeURIComponent(currentUrl)}`;
     
-    // Try to open Instagram app
-    window.location.href = instagramUrl;
+    // Try to open Instagram stories
+    window.location.href = storyUrl;
     
     // Set a timeout to check if Instagram app was opened
     setTimeout(() => {
       // If we're still here after a short delay, Instagram app probably isn't installed
-      // Fallback to copying to clipboard
       if (document.hasFocus()) {
-        navigator.clipboard.writeText(`${event.title}\n\n${event.description}\n\nCheck it out at: ${currentUrl}`).then(() => {
-          toast.success("Event details copied! Open Instagram to share.");
-        });
+        toast.error("Instagram app not found. Please install Instagram to share stories.");
       }
     }, 500);
   };
