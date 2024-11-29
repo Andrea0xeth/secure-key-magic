@@ -41,9 +41,17 @@ export const AuthForm = () => {
       setError(null);
     });
 
+    // Listen for auth errors
+    const authListener = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'USER_ERROR') {
+        setError("Credenziali non valide. Verifica email e password.");
+      }
+    });
+
     return () => {
       console.log("Cleaning up auth state change listener");
       subscription.unsubscribe();
+      authListener.data.subscription.unsubscribe();
     };
   }, [navigate, toast]);
 
@@ -94,7 +102,7 @@ export const AuthForm = () => {
             },
             sign_in: {
               email_label: 'Indirizzo email',
-              password_label: 'Password (minimo 6 caratteri)',
+              password_label: 'Password',
               button_label: 'Accedi',
               loading_button_label: 'Accesso in corso...',
               social_provider_text: 'Accedi con',
