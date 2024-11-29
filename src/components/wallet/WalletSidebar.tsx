@@ -5,6 +5,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { PasskeySection } from "../PasskeySection";
+import { UserProfileSection } from "../UserProfileSection";
 import { useEffect, useState } from "react";
 import { authenticateWithPasskey, registerPasskey } from "@/lib/webauthn";
 import type { AuthenticationResult } from "@/lib/webauthn";
@@ -138,9 +139,7 @@ export function WalletSidebar() {
           </TabsContent>
 
           <TabsContent value="settings" className="p-4 mt-0">
-            <div className="text-center text-gray-500">
-              User settings coming soon
-            </div>
+            <UserProfileSection />
           </TabsContent>
         </Tabs>
       </div>
