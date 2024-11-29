@@ -47,26 +47,6 @@ export const AuthForm = () => {
     };
   }, [navigate, toast]);
 
-  const handleAuthError = (error: Error) => {
-    console.error("Auth error:", error);
-    let errorMessage = "Si è verificato un errore durante l'autenticazione.";
-    
-    if (error.message.includes("weak_password")) {
-      errorMessage = "La password deve contenere almeno 6 caratteri.";
-    } else if (error.message.includes("invalid_email")) {
-      errorMessage = "L'indirizzo email non è valido.";
-    } else if (error.message.includes("user_exists")) {
-      errorMessage = "Un utente con questa email esiste già.";
-    }
-
-    setError(errorMessage);
-    toast({
-      title: "Errore",
-      description: errorMessage,
-      variant: "destructive",
-    });
-  };
-
   return (
     <div className="w-full max-w-md mx-auto p-6 space-y-4">
       <div className="text-center mb-8">
@@ -122,7 +102,6 @@ export const AuthForm = () => {
             },
           },
         }}
-        onError={handleAuthError}
         additionalData={{
           first_name: {
             type: 'text',
