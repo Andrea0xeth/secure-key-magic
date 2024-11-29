@@ -19,7 +19,13 @@ function AppContent() {
         <div className="flex">
           <div 
             className="flex-1 min-h-screen overflow-y-auto"
-            style={{ marginRight: expanded ? "500px" : "0px" }}
+            style={{ 
+              marginRight: expanded ? "500px" : "0px",
+              // Remove margin on mobile when sidebar is expanded
+              "@media (max-width: 768px)": {
+                marginRight: "0px"
+              }
+            }}
           >
             <Routes>
               <Route path="/" element={<Index />} />

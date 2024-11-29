@@ -42,7 +42,11 @@ export function Sidebar({
       className={cn(
         "h-screen transition-all duration-300",
         "bg-gradient-radial from-artence-light via-white to-transparent dark:from-artence-navy dark:via-artence-dark/90 dark:to-artence-dark/50",
-        expanded ? "w-[500px] overflow-y-auto" : "w-0 overflow-hidden",
+        // Desktop styles
+        "md:w-[500px] md:relative",
+        // Mobile styles - full screen when expanded
+        expanded ? "w-full fixed inset-0 z-50" : "w-0",
+        "overflow-y-auto",
         className
       )}
     >
