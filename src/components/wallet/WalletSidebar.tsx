@@ -79,7 +79,7 @@ export function WalletSidebar() {
   if (!session) {
     return (
       <Sidebar className="border-l">
-        <div className="p-6 mt-16 flex flex-col items-center">
+        <div className="p-6 mt-16">
           <Auth
             supabaseClient={supabase}
             appearance={{
@@ -91,12 +91,6 @@ export function WalletSidebar() {
                     brandAccent: '#7C3AED',
                   },
                 },
-              },
-              className: {
-                container: 'w-full max-w-md mx-auto',
-                button: 'w-full',
-                input: 'w-full',
-                label: 'text-left block mb-2',
               },
             }}
             providers={[]}
@@ -135,7 +129,7 @@ export function WalletSidebar() {
             </TabsList>
           </div>
 
-          <TabsContent value="wallet" className="p-6 mt-0">
+          <TabsContent value="wallet" className="p-4 mt-0">
             <PasskeySection
               authResult={authResult}
               onRegister={handleRegister}
@@ -143,7 +137,7 @@ export function WalletSidebar() {
             />
           </TabsContent>
 
-          <TabsContent value="settings" className="p-6 mt-0">
+          <TabsContent value="settings" className="p-4 mt-0">
             <div className="text-center text-gray-500">
               User settings coming soon
             </div>
