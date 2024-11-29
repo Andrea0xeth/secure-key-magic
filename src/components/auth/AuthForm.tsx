@@ -51,11 +51,6 @@ export const AuthForm = () => {
         <p className="text-gray-600 dark:text-gray-300 mt-2">
           Sign in to access exclusive gin experiences
         </p>
-        <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-md">
-          <p className="text-yellow-800 text-sm">
-            Note: Email signups are currently disabled. Please contact the administrator to enable email authentication.
-          </p>
-        </div>
       </div>
       <Auth
         supabaseClient={supabase}
