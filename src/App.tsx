@@ -3,7 +3,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { SidebarProvider } from "@/components/ui/sidebar";
-import { AppContent } from "@/components/AppContent";
+import { AppContent } from "./components/AppContent";
 
 const queryClient = new QueryClient({
   defaultOptions: {
