@@ -43,11 +43,12 @@ export function Sidebar({
         "h-screen transition-all duration-500 ease-in-out",
         "bg-gradient-radial from-artence-light via-white to-transparent dark:from-artence-navy dark:via-artence-dark/90 dark:to-artence-dark/50",
         // Desktop styles
-        "w-[500px]",
-        // Mobile styles - full screen when expanded
+        "md:w-[500px]",
+        // Mobile styles
+        "w-full",
         expanded ? "translate-x-0" : "translate-x-full",
         "overflow-y-auto",
-        "pt-16", // Add padding top to account for header height
+        "pt-16",
         className
       )}
     >

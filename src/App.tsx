@@ -21,7 +21,7 @@ function AppContent() {
           <div 
             className={cn(
               "min-h-screen w-full transition-all duration-500 ease-in-out",
-              expanded ? "mr-[500px]" : "mr-0"
+              expanded ? "md:mr-[500px]" : "mr-0"
             )}
           >
             <Routes>
