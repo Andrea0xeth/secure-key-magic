@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { ImageIcon } from "lucide-react";
 
 const MyNFTs = () => {
   const navigate = useNavigate();
@@ -23,10 +24,13 @@ const MyNFTs = () => {
           <h1 className="text-3xl font-bold mb-6 text-artence-navy dark:text-white">
             My NFTs
           </h1>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {/* NFT content will be added here in future updates */}
-            <p className="text-gray-600 dark:text-gray-300">
-              Your NFT collection will appear here soon.
+          <div className="flex flex-col items-center justify-center p-8 text-center bg-white dark:bg-gray-800 rounded-lg shadow-sm">
+            <ImageIcon className="w-16 h-16 text-gray-400 dark:text-gray-500 mb-4" />
+            <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+              No NFTs Found
+            </h3>
+            <p className="text-gray-600 dark:text-gray-300 max-w-md">
+              You don't have any NFTs in your collection yet. Once you acquire NFTs, they will appear here.
             </p>
           </div>
         </div>
