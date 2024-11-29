@@ -6,12 +6,12 @@
 
 @layer base {
   :root {
-    --background: 153 27% 98%;
-    --foreground: 153 27% 10%;
-    --card: 153 27% 96%;
-    --card-foreground: 153 27% 10%;
-    --popover: 153 27% 96%;
-    --popover-foreground: 153 27% 10%;
+    --background: 153 27% 10%;
+    --foreground: 153 27% 98%;
+    --card: 153 27% 12%;
+    --card-foreground: 153 27% 98%;
+    --popover: 153 27% 12%;
+    --popover-foreground: 153 27% 98%;
     --primary: 153 27% 23%;
     --primary-foreground: 0 0% 100%;
     --secondary: 153 27% 15%;
@@ -56,6 +56,7 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground font-sans;
+    @apply bg-background text-foreground font-sans dark:bg-artence-dark;
+    background-image: radial-gradient(circle at center, rgba(42, 76, 59, 0.8) 0%, rgba(15, 26, 21, 1) 100%);
   }
 }

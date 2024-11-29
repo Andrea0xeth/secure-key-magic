@@ -22,7 +22,7 @@ export const EventsList = () => {
         {[...Array(3)].map((_, i) => (
           <div
             key={i}
-            className="h-[400px] bg-artence-light/10 rounded-lg animate-pulse"
+            className="h-[400px] bg-gray-100 dark:bg-gray-800 rounded-lg animate-pulse"
           />
         ))}
       </div>
