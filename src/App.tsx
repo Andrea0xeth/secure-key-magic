@@ -16,7 +16,7 @@ function AppContent() {
   const { expanded, setExpanded } = useSidebar();
   
   return (
-    <div className="min-h-screen flex w-full">
+    <div className="min-h-screen w-full flex">
       <Router>
         <div className="flex-1">
           <div className="fixed top-4 right-4 z-50">
