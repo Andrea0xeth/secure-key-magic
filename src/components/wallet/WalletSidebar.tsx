@@ -10,11 +10,14 @@ import { authenticateWithPasskey, registerPasskey } from "@/lib/webauthn";
 import type { AuthenticationResult } from "@/lib/webauthn";
 import { getStoredAlgorandKey } from "@/lib/storage/keyStorage";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Auth } from "@supabase/auth-ui-react";
+import { ThemeSupa } from "@supabase/auth-ui-shared";
 
 export function WalletSidebar() {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [authResult, setAuthResult] = useState<AuthenticationResult | null>(null);
+  const [session, setSession] = useState<any>(null);
 
   useEffect(() => {
     const storedKey = getStoredAlgorandKey();
@@ -27,6 +30,17 @@ export function WalletSidebar() {
         sk: new Uint8Array()
       });
     }
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      console.log("Auth state changed:", _event, session);
+      setSession(session);
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
   const handleRegister = async () => {
@@ -61,6 +75,30 @@ export function WalletSidebar() {
       });
     }
   };
+
+  if (!session) {
+    return (
+      <Sidebar className="border-l bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="p-6">
+          <Auth
+            supabaseClient={supabase}
+            appearance={{
+              theme: ThemeSupa,
+              variables: {
+                default: {
+                  colors: {
+                    brand: '#9b87f5',
+                    brandAccent: '#7C3AED',
+                  },
+                },
+              },
+            }}
+            providers={[]}
+          />
+        </div>
+      </Sidebar>
+    );
+  }
 
   return (
     <Sidebar className="border-l bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">

@@ -7,13 +7,29 @@ import { SidebarProvider, useSidebar } from "@/components/ui/sidebar";
 import Index from "./pages/Index";
 import { WalletSidebar } from "./components/wallet/WalletSidebar";
 import { Button } from "@/components/ui/button";
-import { ChevronRight, ChevronLeft } from "lucide-react";
+import { ChevronRight, ChevronLeft, LogIn } from "lucide-react";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import "./App.css";
 
 const queryClient = new QueryClient();
 
 function AppContent() {
   const { expanded, setExpanded } = useSidebar();
+  const [session, setSession] = useState<any>(null);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      console.log("Auth state changed:", _event, session);
+      setSession(session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
   
   return (
     <div className="min-h-screen w-full flex">
@@ -25,13 +41,17 @@ function AppContent() {
               size="icon"
               onClick={() => setExpanded(!expanded)}
             >
-              <div className="transition-transform duration-200">
-                {expanded ? (
-                  <ChevronRight className="h-4 w-4" />
-                ) : (
-                  <ChevronLeft className="h-4 w-4" />
-                )}
-              </div>
+              {session ? (
+                <div className="transition-transform duration-200">
+                  {expanded ? (
+                    <ChevronRight className="h-4 w-4" />
+                  ) : (
+                    <ChevronLeft className="h-4 w-4" />
+                  )}
+                </div>
+              ) : (
+                <LogIn className="h-4 w-4" />
+              )}
             </Button>
           </div>
           <Routes>
