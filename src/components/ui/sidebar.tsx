@@ -40,10 +40,10 @@ export function Sidebar({
   return (
     <aside
       className={cn(
-        "fixed top-0 right-0 z-40 h-screen transition-transform duration-500 ease-in-out",
+        "h-screen transition-all duration-500 ease-in-out",
         "bg-gradient-radial from-artence-light via-white to-transparent dark:from-artence-navy dark:via-artence-dark/90 dark:to-artence-dark/50",
         // Desktop styles
-        "md:w-[500px]",
+        "w-[500px]",
         // Mobile styles - full screen when expanded
         expanded ? "translate-x-0" : "translate-x-full",
         "overflow-y-auto",
