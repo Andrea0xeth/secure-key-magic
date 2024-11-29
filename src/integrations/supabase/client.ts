@@ -16,7 +16,7 @@ export const supabase = createClient<Database>(supabaseUrl, supabaseKey, {
     autoRefreshToken: true,
     detectSessionInUrl: false,
     flowType: 'pkce',
-    debug: true // Enable debug mode to see more detailed logs
+    debug: true
   },
   global: {
     headers: {
@@ -25,5 +25,4 @@ export const supabase = createClient<Database>(supabaseUrl, supabaseKey, {
   }
 });
 
-// Log successful client creation
 console.log('Supabase client initialized successfully');

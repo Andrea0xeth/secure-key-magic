@@ -27,9 +27,6 @@ export const AuthForm = () => {
       if (event === 'USER_UPDATED') {
         console.log("User updated:", session);
       }
-      if (event === 'USER_DELETED') {
-        console.log("User deleted");
-      }
     });
 
     return () => {
