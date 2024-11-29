@@ -45,9 +45,10 @@ export function Sidebar({
         // Desktop styles
         "md:w-[500px] md:relative md:translate-x-0",
         // Mobile styles - full screen when expanded
-        "fixed top-0 right-0 z-50",
+        "fixed top-0 right-0 z-40",
         expanded ? "w-full translate-x-0" : "w-0 translate-x-full",
         "overflow-y-auto",
+        "pt-16", // Add padding top to account for header height
         className
       )}
     >

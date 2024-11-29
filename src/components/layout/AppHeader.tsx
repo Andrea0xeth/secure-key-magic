@@ -50,7 +50,7 @@ export const AppHeader = () => {
             variant="ghost" 
             size="icon"
             onClick={() => setExpanded(!expanded)}
-            className="transition-all duration-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+            className="transition-all duration-300 hover:bg-gray-100 dark:hover:bg-gray-800 z-50"
           >
             <ChevronRight 
               className={`h-6 w-6 text-gray-600 dark:text-gray-300 transition-all duration-300 ease-in-out transform ${expanded ? 'rotate-180' : ''}`} 
