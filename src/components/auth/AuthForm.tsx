@@ -24,6 +24,9 @@ export const AuthForm = () => {
       if (event === 'SIGNED_OUT') {
         console.log("User signed out");
       }
+      if (event === 'USER_UPDATED') {
+        console.log("User updated:", session);
+      }
     });
 
     return () => {
@@ -56,14 +59,6 @@ export const AuthForm = () => {
           },
         }}
         providers={[]}
-        onError={(error) => {
-          console.error("Auth error:", error);
-          toast({
-            title: "Authentication Error",
-            description: error.message,
-            variant: "destructive",
-          });
-        }}
       />
     </div>
   );
