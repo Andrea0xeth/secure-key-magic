@@ -26,35 +26,38 @@ export default {
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
+        hendricks: {
+          dark: "#1a1a1a",
+          green: "#044B3F",
+          cream: "#F5F5DC",
+          gold: "#D4AF37",
+          rose: "#C26E60",
+          purple: "#4A314D",
+        },
         primary: {
-          DEFAULT: "#9b87f5",
-          foreground: "#ffffff",
+          DEFAULT: "#044B3F",
+          foreground: "#F5F5DC",
         },
         secondary: {
-          DEFAULT: "#6B7280",
-          foreground: "#ffffff",
+          DEFAULT: "#4A314D",
+          foreground: "#F5F5DC",
         },
         success: {
           DEFAULT: "#10B981",
           foreground: "#ffffff",
         },
         warning: {
-          DEFAULT: "#F59E0B",
-          foreground: "#ffffff",
+          DEFAULT: "#D4AF37",
+          foreground: "#1a1a1a",
         },
         destructive: {
-          DEFAULT: "#EF4444",
-          foreground: "#ffffff",
-        },
-        artence: {
-          purple: "#9b87f5",
-          dark: "#1A1A1A",
-          light: "#E5DEFF",
-          navy: "#121212",
+          DEFAULT: "#C26E60",
+          foreground: "#F5F5DC",
         },
       },
       fontFamily: {
         sans: ["Space Grotesk", "sans-serif"],
+        serif: ["Playfair Display", "serif"],
       },
       keyframes: {
         "accordion-down": {

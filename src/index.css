@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,48 +6,26 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 0 0% 10%;
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 10%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 10%;
-    --primary: 262 83% 58%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 220 14% 46%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 0 0% 90%;
-    --input: 0 0% 90%;
-    --ring: 262 83% 58%;
+    --background: 34 34 34;
+    --foreground: 245 245 220;
+    --card: 34 34 34;
+    --card-foreground: 245 245 220;
+    --popover: 34 34 34;
+    --popover-foreground: 245 245 220;
+    --primary: 4 75 63;
+    --primary-foreground: 245 245 220;
+    --secondary: 74 49 77;
+    --secondary-foreground: 245 245 220;
+    --muted: 40 40 40;
+    --muted-foreground: 212 212 189;
+    --accent: 212 175 55;
+    --accent-foreground: 26 26 26;
+    --destructive: 194 110 96;
+    --destructive-foreground: 245 245 220;
+    --border: 40 40 40;
+    --input: 40 40 40;
+    --ring: 4 75 63;
     --radius: 0.5rem;
-  }
-
-  .dark {
-    --background: 0 0% 7%;
-    --foreground: 0 0% 98%;
-    --card: 0 0% 9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 0 0% 9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 262 83% 58%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 0 0% 20%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 15%;
-    --muted-foreground: 0 0% 65%;
-    --accent: 0 0% 15%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 20%;
-    --input: 0 0% 20%;
-    --ring: 262 83% 58%;
   }
 }
 
@@ -56,6 +34,6 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground font-sans dark:bg-artence-navy;
+    @apply bg-hendricks-dark text-hendricks-cream font-serif;
   }
 }
