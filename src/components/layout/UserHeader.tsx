@@ -10,6 +10,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { disconnectWalletConnect } from "@/lib/walletConnect/connection";
+import { UserProfileSection } from "@/components/UserProfileSection";
 
 export const UserHeader = () => {
   const navigate = useNavigate();
@@ -63,7 +64,10 @@ export const UserHeader = () => {
                 <UserCog className="h-5 w-5" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48">
+            <DropdownMenuContent align="end" className="w-80">
+              <div className="p-4">
+                <UserProfileSection />
+              </div>
               <DropdownMenuItem className="cursor-pointer" onClick={() => navigate("/wallet")}>
                 <Wallet className="mr-2 h-4 w-4" />
                 Wallet
