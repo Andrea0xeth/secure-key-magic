@@ -82,30 +82,32 @@ export function WalletSidebar() {
   if (!session) {
     return (
       <Sidebar className="border-l">
-        <div className="relative p-6 mt-16">
+        <div className="relative p-6">
           <Button
             variant="ghost"
             size="icon"
             onClick={() => setExpanded(false)}
-            className="absolute right-4 top-4 md:hidden rotate-animation"
+            className="absolute right-4 top-4 rotate-animation"
           >
             <X className="h-5 w-5" />
           </Button>
-          <Auth
-            supabaseClient={supabase}
-            appearance={{
-              theme: ThemeSupa,
-              variables: {
-                default: {
-                  colors: {
-                    brand: '#9b87f5',
-                    brandAccent: '#7C3AED',
+          <div className="mt-16">
+            <Auth
+              supabaseClient={supabase}
+              appearance={{
+                theme: ThemeSupa,
+                variables: {
+                  default: {
+                    colors: {
+                      brand: '#9b87f5',
+                      brandAccent: '#7C3AED',
+                    },
                   },
                 },
-              },
-            }}
-            providers={[]}
-          />
+              }}
+              providers={[]}
+            />
+          </div>
         </div>
       </Sidebar>
     );
@@ -113,18 +115,18 @@ export function WalletSidebar() {
 
   return (
     <Sidebar className="border-l">
-      <div className="flex flex-col h-full mt-16">
+      <div className="flex flex-col h-full">
         <div className="relative">
           <Button
             variant="ghost"
             size="icon"
             onClick={() => setExpanded(false)}
-            className="absolute right-4 top-4 md:hidden rotate-animation"
+            className="absolute right-4 top-4 rotate-animation"
           >
             <X className="h-5 w-5" />
           </Button>
         </div>
-        <Tabs defaultValue="wallet" className="w-full">
+        <Tabs defaultValue="wallet" className="w-full mt-16">
           <div className="border-b">
             <TabsList className="w-full justify-between bg-transparent border-b p-0">
               <TabsTrigger 
