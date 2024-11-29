@@ -79,7 +79,7 @@ export function WalletSidebar() {
   if (!session) {
     return (
       <Sidebar className="border-l bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="p-6">
+        <div className="p-6 mt-16">
           <Auth
             supabaseClient={supabase}
             appearance={{
@@ -102,7 +102,7 @@ export function WalletSidebar() {
 
   return (
     <Sidebar className="border-l bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="flex flex-col h-full">
+      <div className="flex flex-col h-full mt-16">
         <Tabs defaultValue="wallet" className="w-full">
           <div className="border-b">
             <TabsList className="w-full justify-between bg-transparent border-b p-0">
