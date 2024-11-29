@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { ChevronRight, LogIn } from "lucide-react";
+import { ChevronRight, LogIn, Image } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useSidebar } from "@/components/ui/sidebar";
 import { useNavigate } from "react-router-dom";
@@ -29,6 +29,10 @@ export const AppHeader = () => {
     navigate('/auth');
   };
 
+  const handleMyNFTsClick = () => {
+    navigate('/my-nfts');
+  };
+
   return (
     <header className="fixed top-0 left-0 right-0 z-[100] bg-white/80 dark:bg-black/80 backdrop-blur-sm border-b border-gray-200 dark:border-gray-800">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
@@ -37,13 +41,21 @@ export const AppHeader = () => {
         </h1>
         
         <div className="flex gap-2 items-center">
-          {!session && (
+          {!session ? (
             <Button 
               onClick={handleLoginClick}
               className="bg-artence-purple hover:bg-artence-purple/90 text-white transition-colors duration-300"
             >
               <LogIn className="mr-2 h-4 w-4" />
               Login
+            </Button>
+          ) : (
+            <Button 
+              onClick={handleMyNFTsClick}
+              className="bg-artence-purple hover:bg-artence-purple/90 text-white transition-colors duration-300"
+            >
+              <Image className="mr-2 h-4 w-4" />
+              My NFTs
             </Button>
           )}
           <Button 

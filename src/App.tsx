@@ -6,6 +6,7 @@ import { BrowserRouter as Router, Routes, Route, useLocation } from "react-route
 import { SidebarProvider, useSidebar } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 import Index from "./pages/Index";
+import MyNFTs from "./pages/MyNFTs";
 import { WalletSidebar } from "./components/wallet/WalletSidebar";
 import "./App.css";
 
@@ -15,7 +16,6 @@ function AppContent() {
   const { expanded } = useSidebar();
   const location = useLocation();
 
-  // Log the current URL including hash for debugging
   console.log('Current URL:', location.pathname + location.hash);
 
   return (
@@ -30,6 +30,7 @@ function AppContent() {
         >
           <Routes>
             <Route path="/" element={<Index />} />
+            <Route path="/my-nfts" element={<MyNFTs />} />
             <Route path="*" element={<Index />} />
           </Routes>
         </div>
