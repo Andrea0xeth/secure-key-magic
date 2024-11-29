@@ -4,7 +4,7 @@ import { AppHeader } from "@/components/layout/AppHeader";
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-gradient-radial from-artence-dark via-artence-navy to-black transition-colors duration-300">
+    <div className="min-h-screen bg-gradient-radial from-artence-green/20 via-artence-navy to-black">
       <AppHeader />
       <div className="w-full px-2 pt-24 pb-8 animate-fade-in">
         <div className="container mx-auto">
