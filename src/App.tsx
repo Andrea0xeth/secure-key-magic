@@ -20,7 +20,8 @@ function AppContent() {
         <div className="flex justify-end">
           <div 
             className={cn(
-              "min-h-screen w-full transition-all duration-700 ease-in-out will-change-transform",
+              "min-h-screen w-full will-change-transform",
+              "transition-all duration-500 ease-in-out",
               expanded ? "md:mr-[500px]" : "mr-0"
             )}
           >
