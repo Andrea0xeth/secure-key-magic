@@ -18,21 +18,17 @@ function AppContent() {
       <Router>
         <div className="flex">
           <div 
-            className="flex-1 min-h-screen overflow-y-auto"
-            style={{ 
-              marginRight: expanded ? "500px" : "0px",
-              // Remove margin on mobile when sidebar is expanded
-              "@media (max-width: 768px)": {
-                marginRight: "0px"
-              }
-            }}
+            className={cn(
+              "flex-1 min-h-screen overflow-y-auto transition-all duration-500 ease-in-out",
+              expanded ? "md:mr-[500px]" : "mr-0"
+            )}
           >
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="*" element={<Index />} />
             </Routes>
           </div>
-          <div className="fixed right-0 top-0 h-screen overflow-y-auto">
+          <div>
             <WalletSidebar />
           </div>
         </div>
