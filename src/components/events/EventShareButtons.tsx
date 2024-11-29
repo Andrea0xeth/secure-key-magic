@@ -25,12 +25,22 @@ export const EventShareButtons = ({ event }: EventShareProps) => {
   };
 
   const shareToInstagram = () => {
-    // Instagram doesn't have a direct web sharing API
-    // We'll copy the event details to clipboard instead
-    const text = `${event.title}\n\n${event.description}\n\nCheck it out at: ${currentUrl}`;
-    navigator.clipboard.writeText(text).then(() => {
-      toast.success("Event details copied! Open Instagram to share.");
-    });
+    // Try to open Instagram app with deep linking
+    const instagramUrl = `instagram://share?text=${encodeURIComponent(`${event.title}\n\n${event.description}\n\nCheck it out at: ${currentUrl}`)}`;
+    
+    // Try to open Instagram app
+    window.location.href = instagramUrl;
+    
+    // Set a timeout to check if Instagram app was opened
+    setTimeout(() => {
+      // If we're still here after a short delay, Instagram app probably isn't installed
+      // Fallback to copying to clipboard
+      if (document.hasFocus()) {
+        navigator.clipboard.writeText(`${event.title}\n\n${event.description}\n\nCheck it out at: ${currentUrl}`).then(() => {
+          toast.success("Event details copied! Open Instagram to share.");
+        });
+      }
+    }, 500);
   };
 
   return (
