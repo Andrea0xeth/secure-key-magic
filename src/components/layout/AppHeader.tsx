@@ -34,7 +34,16 @@ export const AppHeader = () => {
           Artence Passkey
         </h1>
         
-        {session ? (
+        <div className="flex gap-2">
+          {!session && (
+            <Button 
+              onClick={handleLoginClick}
+              className="bg-artence-purple hover:bg-artence-purple/90 text-white transition-colors duration-300"
+            >
+              <LogIn className="mr-2 h-4 w-4" />
+              Login
+            </Button>
+          )}
           <Button 
             variant="ghost" 
             size="icon"
@@ -45,15 +54,7 @@ export const AppHeader = () => {
               className={`h-6 w-6 text-gray-600 dark:text-gray-300 transition-all duration-300 ease-in-out transform ${expanded ? 'rotate-180' : ''}`} 
             />
           </Button>
-        ) : (
-          <Button 
-            onClick={handleLoginClick}
-            className="bg-artence-purple hover:bg-artence-purple/90 text-white transition-colors duration-300"
-          >
-            <LogIn className="mr-2 h-4 w-4" />
-            Login
-          </Button>
-        )}
+        </div>
       </div>
     </header>
   );
