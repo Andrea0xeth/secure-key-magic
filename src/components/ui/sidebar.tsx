@@ -44,7 +44,7 @@ export function Sidebar({ className, children, ...props }: SidebarProps) {
     <aside
       className={cn(
         "fixed top-0 right-0 h-screen will-change-transform z-[90]",
-        "bg-hendricks-dark border-l border-hendricks-gold/20",
+        "bg-gradient-radial from-artence-light via-white to-transparent dark:from-black dark:via-artence-dark/90 dark:to-artence-dark/50",
         // Desktop styles
         "md:w-[500px]",
         // Mobile styles
