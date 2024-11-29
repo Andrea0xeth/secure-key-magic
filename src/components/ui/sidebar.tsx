@@ -41,7 +41,7 @@ export function Sidebar({
     <aside
       className={cn(
         "h-screen transition-all duration-300",
-        expanded ? "md:w-1/2 w-full fixed right-0 top-0 z-50" : "w-0 overflow-hidden",
+        expanded ? "md:w-1/2 w-full" : "w-0 overflow-hidden",
         className
       )}
     >
