@@ -17,6 +17,9 @@ export default {
       },
     },
     extend: {
+      backgroundImage: {
+        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -47,7 +50,7 @@ export default {
           purple: "#9b87f5",
           dark: "#1A1F2C",
           light: "#F1F0FB",
-          navy: "#161B33", // Added the new navy color
+          navy: "#161B33",
         },
       },
       fontFamily: {
