@@ -49,7 +49,7 @@ export default {
         artence: {
           purple: "#9b87f5",
           dark: "#1A1F2C",
-          light: "#F1F0FB",
+          light: "#E5DEFF",
           navy: "#161B33",
         },
       },
