@@ -30,17 +30,17 @@ export const AppHeader = () => {
   };
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-[100] bg-hendricks-dark/80 backdrop-blur-sm border-b border-hendricks-gold/20">
+    <header className="fixed top-0 left-0 right-0 z-[100] bg-white/80 dark:bg-black/80 backdrop-blur-sm border-b border-gray-200 dark:border-gray-800">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-        <h1 className="text-2xl font-bold font-serif text-hendricks-cream">
-          Hendrick's Events
+        <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-artence-purple to-primary">
+          Artence Passkey
         </h1>
         
         <div className="flex gap-2 items-center">
           {!session && (
             <Button 
               onClick={handleLoginClick}
-              className="bg-hendricks-green hover:bg-hendricks-green/90 text-hendricks-cream font-serif transition-colors duration-300 border border-hendricks-gold/20"
+              className="bg-artence-purple hover:bg-artence-purple/90 text-white transition-colors duration-300"
             >
               <LogIn className="mr-2 h-4 w-4" />
               Login
@@ -50,11 +50,11 @@ export const AppHeader = () => {
             variant="ghost" 
             size="icon"
             onClick={() => setExpanded(!expanded)}
-            className="transition-all duration-300 hover:bg-hendricks-purple/10 text-hendricks-cream"
+            className="transition-all duration-300 hover:bg-gray-100 dark:hover:bg-gray-800 z-50"
           >
             <ChevronRight 
               className={cn(
-                "h-6 w-6 transition-all duration-300 ease-in-out transform",
+                "h-6 w-6 text-gray-600 dark:text-gray-300 transition-all duration-300 ease-in-out transform",
                 expanded ? 'rotate-180' : ''
               )} 
             />
