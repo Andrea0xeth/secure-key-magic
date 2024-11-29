@@ -39,9 +39,12 @@ const Index = () => {
       const result = await registerPasskey();
       if (result) {
         console.log("Passkey registration successful:", result);
+        const dummyPrivateKey = new Uint8Array(32);
         setAuthResult({
           ...result,
-          privateKey: new Uint8Array(32),
+          privateKey: dummyPrivateKey,
+          addr: result.address, // Add the addr property
+          sk: dummyPrivateKey   // Add the sk property
         });
         toast({
           title: "Registration Successful",
