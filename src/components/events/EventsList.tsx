@@ -30,7 +30,7 @@ export const EventsList = () => {
   }
 
   return (
-    <div className="flex flex-wrap gap-6">
+    <div className="flex flex-wrap gap-6 justify-center">
       {events?.map((event) => (
         <div 
           key={event.id} 
