@@ -7,24 +7,38 @@ import { Wallet, QrCode } from "lucide-react";
 import { AddressQRCode } from "@/components/AddressQRCode";
 import { AlgoBalance } from "@/components/AlgoBalance";
 import { ConnectedAppsList } from "@/components/ConnectedAppsList";
-import { AuthenticationResult } from "@/lib/webauthn";
+import { AuthenticationResult, authenticateWithPasskey, registerPasskey } from "@/lib/webauthn";
 import { getStoredAlgorandKey } from "@/lib/storage/keyStorage";
-import { registerPasskey, authenticatePasskey } from "@/lib/webauthn";
 
 export default function WalletPage() {
   const [authResult, setAuthResult] = useState<AuthenticationResult | null>(null);
   const storedAddress = getStoredAlgorandKey();
 
   const handleRegister = async () => {
-    console.log("Starting passkey registration...");
-    const result = await registerPasskey();
-    setAuthResult(result);
+    try {
+      console.log("Starting passkey registration...");
+      const result = await registerPasskey();
+      // Convert registration result to authentication result format
+      setAuthResult({
+        address: result.address,
+        publicKey: result.publicKey,
+        privateKey: new Uint8Array(32), // Placeholder, will be set during authentication
+        addr: result.address,
+        sk: new Uint8Array(32) // Placeholder, will be set during authentication
+      });
+    } catch (error) {
+      console.error("Registration error:", error);
+    }
   };
 
   const handleAuthenticate = async () => {
-    console.log("Starting passkey authentication...");
-    const result = await authenticatePasskey();
-    setAuthResult(result);
+    try {
+      console.log("Starting passkey authentication...");
+      const result = await authenticateWithPasskey();
+      setAuthResult(result);
+    } catch (error) {
+      console.error("Authentication error:", error);
+    }
   };
 
   return (
