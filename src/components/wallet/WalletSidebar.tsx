@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Sidebar } from "@/components/ui/sidebar";
-import { Wallet, Settings, LogOut } from "lucide-react";
+import { Wallet, Settings, LogOut, X } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
@@ -13,12 +13,14 @@ import { getStoredAlgorandKey } from "@/lib/storage/keyStorage";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
+import { useSidebar } from "@/components/ui/sidebar";
 
 export function WalletSidebar() {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [authResult, setAuthResult] = useState<AuthenticationResult | null>(null);
   const [session, setSession] = useState<any>(null);
+  const { setExpanded } = useSidebar();
 
   useEffect(() => {
     const storedKey = getStoredAlgorandKey();
@@ -80,7 +82,15 @@ export function WalletSidebar() {
   if (!session) {
     return (
       <Sidebar className="border-l">
-        <div className="p-6 mt-16">
+        <div className="relative p-6 mt-16">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setExpanded(false)}
+            className="absolute right-4 top-4 md:hidden"
+          >
+            <X className="h-5 w-5" />
+          </Button>
           <Auth
             supabaseClient={supabase}
             appearance={{
@@ -104,6 +114,16 @@ export function WalletSidebar() {
   return (
     <Sidebar className="border-l">
       <div className="flex flex-col h-full mt-16">
+        <div className="relative">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setExpanded(false)}
+            className="absolute right-4 top-4 md:hidden"
+          >
+            <X className="h-5 w-5" />
+          </Button>
+        </div>
         <Tabs defaultValue="wallet" className="w-full">
           <div className="border-b">
             <TabsList className="w-full justify-between bg-transparent border-b p-0">
