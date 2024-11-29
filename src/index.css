@@ -57,5 +57,6 @@
   }
   body {
     @apply bg-background text-foreground font-sans dark:bg-artence-navy;
+    background-image: radial-gradient(circle at center, rgba(26, 31, 44, 0.8) 0%, rgba(18, 18, 18, 1) 100%);
   }
 }

@@ -31,7 +31,7 @@ export default {
           foreground: "#ffffff",
         },
         secondary: {
-          DEFAULT: "#6B7280",
+          DEFAULT: "#7E69AB",
           foreground: "#ffffff",
         },
         success: {
@@ -48,7 +48,7 @@ export default {
         },
         artence: {
           purple: "#9b87f5",
-          dark: "#1A1A1A",
+          dark: "#1A1F2C",
           light: "#E5DEFF",
           navy: "#121212",
         },
