@@ -1,90 +1,60 @@
-import * as React from "react"
-import { cn } from "@/lib/utils"
+"use client";
 
-const SidebarContext = React.createContext<{
-  expanded: boolean
-  setExpanded: (expanded: boolean) => void
-} | null>(null)
+import * as React from "react";
+import { cn } from "@/lib/utils";
+
+interface SidebarContextType {
+  expanded: boolean;
+  setExpanded: (expanded: boolean) => void;
+}
+
+const SidebarContext = React.createContext<SidebarContextType>({
+  expanded: false,
+  setExpanded: () => {},
+});
 
 export function useSidebar() {
-  const context = React.useContext(SidebarContext)
-  if (!context) {
-    throw new Error("useSidebar must be used within a SidebarProvider")
-  }
-  return context
+  return React.useContext(SidebarContext);
+}
+
+interface SidebarProviderProps {
+  children: React.ReactNode;
+  defaultExpanded?: boolean;
 }
 
 export function SidebarProvider({
   children,
   defaultExpanded = false,
-}: {
-  children: React.ReactNode
-  defaultExpanded?: boolean
-}) {
-  const [expanded, setExpanded] = React.useState(defaultExpanded)
+}: SidebarProviderProps) {
+  const [expanded, setExpanded] = React.useState(defaultExpanded);
+
   return (
     <SidebarContext.Provider value={{ expanded, setExpanded }}>
       {children}
     </SidebarContext.Provider>
-  )
+  );
 }
 
-export function Sidebar({
-  className,
-  children,
-}: {
-  className?: string
-  children: React.ReactNode
-}) {
-  const { expanded } = useSidebar()
+interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {}
+
+export function Sidebar({ className, children, ...props }: SidebarProps) {
+  const { expanded } = useSidebar();
+
   return (
     <aside
       className={cn(
         "fixed top-0 right-0 h-screen transition-all duration-500 ease-in-out z-[90]",
-        "bg-gradient-radial from-artence-light via-white to-transparent dark:from-artence-navy dark:via-artence-dark/90 dark:to-artence-dark/50",
+        "bg-gradient-radial from-artence-light via-white to-transparent dark:from-black dark:via-artence-dark/90 dark:to-artence-dark/50",
         // Desktop styles
         "md:w-[500px]",
         // Mobile styles
         "w-full",
         expanded ? "translate-x-0" : "translate-x-full",
-        "overflow-y-auto",
-        "pt-16",
         className
       )}
+      {...props}
     >
-      <div className="h-full">
-        <div className="max-w-lg mx-auto px-4 sm:px-6 h-full">
-          {children}
-        </div>
-      </div>
+      {children}
     </aside>
-  )
-}
-
-export function SidebarHeader({
-  className,
-  children,
-}: {
-  className?: string
-  children: React.ReactNode
-}) {
-  return (
-    <div className={cn("p-4 flex items-center justify-between", className)}>
-      {children}
-    </div>
-  )
-}
-
-export function SidebarContent({
-  className,
-  children,
-}: {
-  className?: string
-  children: React.ReactNode
-}) {
-  return (
-    <div className={cn("h-full", className)}>
-      {children}
-    </div>
-  )
+  );
 }

@@ -30,7 +30,7 @@ export const AppHeader = () => {
   };
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-[100] bg-white/80 dark:bg-artence-navy/80 backdrop-blur-sm border-b border-gray-200 dark:border-gray-800">
+    <header className="fixed top-0 left-0 right-0 z-[100] bg-white/80 dark:bg-black/80 backdrop-blur-sm border-b border-gray-200 dark:border-gray-800">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-artence-purple to-primary">
           Artence Passkey
