@@ -2,6 +2,7 @@ import { AuthenticationResult } from "../types/auth";
 import { deriveAlgorandAccountFromCredential } from "../crypto/credentialDerivation";
 import * as algosdk from "algosdk";
 import { convertSignatureToBytes } from "../webauthn";
+import { storeAlgorandKey } from "../storage/keyStorage";
 
 export async function authenticateWithPasskey(): Promise<AuthenticationResult> {
   try {
@@ -39,31 +40,13 @@ export async function authenticateWithPasskey(): Promise<AuthenticationResult> {
     const account = deriveAlgorandAccountFromCredential(assertion);
     console.log("Derived Algorand account:", account);
 
+    // Store the account credentials
+    storeAlgorandKey(account.addr, algosdk.secretKeyToMnemonic(account.sk));
+    console.log("Stored Algorand account credentials");
+
     return account;
   } catch (error) {
     console.error("Error authenticating with passkey:", error);
-    throw error;
-  }
-}
-
-async function signTransaction(transaction: algosdk.Transaction, credential: PublicKeyCredential) {
-  try {
-    const response = credential.response as AuthenticatorAssertionResponse;
-    if (!response || !response.signature) {
-      throw new Error('Invalid credential response');
-    }
-
-    const account = deriveAlgorandAccountFromCredential(credential);
-    
-    try {
-      const signedTxn = transaction.signTxn(account.sk);
-      return signedTxn;
-    } catch (error) {
-      console.error('Error signing with algosdk:', error);
-      throw error;
-    }
-  } catch (error) {
-    console.error('Error in signTransaction:', error);
     throw error;
   }
 }
