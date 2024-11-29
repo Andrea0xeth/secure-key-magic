@@ -1,5 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { CalendarIcon, MapPinIcon } from "lucide-react";
+import { format } from "date-fns";
 
 interface Event {
   id: string;
@@ -12,20 +14,34 @@ interface Event {
 }
 
 export const EventCard = ({ event }: { event: Event }) => {
+  const formattedDate = format(new Date(event.date), "MMM d, yyyy");
+
   return (
-    <Card className="group overflow-hidden transition-all duration-500 hover:shadow-xl bg-white dark:bg-black border-2 border-gray-100 dark:border-gray-800 aspect-square">
-      <div className="relative h-4/5">
+    <Card className="group overflow-hidden transition-all duration-500 hover:shadow-xl bg-white dark:bg-black border-2 border-gray-100 dark:border-gray-800 aspect-[3/4]">
+      <div className="relative h-3/5">
         <img
           src={event.image_url}
           alt={event.title}
           className="object-cover w-full h-full"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
       </div>
-      <div className="p-4 h-1/5 flex flex-col justify-between">
-        <h3 className="text-lg font-bold text-gray-900 dark:text-white truncate">
-          {event.title}
-        </h3>
+      <div className="p-4 h-2/5 flex flex-col justify-between space-y-3">
+        <div className="space-y-2">
+          <h3 className="text-lg font-bold text-gray-900 dark:text-white line-clamp-2">
+            {event.title}
+          </h3>
+          <div className="space-y-1">
+            <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
+              <CalendarIcon className="w-4 h-4 mr-2" />
+              <span>{formattedDate}</span>
+            </div>
+            <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
+              <MapPinIcon className="w-4 h-4 mr-2" />
+              <span className="truncate">{event.location}</span>
+            </div>
+          </div>
+        </div>
         <Button 
           className="w-full bg-artence-purple hover:bg-artence-purple/90 text-white font-bold"
         >
