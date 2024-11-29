@@ -15,7 +15,7 @@ interface Event {
 
 export const EventCard = ({ event }: { event: Event }) => {
   return (
-    <Card className="group overflow-hidden transition-all duration-500 hover:shadow-xl bg-white dark:bg-artence-dark border-none">
+    <Card className="group overflow-hidden transition-all duration-500 hover:shadow-xl bg-white dark:bg-black border-2 border-gray-100 dark:border-gray-800">
       <div className="aspect-video relative overflow-hidden">
         <img
           src={event.image_url}
@@ -25,18 +25,18 @@ export const EventCard = ({ event }: { event: Event }) => {
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
       </div>
       <div className="p-8 space-y-6">
-        <h3 className="text-2xl font-bold text-artence-navy dark:text-white">
+        <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
           {event.title}
         </h3>
-        <p className="text-gray-600 dark:text-gray-300 line-clamp-2 text-base">
+        <p className="text-gray-700 dark:text-gray-300 line-clamp-2 text-base">
           {event.description}
         </p>
         <div className="flex flex-col gap-3 text-sm">
-          <div className="flex items-center gap-3 text-gray-500 dark:text-gray-400 hover:text-artence-purple dark:hover:text-artence-purple transition-colors">
+          <div className="flex items-center gap-3 text-gray-600 dark:text-gray-400 hover:text-artence-purple dark:hover:text-artence-purple transition-colors">
             <Calendar className="w-5 h-5" />
             <span className="font-medium">{format(new Date(event.date), "PPP 'at' p")}</span>
           </div>
-          <div className="flex items-center gap-3 text-gray-500 dark:text-gray-400 hover:text-artence-purple dark:hover:text-artence-purple transition-colors">
+          <div className="flex items-center gap-3 text-gray-600 dark:text-gray-400 hover:text-artence-purple dark:hover:text-artence-purple transition-colors">
             <MapPin className="w-5 h-5" />
             <span className="font-medium">{event.location}</span>
           </div>
