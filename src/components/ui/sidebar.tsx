@@ -43,7 +43,7 @@ export function Sidebar({ className, children, ...props }: SidebarProps) {
   return (
     <aside
       className={cn(
-        "fixed top-0 right-0 h-screen transition-all duration-500 ease-in-out z-[90]",
+        "fixed top-0 right-0 h-screen transition-all duration-700 ease-in-out will-change-transform z-[90]",
         "bg-gradient-radial from-artence-light via-white to-transparent dark:from-black dark:via-artence-dark/90 dark:to-artence-dark/50",
         // Desktop styles
         "md:w-[500px]",
