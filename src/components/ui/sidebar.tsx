@@ -16,7 +16,7 @@ export function useSidebar() {
 
 export function SidebarProvider({
   children,
-  defaultExpanded = true,
+  defaultExpanded = false,
 }: {
   children: React.ReactNode
   defaultExpanded?: boolean

@@ -42,7 +42,7 @@ function App() {
       <TooltipProvider>
         <Toaster />
         <Sonner />
-        <SidebarProvider>
+        <SidebarProvider defaultExpanded={false}>
           <AppContent />
         </SidebarProvider>
       </TooltipProvider>
