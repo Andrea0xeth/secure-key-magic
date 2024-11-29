@@ -65,7 +65,7 @@ export const EventCard = ({ event }: { event: Event }) => {
                 MINT NFT
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px] bg-white dark:bg-artence-navy border-artence-purple">
+            <DialogContent className="sm:max-w-[425px] bg-white dark:bg-artence-navy border-artence-purple max-h-screen h-full sm:h-auto w-full sm:w-auto fixed top-0 left-0 sm:relative">
               <DialogHeader>
                 <DialogTitle className="text-2xl font-bold">
                   Mint Event NFT
