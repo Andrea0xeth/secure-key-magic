@@ -40,13 +40,12 @@ export function Sidebar({
   return (
     <aside
       className={cn(
-        "h-screen transition-all duration-500 ease-in-out",
+        "fixed top-0 right-0 z-40 h-screen transition-transform duration-500 ease-in-out",
         "bg-gradient-radial from-artence-light via-white to-transparent dark:from-artence-navy dark:via-artence-dark/90 dark:to-artence-dark/50",
         // Desktop styles
-        "md:w-[500px] md:relative md:translate-x-0",
+        "md:w-[500px]",
         // Mobile styles - full screen when expanded
-        "fixed top-0 right-0 z-40",
-        expanded ? "w-full translate-x-0" : "w-0 translate-x-full",
+        expanded ? "translate-x-0" : "translate-x-full",
         "overflow-y-auto",
         "pt-16", // Add padding top to account for header height
         className
