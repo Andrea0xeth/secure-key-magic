@@ -35,9 +35,7 @@ export const AppHeader = () => {
           className="transition-all duration-300"
         >
           {session ? (
-            <div className={`transition-transform duration-300 ${expanded ? 'rotate-180' : ''}`}>
-              <ChevronRight className="h-5 w-5" />
-            </div>
+            <ChevronRight className={`h-5 w-5 transition-transform duration-300 ${expanded ? 'rotate-180' : ''}`} />
           ) : (
             <LogIn className="h-5 w-5" />
           )}
