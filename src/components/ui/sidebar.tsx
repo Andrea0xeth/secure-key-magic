@@ -6,6 +6,14 @@ const SidebarContext = React.createContext<{
   setExpanded: (expanded: boolean) => void
 } | null>(null)
 
+export function useSidebar() {
+  const context = React.useContext(SidebarContext)
+  if (!context) {
+    throw new Error("useSidebar must be used within a SidebarProvider")
+  }
+  return context
+}
+
 export function SidebarProvider({
   children,
   defaultExpanded = true,
@@ -28,10 +36,12 @@ export function Sidebar({
   className?: string
   children: React.ReactNode
 }) {
+  const { expanded } = useSidebar()
   return (
     <aside
       className={cn(
-        "h-screen w-64 border-l bg-background transition-all duration-300",
+        "h-screen transition-all duration-300",
+        expanded ? "w-64" : "w-0 overflow-hidden",
         className
       )}
     >
@@ -48,7 +58,7 @@ export function SidebarHeader({
   children: React.ReactNode
 }) {
   return (
-    <div className={cn("p-4", className)}>
+    <div className={cn("p-4 flex items-center justify-between", className)}>
       {children}
     </div>
   )

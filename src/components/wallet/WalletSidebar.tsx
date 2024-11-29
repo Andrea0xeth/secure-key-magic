@@ -2,21 +2,24 @@ import {
   Sidebar,
   SidebarContent,
   SidebarHeader,
+  useSidebar
 } from "@/components/ui/sidebar";
 import { PasskeySection } from "@/components/PasskeySection";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { QrCode, Wallet } from "lucide-react";
+import { QrCode, Wallet, X } from "lucide-react";
 import { AddressQRCode } from "@/components/AddressQRCode";
 import { AlgoBalance } from "@/components/AlgoBalance";
 import { ConnectedAppsList } from "@/components/ConnectedAppsList";
 import { AuthenticationResult, authenticateWithPasskey, registerPasskey } from "@/lib/webauthn";
 import { getStoredAlgorandKey } from "@/lib/storage/keyStorage";
 import { useState } from "react";
+import { Button } from "@/components/ui/button";
 
 export function WalletSidebar() {
   const [authResult, setAuthResult] = useState<AuthenticationResult | null>(null);
   const storedAddress = getStoredAlgorandKey();
+  const { setExpanded } = useSidebar();
 
   const handleRegister = async () => {
     try {
@@ -51,6 +54,14 @@ export function WalletSidebar() {
           <Wallet className="h-6 w-6 text-artence-purple" />
           <h2 className="text-lg font-semibold">Wallet</h2>
         </div>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => setExpanded(false)}
+          className="hover:bg-destructive/10"
+        >
+          <X className="h-4 w-4" />
+        </Button>
       </SidebarHeader>
       <SidebarContent className="p-4">
         <div className="space-y-6">
