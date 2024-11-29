@@ -1,12 +1,15 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { KeyRound, Shield } from "lucide-react";
+import { KeyRound, Shield, Copy } from "lucide-react";
 import { AuthenticationResult } from "@/lib/webauthn";
 import { useToast } from "@/components/ui/use-toast";
 import { decodeUnsignedTransaction } from 'algosdk'
 import { TransactionDialog } from "./TransactionDialog";
 import * as algosdk from "algosdk";
 import { getStoredAlgorandKey } from "@/lib/storage/keyStorage";
+import { AlgoBalance } from "./AlgoBalance";
+import { AddressQRCode } from "./AddressQRCode";
+import { ConnectedAppsList } from "./ConnectedAppsList";
 
 interface PasskeySectionProps {
   authResult: AuthenticationResult | null;
@@ -24,6 +27,16 @@ export const PasskeySection = ({ authResult, onRegister, onAuthenticate }: Passk
   // Only check stored key if we have an auth result
   const storedKey = authResult ? getStoredAlgorandKey() : null;
   
+  const handleCopyAddress = () => {
+    if (storedKey) {
+      navigator.clipboard.writeText(storedKey);
+      toast({
+        title: "Address Copied",
+        description: "The wallet address has been copied to your clipboard",
+      });
+    }
+  };
+  
   if (authResult && storedKey) {
     return (
       <div className="space-y-6">
@@ -31,15 +44,49 @@ export const PasskeySection = ({ authResult, onRegister, onAuthenticate }: Passk
           <div className="flex justify-center">
             <Shield className="h-10 w-10 sm:h-12 sm:w-12 text-artence-purple" />
           </div>
-          <h2 className="text-xl font-semibold mb-2 dark:text-white transition-colors duration-300">
-            Connected
+          <h2 className="text-xl font-semibold mb-4 dark:text-white transition-colors duration-300">
+            Your Wallet
           </h2>
-          <p className="text-sm text-gray-600 dark:text-gray-300 mb-4 transition-colors duration-300">
-            Your Algorand address:
-          </p>
-          <code className="px-3 py-2 sm:px-4 sm:py-2 bg-gray-100 dark:bg-gray-800 rounded-lg text-xs sm:text-sm break-all block text-gray-800 dark:text-gray-200 transition-colors duration-300">
-            {storedKey}
-          </code>
+          
+          {/* Address Section */}
+          <div className="mb-6">
+            <p className="text-sm text-gray-600 dark:text-gray-300 mb-2 transition-colors duration-300">
+              Your Algorand address:
+            </p>
+            <div className="relative">
+              <code className="px-3 py-2 sm:px-4 sm:py-2 bg-gray-100 dark:bg-gray-800 rounded-lg text-xs sm:text-sm break-all block text-gray-800 dark:text-gray-200 transition-colors duration-300">
+                {storedKey}
+              </code>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute right-2 top-1/2 -translate-y-1/2 hover:bg-gray-200 dark:hover:bg-gray-700"
+                onClick={handleCopyAddress}
+              >
+                <Copy className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+
+          {/* Balance Section */}
+          <div className="mb-6">
+            <p className="text-sm text-gray-600 dark:text-gray-300 mb-2 transition-colors duration-300">
+              Balance:
+            </p>
+            <div className="flex justify-center">
+              <AlgoBalance address={storedKey} />
+            </div>
+          </div>
+
+          {/* QR Code Section */}
+          <div className="mb-6">
+            <AddressQRCode address={storedKey} />
+          </div>
+
+          {/* Connected Apps Section */}
+          <div className="mt-8">
+            <ConnectedAppsList />
+          </div>
         </div>
       </div>
     );
