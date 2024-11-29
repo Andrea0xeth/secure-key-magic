@@ -15,7 +15,7 @@ function AppContent() {
     <div className="min-h-screen w-full">
       <Router>
         <div className="flex">
-          <div className="flex-1 min-h-screen overflow-y-auto">
+          <div className="flex-1 min-h-screen overflow-y-auto" style={{ marginRight: "500px" }}>
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="*" element={<Index />} />
