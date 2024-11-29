@@ -11,7 +11,7 @@ export const AuthForm = () => {
 
   useEffect(() => {
     console.log("Setting up auth state change listener");
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log("Auth state changed:", event, session);
       
       if (event === 'SIGNED_IN' && session) {
@@ -66,6 +66,23 @@ export const AuthForm = () => {
           },
         }}
         providers={[]}
+        options={{
+          emailRedirectTo: `${window.location.origin}`,
+          meta: {
+            fields: {
+              first_name: {
+                type: 'text',
+                required: true,
+                label: 'First Name',
+              },
+              last_name: {
+                type: 'text',
+                required: true,
+                label: 'Last Name',
+              },
+            },
+          },
+        }}
       />
     </div>
   );
