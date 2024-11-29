@@ -12,15 +12,17 @@ const queryClient = new QueryClient();
 
 function AppContent() {
   return (
-    <div className="min-h-screen w-full flex">
+    <div className="min-h-screen w-full">
       <Router>
-        <div className="flex-1">
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="*" element={<Index />} />
-          </Routes>
+        <div className="flex min-h-[calc(100vh-4rem)]">
+          <div className="flex-1">
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="*" element={<Index />} />
+            </Routes>
+          </div>
+          <WalletSidebar />
         </div>
-        <WalletSidebar />
       </Router>
     </div>
   );
