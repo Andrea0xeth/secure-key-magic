@@ -18,8 +18,8 @@ export const EventsList = () => {
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-8 px-8">
-        {[...Array(3)].map((_, i) => (
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-8 px-8">
+        {[...Array(5)].map((_, i) => (
           <div
             key={i}
             className="aspect-square bg-gray-100 dark:bg-gray-800 rounded-lg animate-pulse"
@@ -30,7 +30,7 @@ export const EventsList = () => {
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-8 px-8">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-8 px-8">
       {events?.map((event) => (
         <EventCard key={event.id} event={event} />
       ))}
