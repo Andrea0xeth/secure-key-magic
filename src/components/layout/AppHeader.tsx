@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { ChevronRight, ChevronLeft, LogIn } from "lucide-react";
+import { ChevronRight, LogIn } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useSidebar } from "@/components/ui/sidebar";
 
@@ -36,7 +36,7 @@ export const AppHeader = () => {
         >
           {session ? (
             <div className={`transition-transform duration-300 ${expanded ? 'rotate-180' : ''}`}>
-              <ChevronLeft className="h-5 w-5" />
+              <ChevronRight className="h-5 w-5" />
             </div>
           ) : (
             <LogIn className="h-5 w-5" />
