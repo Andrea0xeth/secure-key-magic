@@ -15,13 +15,15 @@ function AppContent() {
     <div className="min-h-screen w-full">
       <Router>
         <div className="flex">
-          <div className="flex-1">
+          <div className="flex-1 min-h-screen overflow-y-auto">
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="*" element={<Index />} />
             </Routes>
           </div>
-          <WalletSidebar />
+          <div className="fixed right-0 top-0 h-screen overflow-y-auto">
+            <WalletSidebar />
+          </div>
         </div>
       </Router>
     </div>

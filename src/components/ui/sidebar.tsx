@@ -40,13 +40,13 @@ export function Sidebar({
   return (
     <aside
       className={cn(
-        "h-screen transition-all duration-300",
+        "h-screen transition-all duration-300 overflow-y-auto",
         "bg-gradient-radial from-artence-light via-white to-transparent dark:from-artence-navy dark:via-artence-dark/90 dark:to-artence-dark/50",
         expanded ? "md:w-[500px] w-full" : "w-0 overflow-hidden",
         className
       )}
     >
-      <div className="h-full overflow-y-auto">
+      <div className="h-full">
         <div className="max-w-lg mx-auto px-4 sm:px-6 h-full">
           {children}
         </div>
@@ -77,7 +77,7 @@ export function SidebarContent({
   children: React.ReactNode
 }) {
   return (
-    <div className={cn("h-full overflow-y-auto", className)}>
+    <div className={cn("h-full", className)}>
       {children}
     </div>
   )
