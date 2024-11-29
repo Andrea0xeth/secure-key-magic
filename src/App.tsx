@@ -17,11 +17,11 @@ function AppContent() {
   return (
     <div className="min-h-screen w-full">
       <Router>
-        <div className="flex">
+        <div className="flex relative">
           <div 
             className={cn(
-              "flex-1 min-h-screen overflow-y-auto transition-all duration-500 ease-in-out",
-              expanded ? "md:mr-[500px]" : "mr-0"
+              "flex-1 min-h-screen transition-all duration-500 ease-in-out",
+              expanded ? "md:mr-[500px]" : ""
             )}
           >
             <Routes>
@@ -29,9 +29,7 @@ function AppContent() {
               <Route path="*" element={<Index />} />
             </Routes>
           </div>
-          <div>
-            <WalletSidebar />
-          </div>
+          <WalletSidebar />
         </div>
       </Router>
     </div>

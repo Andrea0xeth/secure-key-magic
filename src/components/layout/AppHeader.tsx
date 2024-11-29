@@ -4,6 +4,7 @@ import { ChevronRight, LogIn } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useSidebar } from "@/components/ui/sidebar";
 import { useNavigate } from "react-router-dom";
+import { cn } from "@/lib/utils";
 
 export const AppHeader = () => {
   const { expanded, setExpanded } = useSidebar();
@@ -24,7 +25,7 @@ export const AppHeader = () => {
   }, []);
 
   const handleLoginClick = () => {
-    setExpanded(true); // Open sidebar when clicking login
+    setExpanded(true);
     navigate('/auth');
   };
 
@@ -35,7 +36,7 @@ export const AppHeader = () => {
           Artence Passkey
         </h1>
         
-        <div className="flex gap-2">
+        <div className="flex gap-2 items-center">
           {!session && (
             <Button 
               onClick={handleLoginClick}
@@ -49,7 +50,10 @@ export const AppHeader = () => {
             variant="ghost" 
             size="icon"
             onClick={() => setExpanded(!expanded)}
-            className="transition-all duration-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+            className={cn(
+              "transition-all duration-300 hover:bg-gray-100 dark:hover:bg-gray-800",
+              "z-50 relative"
+            )}
           >
             <ChevronRight 
               className={`h-6 w-6 text-gray-600 dark:text-gray-300 transition-all duration-300 ease-in-out transform ${expanded ? 'rotate-180' : ''}`} 
