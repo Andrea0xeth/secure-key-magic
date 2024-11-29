@@ -1,13 +1,15 @@
 import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { supabase } from "@/integrations/supabase/client";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "../ui/use-toast";
+import { Alert, AlertDescription } from "../ui/alert";
 
 export const AuthForm = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     console.log("Setting up auth state change listener");
@@ -17,8 +19,8 @@ export const AuthForm = () => {
       if (event === 'SIGNED_IN' && session) {
         console.log("User signed in successfully");
         toast({
-          title: "Welcome!",
-          description: "You have successfully signed in.",
+          title: "Benvenuto!",
+          description: "Hai effettuato l'accesso con successo.",
         });
         navigate('/');
       }
@@ -26,14 +28,17 @@ export const AuthForm = () => {
       if (event === 'SIGNED_OUT') {
         console.log("User signed out");
         toast({
-          title: "Signed out",
-          description: "You have been signed out successfully.",
+          title: "Disconnesso",
+          description: "Sei stato disconnesso con successo.",
         });
       }
 
       if (event === 'USER_UPDATED') {
         console.log("User updated:", session);
       }
+
+      // Reset error when auth state changes
+      setError(null);
     });
 
     return () => {
@@ -42,16 +47,43 @@ export const AuthForm = () => {
     };
   }, [navigate, toast]);
 
+  const handleAuthError = (error: Error) => {
+    console.error("Auth error:", error);
+    let errorMessage = "Si è verificato un errore durante l'autenticazione.";
+    
+    if (error.message.includes("weak_password")) {
+      errorMessage = "La password deve contenere almeno 6 caratteri.";
+    } else if (error.message.includes("invalid_email")) {
+      errorMessage = "L'indirizzo email non è valido.";
+    } else if (error.message.includes("user_exists")) {
+      errorMessage = "Un utente con questa email esiste già.";
+    }
+
+    setError(errorMessage);
+    toast({
+      title: "Errore",
+      description: errorMessage,
+      variant: "destructive",
+    });
+  };
+
   return (
     <div className="w-full max-w-md mx-auto p-6 space-y-4">
       <div className="text-center mb-8">
         <h2 className="text-2xl font-bold text-artence-navy dark:text-white">
-          Welcome to Hendrick's Events
+          Benvenuto a Hendrick's Events
         </h2>
         <p className="text-gray-600 dark:text-gray-300 mt-2">
-          Sign in to access exclusive gin experiences
+          Accedi per esperienze gin esclusive
         </p>
       </div>
+
+      {error && (
+        <Alert variant="destructive" className="mb-4">
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
+
       <Auth
         supabaseClient={supabase}
         appearance={{
@@ -73,28 +105,34 @@ export const AuthForm = () => {
         localization={{
           variables: {
             sign_up: {
-              email_label: 'Email address',
-              password_label: 'Password (minimum 6 characters)',
-              button_label: 'Sign up',
-              loading_button_label: 'Signing up...',
-              social_provider_text: 'Sign in with',
-              link_text: 'Don\'t have an account? Sign up',
+              email_label: 'Indirizzo email',
+              password_label: 'Password (minimo 6 caratteri)',
+              button_label: 'Registrati',
+              loading_button_label: 'Registrazione in corso...',
+              social_provider_text: 'Accedi con',
+              link_text: 'Non hai un account? Registrati',
             },
             sign_in: {
-              password_label: 'Password (minimum 6 characters)',
+              email_label: 'Indirizzo email',
+              password_label: 'Password (minimo 6 caratteri)',
+              button_label: 'Accedi',
+              loading_button_label: 'Accesso in corso...',
+              social_provider_text: 'Accedi con',
+              link_text: 'Hai già un account? Accedi',
             },
           },
         }}
+        onError={handleAuthError}
         additionalData={{
           first_name: {
             type: 'text',
             required: true,
-            label: 'First Name',
+            label: 'Nome',
           },
           last_name: {
             type: 'text',
             required: true,
-            label: 'Last Name',
+            label: 'Cognome',
           },
         }}
       />
