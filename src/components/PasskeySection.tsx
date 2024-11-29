@@ -21,10 +21,10 @@ export const PasskeySection = ({ authResult, onRegister, onAuthenticate }: Passk
   } | null>(null);
   const { toast } = useToast();
 
-  // Check if we have a stored key
-  const storedKey = getStoredAlgorandKey();
+  // Only check stored key if we have an auth result
+  const storedKey = authResult ? getStoredAlgorandKey() : null;
   
-  if (authResult || storedKey) {
+  if (authResult && storedKey) {
     return (
       <div className="space-y-6">
         <div className="text-center">
@@ -38,7 +38,7 @@ export const PasskeySection = ({ authResult, onRegister, onAuthenticate }: Passk
             Your Algorand address:
           </p>
           <code className="px-3 py-2 sm:px-4 sm:py-2 bg-gray-100 dark:bg-gray-800 rounded-lg text-xs sm:text-sm break-all block text-gray-800 dark:text-gray-200 transition-colors duration-300">
-            {authResult?.address || storedKey}
+            {storedKey}
           </code>
         </div>
       </div>
