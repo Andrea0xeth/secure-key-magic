@@ -66,21 +66,27 @@ export const AuthForm = () => {
           },
         }}
         providers={[]}
-        options={{
-          emailRedirectTo: `${window.location.origin}`,
-          meta: {
-            fields: {
-              first_name: {
-                type: 'text',
-                required: true,
-                label: 'First Name',
-              },
-              last_name: {
-                type: 'text',
-                required: true,
-                label: 'Last Name',
-              },
+        redirectTo={`${window.location.origin}`}
+        magicLink={false}
+        showLinks={true}
+        view="sign_up"
+        localization={{
+          variables: {
+            sign_up: {
+              password_label: 'Password (minimum 6 characters)',
             },
+          },
+        }}
+        additionalData={{
+          first_name: {
+            type: 'text',
+            required: true,
+            label: 'First Name',
+          },
+          last_name: {
+            type: 'text',
+            required: true,
+            label: 'Last Name',
           },
         }}
       />
