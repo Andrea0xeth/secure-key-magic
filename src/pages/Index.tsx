@@ -1,13 +1,13 @@
 import { Card } from "@/components/ui/card";
 import { EventsList } from "@/components/events/EventsList";
-import { Header } from "@/components/layout/Header";
+import { AppHeader } from "@/components/layout/AppHeader";
 
 const Index = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-gray-100 dark:from-artence-navy dark:to-gray-900 transition-colors duration-300">
-      <div className="w-full px-2 pt-16 pb-8 animate-fade-in">
+      <AppHeader />
+      <div className="w-full px-2 pt-24 pb-8 animate-fade-in">
         <div className="container mx-auto">
-          <Header />
           <div className="space-y-8">
             <div className="text-center">
               <h1 className="text-4xl font-bold text-artence-navy dark:text-white mb-4">
