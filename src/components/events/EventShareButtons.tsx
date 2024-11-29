@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Facebook, Instagram, Twitter } from "lucide-react";
+import { Facebook, Instagram, Twitter, Share2 } from "lucide-react";
 import { toast } from "sonner";
 
 interface EventShareProps {
@@ -49,6 +49,28 @@ export const EventShareButtons = ({ event }: EventShareProps) => {
     }, 500);
   };
 
+  const shareNative = async () => {
+    try {
+      if (!navigator.share) {
+        toast.error("Native sharing is not supported on this device");
+        return;
+      }
+
+      await navigator.share({
+        title: event.title,
+        text: event.description,
+        url: currentUrl,
+      });
+
+      console.log('Successfully shared using native share');
+    } catch (error) {
+      console.error('Error sharing:', error);
+      if (error instanceof Error && error.name !== 'AbortError') {
+        toast.error("Failed to share. Please try another method.");
+      }
+    }
+  };
+
   return (
     <div className="flex gap-2">
       <Button
@@ -74,6 +96,14 @@ export const EventShareButtons = ({ event }: EventShareProps) => {
         className="hover:text-pink-600 hover:border-pink-600"
       >
         <Instagram className="h-4 w-4" />
+      </Button>
+      <Button
+        variant="outline"
+        size="icon"
+        onClick={shareNative}
+        className="hover:text-gray-600 hover:border-gray-600"
+      >
+        <Share2 className="h-4 w-4" />
       </Button>
     </div>
   );
