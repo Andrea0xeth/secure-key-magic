@@ -17,7 +17,7 @@ function AppContent() {
   return (
     <div className="min-h-screen w-full">
       <Router>
-        <div className="flex relative">
+        <div className="flex">
           <div 
             className={cn(
               "flex-1 min-h-screen transition-all duration-500 ease-in-out",
