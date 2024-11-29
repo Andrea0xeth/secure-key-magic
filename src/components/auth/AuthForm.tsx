@@ -38,12 +38,10 @@ export const AuthForm = () => {
         console.log("User updated:", session);
       }
 
-      // Reset error when auth state changes
       setError(null);
     });
 
-    // Set up error handling
-    supabase.auth.onError((error: AuthError) => {
+    const handleAuthError = (error: AuthError) => {
       console.error("Auth error:", error);
       if (error.message.includes("weak_password")) {
         setError("La password deve contenere almeno 6 caratteri.");
@@ -54,7 +52,9 @@ export const AuthForm = () => {
       } else {
         setError("Si è verificato un errore durante l'autenticazione. Riprova.");
       }
-    });
+    };
+
+    supabase.auth.onError(handleAuthError);
 
     return () => {
       console.log("Cleaning up auth state change listener");
@@ -109,7 +109,7 @@ export const AuthForm = () => {
             },
             sign_in: {
               email_label: 'Indirizzo email',
-              password_label: 'Password (minimo 6 caratteri)',
+              password_label: 'Password',
               button_label: 'Accedi',
               loading_button_label: 'Accesso in corso...',
               social_provider_text: 'Accedi con',
@@ -122,12 +122,14 @@ export const AuthForm = () => {
             type: 'text',
             required: true,
             label: 'Nome',
+            placeholder: 'Inserisci il tuo nome'
           },
           last_name: {
             type: 'text',
             required: true,
             label: 'Cognome',
-          },
+            placeholder: 'Inserisci il tuo cognome'
+          }
         }}
       />
     </div>
