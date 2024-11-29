@@ -3,7 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { SidebarProvider } from "@/components/ui/sidebar";
+import { SidebarProvider, useSidebar } from "@/components/ui/sidebar";
 import Index from "./pages/Index";
 import { WalletSidebar } from "./components/wallet/WalletSidebar";
 import "./App.css";
@@ -11,11 +11,16 @@ import "./App.css";
 const queryClient = new QueryClient();
 
 function AppContent() {
+  const { expanded } = useSidebar();
+
   return (
     <div className="min-h-screen w-full">
       <Router>
         <div className="flex">
-          <div className="flex-1 min-h-screen overflow-y-auto" style={{ marginRight: "500px" }}>
+          <div 
+            className="flex-1 min-h-screen overflow-y-auto"
+            style={{ marginRight: expanded ? "500px" : "0px" }}
+          >
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="*" element={<Index />} />

@@ -40,9 +40,9 @@ export function Sidebar({
   return (
     <aside
       className={cn(
-        "h-screen transition-all duration-300 overflow-y-auto",
+        "h-screen transition-all duration-300",
         "bg-gradient-radial from-artence-light via-white to-transparent dark:from-artence-navy dark:via-artence-dark/90 dark:to-artence-dark/50",
-        expanded ? "w-[500px]" : "w-0 overflow-hidden",
+        expanded ? "w-[500px] overflow-y-auto" : "w-0 overflow-hidden",
         className
       )}
     >
