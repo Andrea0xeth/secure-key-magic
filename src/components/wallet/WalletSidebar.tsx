@@ -19,20 +19,29 @@ export function WalletSidebar() {
   useEffect(() => {
     const storedKey = getStoredAlgorandKey();
     if (storedKey) {
-      setAuthResult({ address: storedKey });
+      setAuthResult({
+        address: storedKey,
+        publicKey: storedKey,
+        privateKey: new Uint8Array(),
+        addr: storedKey,
+        sk: new Uint8Array()
+      });
     }
   }, []);
 
   const handleRegister = async () => {
     const result = await registerPasskey();
-    setAuthResult(result);
-    return result;
+    setAuthResult({
+      ...result,
+      privateKey: new Uint8Array(),
+      addr: result.address,
+      sk: new Uint8Array()
+    });
   };
 
   const handleAuthenticate = async () => {
     const result = await authenticateWithPasskey();
     setAuthResult(result);
-    return result;
   };
 
   const handleLogout = async () => {
