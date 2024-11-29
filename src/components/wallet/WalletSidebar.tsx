@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
-import { useSidebar } from "@/components/ui/sidebar";
-import { LogOut } from "lucide-react";
+import { Sidebar } from "@/components/ui/sidebar";
+import { Wallet, Settings, LogOut } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
@@ -9,9 +9,9 @@ import { useEffect, useState } from "react";
 import { authenticateWithPasskey, registerPasskey } from "@/lib/webauthn";
 import type { AuthenticationResult } from "@/lib/webauthn";
 import { getStoredAlgorandKey } from "@/lib/storage/keyStorage";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export function WalletSidebar() {
-  const { expanded } = useSidebar();
   const { toast } = useToast();
   const navigate = useNavigate();
   const [authResult, setAuthResult] = useState<AuthenticationResult | null>(null);
@@ -63,27 +63,49 @@ export function WalletSidebar() {
   };
 
   return (
-    <div className={`border-l bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 
-      ${expanded ? 'w-80' : 'w-20'} transition-all duration-300 p-4 flex flex-col justify-between`}
-    >
-      <div>
-        <PasskeySection
-          authResult={authResult}
-          onRegister={handleRegister}
-          onAuthenticate={handleAuthenticate}
-        />
+    <Sidebar className="border-l bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="flex flex-col h-full">
+        <Tabs defaultValue="wallet" className="w-full">
+          <div className="border-b">
+            <TabsList className="w-full justify-between bg-transparent border-b p-0">
+              <TabsTrigger 
+                value="wallet"
+                className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none flex-1"
+              >
+                <Wallet className="h-5 w-5" />
+              </TabsTrigger>
+              <TabsTrigger 
+                value="settings"
+                className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none flex-1"
+              >
+                <Settings className="h-5 w-5" />
+              </TabsTrigger>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleLogout}
+                className="flex-1 h-10"
+              >
+                <LogOut className="h-5 w-5 text-destructive" />
+              </Button>
+            </TabsList>
+          </div>
+
+          <TabsContent value="wallet" className="p-4 mt-0">
+            <PasskeySection
+              authResult={authResult}
+              onRegister={handleRegister}
+              onAuthenticate={handleAuthenticate}
+            />
+          </TabsContent>
+
+          <TabsContent value="settings" className="p-4 mt-0">
+            <div className="text-center text-gray-500">
+              User settings coming soon
+            </div>
+          </TabsContent>
+        </Tabs>
       </div>
-      
-      <div className="mt-auto">
-        <Button
-          variant="destructive"
-          className="w-full"
-          onClick={handleLogout}
-        >
-          <LogOut className="h-4 w-4 mr-2" />
-          {expanded ? 'Logout' : ''}
-        </Button>
-      </div>
-    </div>
+    </Sidebar>
   );
 }
