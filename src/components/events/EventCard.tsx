@@ -3,12 +3,12 @@ import { Button } from "@/components/ui/button";
 import { CalendarIcon, MapPinIcon } from "lucide-react";
 import { format } from "date-fns";
 import { EventShareButtons } from "./EventShareButtons";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 
 interface Event {
@@ -22,7 +22,20 @@ interface Event {
 }
 
 export const EventCard = ({ event }: { event: Event }) => {
+  const navigate = useNavigate();
+  const location = useLocation();
   const formattedDate = format(new Date(event.date), "MMM d, yyyy");
+  
+  // Check if the current URL matches this event's mint dialog
+  const isDialogOpen = location.hash === `#mint-${event.id}`;
+
+  const handleOpenDialog = () => {
+    navigate(`${location.pathname}#mint-${event.id}`);
+  };
+
+  const handleCloseDialog = () => {
+    navigate(location.pathname);
+  };
 
   return (
     <Card className="group relative overflow-hidden transition-all duration-500 bg-white dark:bg-black border border-gray-100 dark:border-gray-800 aspect-square hover:border-artence-purple dark:hover:border-artence-purple">
@@ -58,57 +71,57 @@ export const EventCard = ({ event }: { event: Event }) => {
           <p className="text-sm text-white/90 line-clamp-3">
             {event.description}
           </p>
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button 
-                className="w-full bg-artence-purple hover:bg-white hover:text-artence-purple transition-colors duration-300"
-              >
-                MINT NFT
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px] bg-white dark:bg-artence-navy border-artence-purple sm:rounded-lg w-full sm:w-auto">
-              <DialogHeader>
-                <DialogTitle className="text-2xl font-bold">
-                  Mint Event NFT
-                </DialogTitle>
-              </DialogHeader>
-              <div className="grid gap-6 py-4">
-                <div className="aspect-video w-full overflow-hidden rounded-lg">
-                  <img
-                    src={event.image_url}
-                    alt={event.title}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <h3 className="font-semibold text-lg">{event.title}</h3>
-                  <div className="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400">
-                    <CalendarIcon className="w-4 h-4" />
-                    <span>{formattedDate}</span>
-                  </div>
-                  <div className="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400">
-                    <MapPinIcon className="w-4 h-4" />
-                    <span>{event.location}</span>
-                  </div>
-                  <p className="text-sm text-gray-600 dark:text-gray-300 mt-2">
-                    {event.description}
-                  </p>
-                </div>
-                <div className="space-y-4">
-                  <div className="flex justify-center">
-                    <EventShareButtons event={event} />
-                  </div>
-                  <Button 
-                    className="w-full bg-artence-purple hover:bg-white hover:text-artence-purple border-2 border-transparent hover:border-artence-purple transition-all duration-300"
-                  >
-                    Confirm Mint
-                  </Button>
-                </div>
-              </div>
-            </DialogContent>
-          </Dialog>
+          <Button 
+            className="w-full bg-artence-purple hover:bg-white hover:text-artence-purple transition-colors duration-300"
+            onClick={handleOpenDialog}
+          >
+            MINT NFT
+          </Button>
         </div>
       </div>
+
+      <Dialog open={isDialogOpen} onOpenChange={handleCloseDialog}>
+        <DialogContent className="sm:max-w-[425px] bg-white dark:bg-artence-navy border-artence-purple sm:rounded-lg w-full sm:w-auto">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold">
+              Mint Event NFT
+            </DialogTitle>
+          </DialogHeader>
+          <div className="grid gap-6 py-4">
+            <div className="aspect-video w-full overflow-hidden rounded-lg">
+              <img
+                src={event.image_url}
+                alt={event.title}
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <div className="space-y-2">
+              <h3 className="font-semibold text-lg">{event.title}</h3>
+              <div className="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400">
+                <CalendarIcon className="w-4 h-4" />
+                <span>{formattedDate}</span>
+              </div>
+              <div className="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400">
+                <MapPinIcon className="w-4 h-4" />
+                <span>{event.location}</span>
+              </div>
+              <p className="text-sm text-gray-600 dark:text-gray-300 mt-2">
+                {event.description}
+              </p>
+            </div>
+            <div className="space-y-4">
+              <div className="flex justify-center">
+                <EventShareButtons event={event} />
+              </div>
+              <Button 
+                className="w-full bg-artence-purple hover:bg-white hover:text-artence-purple border-2 border-transparent hover:border-artence-purple transition-all duration-300"
+              >
+                Confirm Mint
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 };
