@@ -1,182 +1,152 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { useToast } from "@/components/ui/use-toast";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Pencil, Save } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { useToast } from "@/components/ui/use-toast";
 
-interface Profile {
-  first_name: string | null;
-  last_name: string | null;
-  email: string | null;
-}
-
-export const UserProfileSection = () => {
-  const [profile, setProfile] = useState<Profile | null>(null);
+export function UserProfileSection() {
   const [loading, setLoading] = useState(true);
-  const [isEditing, setIsEditing] = useState(false);
-  const [editedProfile, setEditedProfile] = useState<Profile | null>(null);
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
   const { toast } = useToast();
 
   useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const { data: { user } } = await supabase.auth.getUser();
-        
-        if (user) {
-          const { data: profileData, error } = await supabase
-            .from('profiles')
-            .select('first_name, last_name, email')
-            .eq('id', user.id)
-            .single();
+    getProfile();
+  }, []);
 
-          if (error) {
-            console.error('Error fetching profile:', error);
-            toast({
-              title: "Error",
-              description: "Failed to load profile information",
-              variant: "destructive",
-            });
-          } else {
-            setProfile(profileData);
-            setEditedProfile(profileData);
-          }
-        }
-      } catch (error) {
-        console.error('Error:', error);
-        toast({
-          title: "Error",
-          description: "Failed to load profile information",
-          variant: "destructive",
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchProfile();
-  }, [toast]);
-
-  const handleSave = async () => {
+  async function getProfile() {
     try {
+      setLoading(true);
       const { data: { user } } = await supabase.auth.getUser();
-      
-      if (user && editedProfile) {
-        const { error } = await supabase
-          .from('profiles')
-          .update({
-            first_name: editedProfile.first_name,
-            last_name: editedProfile.last_name,
-            email: editedProfile.email
-          })
-          .eq('id', user.id);
 
-        if (error) {
-          console.error('Error updating profile:', error);
-          toast({
-            title: "Error",
-            description: "Failed to update profile information",
-            variant: "destructive",
-          });
-        } else {
-          setProfile(editedProfile);
-          setIsEditing(false);
-          toast({
-            title: "Success",
-            description: "Profile updated successfully",
-          });
-        }
+      if (!user) throw new Error("No user found");
+
+      let { data, error } = await supabase
+        .from("profiles")
+        .select(`first_name, last_name, email`)
+        .eq("id", user.id)
+        .single();
+
+      if (error) throw error;
+      if (data) {
+        setFirstName(data.first_name || "");
+        setLastName(data.last_name || "");
+        setEmail(data.email || "");
       }
     } catch (error) {
-      console.error('Error:', error);
+      console.error("Error loading user data:", error);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function updateProfile() {
+    try {
+      setLoading(true);
+      const { data: { user } } = await supabase.auth.getUser();
+
+      if (!user) throw new Error("No user found");
+
+      const updates = {
+        id: user.id,
+        first_name: firstName,
+        last_name: lastName,
+        email: email,
+        updated_at: new Date().toISOString(),
+      };
+
+      let { error } = await supabase.from("profiles").upsert(updates);
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Profile updated successfully",
+      });
+    } catch (error) {
+      console.error("Error updating profile:", error);
       toast({
         title: "Error",
-        description: "Failed to update profile information",
+        description: "Failed to update profile",
         variant: "destructive",
       });
+    } finally {
+      setLoading(false);
     }
-  };
-
-  if (loading) {
-    return <div className="animate-pulse">Loading profile...</div>;
   }
 
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle>Profile Information</CardTitle>
-        {!isEditing ? (
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setIsEditing(true)}
-            className="h-8 w-8"
-          >
-            <Pencil className="h-4 w-4" />
-          </Button>
-        ) : (
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleSave}
-            className="h-8 w-8"
-          >
-            <Save className="h-4 w-4" />
-          </Button>
-        )}
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="space-y-2">
-          <Label>First Name</Label>
-          {isEditing ? (
-            <Input
-              value={editedProfile?.first_name || ''}
-              onChange={(e) => 
-                setEditedProfile(prev => ({ ...prev!, first_name: e.target.value }))
-              }
-              placeholder="Enter first name"
-            />
-          ) : (
-            <div className="p-2 bg-secondary rounded-md">
-              {profile?.first_name || 'Not set'}
-            </div>
-          )}
+    <div className="space-y-6">
+      <div className="space-y-4">
+        <h2 className="text-2xl font-semibold text-artence-navy dark:text-white">
+          Profile Settings
+        </h2>
+        <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+          Manage your personal information and customize your profile settings. Keep your details up to date to ensure smooth communication and better experience with our services.
+        </p>
+        <div className="bg-artence-light dark:bg-artence-navy/50 p-4 rounded-lg">
+          <p className="text-sm text-gray-700 dark:text-gray-200">
+            ℹ️ Your profile information:
+          </p>
+          <ul className="mt-2 space-y-2 text-sm text-gray-600 dark:text-gray-300">
+            <li>• Is securely stored and protected</li>
+            <li>• Helps us provide personalized experiences</li>
+            <li>• Can be updated anytime</li>
+          </ul>
         </div>
-        <div className="space-y-2">
-          <Label>Last Name</Label>
-          {isEditing ? (
-            <Input
-              value={editedProfile?.last_name || ''}
-              onChange={(e) => 
-                setEditedProfile(prev => ({ ...prev!, last_name: e.target.value }))
-              }
-              placeholder="Enter last name"
-            />
-          ) : (
-            <div className="p-2 bg-secondary rounded-md">
-              {profile?.last_name || 'Not set'}
-            </div>
-          )}
+      </div>
+
+      <div className="space-y-4">
+        <div>
+          <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            Email
+          </label>
+          <Input
+            id="email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full"
+            disabled={loading}
+          />
         </div>
-        <div className="space-y-2">
-          <Label>Email</Label>
-          {isEditing ? (
-            <Input
-              value={editedProfile?.email || ''}
-              onChange={(e) => 
-                setEditedProfile(prev => ({ ...prev!, email: e.target.value }))
-              }
-              placeholder="Enter email"
-            />
-          ) : (
-            <div className="p-2 bg-secondary rounded-md">
-              {profile?.email || 'Not set'}
-            </div>
-          )}
+
+        <div>
+          <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            First Name
+          </label>
+          <Input
+            id="firstName"
+            type="text"
+            value={firstName}
+            onChange={(e) => setFirstName(e.target.value)}
+            className="w-full"
+            disabled={loading}
+          />
         </div>
-      </CardContent>
-    </Card>
+
+        <div>
+          <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            Last Name
+          </label>
+          <Input
+            id="lastName"
+            type="text"
+            value={lastName}
+            onChange={(e) => setLastName(e.target.value)}
+            className="w-full"
+            disabled={loading}
+          />
+        </div>
+
+        <Button
+          onClick={updateProfile}
+          disabled={loading}
+          className="w-full bg-artence-purple hover:bg-artence-purple/90"
+        >
+          {loading ? "Saving..." : "Update Profile"}
+        </Button>
+      </div>
+    </div>
   );
-};
+}
