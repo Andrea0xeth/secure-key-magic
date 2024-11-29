@@ -29,9 +29,7 @@ function AppContent() {
               <Route path="*" element={<Index />} />
             </Routes>
           </div>
-          <div className="fixed right-0 h-full">
-            <WalletSidebar />
-          </div>
+          <WalletSidebar />
         </div>
       </Router>
     </div>

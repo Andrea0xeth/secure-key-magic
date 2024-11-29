@@ -40,7 +40,7 @@ export function Sidebar({
   return (
     <aside
       className={cn(
-        "h-screen transition-all duration-500 ease-in-out",
+        "fixed top-0 right-0 h-screen transition-all duration-500 ease-in-out z-50",
         "bg-gradient-radial from-artence-light via-white to-transparent dark:from-artence-navy dark:via-artence-dark/90 dark:to-artence-dark/50",
         // Desktop styles
         "md:w-[500px]",
