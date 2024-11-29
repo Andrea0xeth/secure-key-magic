@@ -7,13 +7,13 @@ import { SidebarProvider, useSidebar } from "@/components/ui/sidebar";
 import Index from "./pages/Index";
 import { WalletSidebar } from "./components/wallet/WalletSidebar";
 import { Button } from "@/components/ui/button";
-import { Wallet } from "lucide-react";
+import { Expand, Collapse } from "lucide-react";
 import "./App.css";
 
 const queryClient = new QueryClient();
 
 function AppContent() {
-  const { setExpanded } = useSidebar();
+  const { expanded, setExpanded } = useSidebar();
   
   return (
     <div className="min-h-screen flex w-full">
@@ -23,9 +23,15 @@ function AppContent() {
             <Button 
               variant="outline" 
               size="icon"
-              onClick={() => setExpanded(true)}
+              onClick={() => setExpanded(!expanded)}
             >
-              <Wallet className="h-4 w-4" />
+              <div className="transition-transform duration-200">
+                {expanded ? (
+                  <Collapse className="h-4 w-4" />
+                ) : (
+                  <Expand className="h-4 w-4" />
+                )}
+              </div>
             </Button>
           </div>
           <Routes>
