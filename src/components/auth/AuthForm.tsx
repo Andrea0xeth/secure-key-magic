@@ -10,16 +10,27 @@ export const AuthForm = () => {
   const { toast } = useToast();
 
   useEffect(() => {
+    console.log("Setting up auth state change listener");
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       console.log("Auth state changed:", event, session);
       if (event === 'SIGNED_IN' && session) {
         console.log("User signed in successfully");
+        toast({
+          title: "Welcome!",
+          description: "You have successfully signed in.",
+        });
         navigate('/');
+      }
+      if (event === 'SIGNED_OUT') {
+        console.log("User signed out");
       }
     });
 
-    return () => subscription.unsubscribe();
-  }, [navigate]);
+    return () => {
+      console.log("Cleaning up auth state change listener");
+      subscription.unsubscribe();
+    };
+  }, [navigate, toast]);
 
   return (
     <div className="w-full max-w-md mx-auto p-6 space-y-4">
@@ -45,6 +56,14 @@ export const AuthForm = () => {
           },
         }}
         providers={[]}
+        onError={(error) => {
+          console.error("Auth error:", error);
+          toast({
+            title: "Authentication Error",
+            description: error.message,
+            variant: "destructive",
+          });
+        }}
       />
     </div>
   );
