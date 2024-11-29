@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { SidebarProvider, useSidebar } from "@/components/ui/sidebar";
+import { cn } from "@/lib/utils";
 import Index from "./pages/Index";
 import { WalletSidebar } from "./components/wallet/WalletSidebar";
 import "./App.css";
