@@ -32,7 +32,10 @@ export const EventsList = () => {
   return (
     <div className="flex flex-wrap gap-6">
       {events?.map((event) => (
-        <div key={event.id} className="w-full sm:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)]">
+        <div 
+          key={event.id} 
+          className="flex-grow min-w-[280px] max-w-[400px] basis-[calc(33.333%-16px)]"
+        >
           <EventCard event={event} />
         </div>
       ))}
