@@ -25,8 +25,17 @@ export const EventShareButtons = ({ event }: EventShareProps) => {
   };
 
   const shareToInstagram = () => {
-    // Instagram story sharing URL scheme
-    const storyUrl = `instagram-stories://share?source_application=your_app_id&background_image=${encodeURIComponent(event.image_url)}&attribution_link=${encodeURIComponent(currentUrl)}`;
+    // Instagram story sharing URL scheme with all required parameters
+    const storyUrl = `instagram-stories://share?` + 
+      `source_application=artence&` +
+      `background_image=${encodeURIComponent(event.image_url)}&` +
+      `background_color=%23000000&` +
+      `title=${encodeURIComponent(event.title)}&` +
+      `caption=${encodeURIComponent(event.description)}&` +
+      `sticker_text=${encodeURIComponent('Check out this event!')}&` +
+      `attribution_link=${encodeURIComponent(currentUrl)}`;
+    
+    console.log('Opening Instagram with URL:', storyUrl);
     
     // Try to open Instagram stories
     window.location.href = storyUrl;
