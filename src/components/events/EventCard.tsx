@@ -17,7 +17,7 @@ export const EventCard = ({ event }: { event: Event }) => {
   const formattedDate = format(new Date(event.date), "MMM d, yyyy");
 
   return (
-    <Card className="group overflow-hidden transition-all duration-500 hover:shadow-xl bg-white dark:bg-black border-2 border-gray-100 dark:border-gray-800 aspect-[4/5]">
+    <Card className="group overflow-hidden transition-all duration-500 hover:shadow-xl bg-white dark:bg-black border-2 border-gray-100 dark:border-gray-800 aspect-square">
       <div className="relative h-1/3">
         <img
           src={event.image_url}
