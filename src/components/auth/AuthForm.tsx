@@ -42,24 +42,23 @@ export const AuthForm = () => {
       setError(null);
     });
 
-    // Listen for auth errors using the signIn and signUp methods
-    const authErrorListener = supabase.auth.onAuthStateChange((event, session, error) => {
-      if (error) {
-        console.error("Auth error:", error);
-        if (error.message.includes("weak_password")) {
-          setError("La password deve contenere almeno 6 caratteri.");
-        } else if (error.message.includes("invalid_credentials")) {
-          setError("Credenziali non valide. Verifica email e password.");
-        } else {
-          setError("Si è verificato un errore durante l'autenticazione. Riprova.");
-        }
+    // Set up error handling
+    supabase.auth.onError((error: AuthError) => {
+      console.error("Auth error:", error);
+      if (error.message.includes("weak_password")) {
+        setError("La password deve contenere almeno 6 caratteri.");
+      } else if (error.message.includes("invalid_credentials")) {
+        setError("Credenziali non valide. Verifica email e password.");
+      } else if (error.message.includes("already registered")) {
+        setError("Questo utente è già registrato. Prova ad accedere invece.");
+      } else {
+        setError("Si è verificato un errore durante l'autenticazione. Riprova.");
       }
     });
 
     return () => {
       console.log("Cleaning up auth state change listener");
       subscription.unsubscribe();
-      authErrorListener.data.subscription.unsubscribe();
     };
   }, [navigate, toast]);
 
