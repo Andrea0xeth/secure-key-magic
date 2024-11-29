@@ -1,8 +1,26 @@
 import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { supabase } from "@/integrations/supabase/client";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useToast } from "../ui/use-toast";
 
 export const AuthForm = () => {
+  const navigate = useNavigate();
+  const { toast } = useToast();
+
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log("Auth state changed:", event, session);
+      if (event === 'SIGNED_IN' && session) {
+        console.log("User signed in successfully");
+        navigate('/');
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [navigate]);
+
   return (
     <div className="w-full max-w-md mx-auto p-6 space-y-4">
       <div className="text-center mb-8">
