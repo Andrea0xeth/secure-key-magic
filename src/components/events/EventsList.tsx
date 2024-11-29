@@ -18,7 +18,7 @@ export const EventsList = () => {
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-fr">
         {[...Array(3)].map((_, i) => (
           <div
             key={i}
@@ -30,9 +30,11 @@ export const EventsList = () => {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className="flex flex-wrap gap-6">
       {events?.map((event) => (
-        <EventCard key={event.id} event={event} />
+        <div key={event.id} className="w-full sm:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)]">
+          <EventCard event={event} />
+        </div>
       ))}
     </div>
   );
