@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { ImageIcon } from "lucide-react";
+import { AppHeader } from "@/components/layout/AppHeader";
 
 const MyNFTs = () => {
   const navigate = useNavigate();
@@ -19,6 +20,7 @@ const MyNFTs = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white via-gray-50 to-gray-100 dark:from-artence-navy dark:via-artence-dark dark:to-black transition-colors duration-300">
+      <AppHeader />
       <div className="w-full px-2 pt-24 pb-8 animate-fade-in">
         <div className="container mx-auto">
           <h1 className="text-3xl font-bold mb-6 text-artence-navy dark:text-white">
