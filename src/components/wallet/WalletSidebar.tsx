@@ -87,7 +87,7 @@ export function WalletSidebar() {
             variant="ghost"
             size="icon"
             onClick={() => setExpanded(false)}
-            className="absolute right-4 top-4 md:hidden"
+            className="absolute right-4 top-4 md:hidden rotate-animation"
           >
             <X className="h-5 w-5" />
           </Button>
@@ -119,7 +119,7 @@ export function WalletSidebar() {
             variant="ghost"
             size="icon"
             onClick={() => setExpanded(false)}
-            className="absolute right-4 top-4 md:hidden"
+            className="absolute right-4 top-4 md:hidden rotate-animation"
           >
             <X className="h-5 w-5" />
           </Button>
