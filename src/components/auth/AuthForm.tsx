@@ -41,26 +41,24 @@ export const AuthForm = () => {
       setError(null);
     });
 
-    const handleAuthError = (error: AuthError) => {
-      console.error("Auth error:", error);
-      if (error.message.includes("weak_password")) {
-        setError("La password deve contenere almeno 6 caratteri.");
-      } else if (error.message.includes("invalid_credentials")) {
-        setError("Credenziali non valide. Verifica email e password.");
-      } else if (error.message.includes("already registered")) {
-        setError("Questo utente è già registrato. Prova ad accedere invece.");
-      } else {
-        setError("Si è verificato un errore durante l'autenticazione. Riprova.");
-      }
-    };
-
-    supabase.auth.onError(handleAuthError);
-
     return () => {
       console.log("Cleaning up auth state change listener");
       subscription.unsubscribe();
     };
   }, [navigate, toast]);
+
+  const handleAuthError = (error: AuthError) => {
+    console.error("Auth error:", error);
+    if (error.message.includes("weak_password")) {
+      setError("La password deve contenere almeno 6 caratteri.");
+    } else if (error.message.includes("invalid_credentials")) {
+      setError("Credenziali non valide. Verifica email e password.");
+    } else if (error.message.includes("already registered")) {
+      setError("Questo utente è già registrato. Prova ad accedere invece.");
+    } else {
+      setError("Si è verificato un errore durante l'autenticazione. Riprova.");
+    }
+  };
 
   return (
     <div className="w-full max-w-md mx-auto p-6 space-y-4">
@@ -91,6 +89,12 @@ export const AuthForm = () => {
               },
             },
           },
+          className: {
+            container: 'auth-form-container',
+            label: 'auth-form-label',
+            input: 'auth-form-input',
+            button: 'auth-form-button',
+          },
         }}
         providers={[]}
         redirectTo={`${window.location.origin}`}
@@ -117,20 +121,27 @@ export const AuthForm = () => {
             },
           },
         }}
-        additionalData={{
-          first_name: {
-            type: 'text',
-            required: true,
-            label: 'Nome',
-            placeholder: 'Inserisci il tuo nome'
-          },
-          last_name: {
-            type: 'text',
-            required: true,
-            label: 'Cognome',
-            placeholder: 'Inserisci il tuo cognome'
+        options={{
+          emailRedirectTo: `${window.location.origin}`,
+          data: {
+            first_name: '',
+            last_name: '',
           }
         }}
+        extendedSignUpFields={[
+          {
+            id: 'first_name',
+            label: 'Nome',
+            type: 'text',
+            required: true,
+          },
+          {
+            id: 'last_name',
+            label: 'Cognome',
+            type: 'text',
+            required: true,
+          },
+        ]}
       />
     </div>
   );
