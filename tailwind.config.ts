@@ -27,11 +27,11 @@ export default {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         primary: {
-          DEFAULT: "#9b87f5",
+          DEFAULT: "#2A4C3B",
           foreground: "#ffffff",
         },
         secondary: {
-          DEFAULT: "#7E69AB",
+          DEFAULT: "#1A2F25",
           foreground: "#ffffff",
         },
         success: {
@@ -47,9 +47,9 @@ export default {
           foreground: "#ffffff",
         },
         artence: {
-          purple: "#9b87f5",
-          dark: "#1A1F2C",
-          light: "#E5DEFF",
+          green: "#2A4C3B",
+          dark: "#0F1A15",
+          light: "#E5F2EC",
           navy: "#121212",
         },
       },

@@ -1,48 +1,27 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { SidebarProvider, useSidebar } from "@/components/ui/sidebar";
-import { cn } from "@/lib/utils";
-import Index from "./pages/Index";
-import { WalletSidebar } from "./components/wallet/WalletSidebar";
-import "./App.css";
+import { SidebarProvider } from "@/components/ui/sidebar";
+import { AppContent } from "@/components/AppContent";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 60 * 1000,
+    },
+  },
+});
 
-function AppContent() {
-  const { expanded } = useSidebar();
-
-  return (
-    <div className="min-h-screen w-full">
-      <Router>
-        <div className="flex justify-end">
-          <div 
-            className={cn(
-              "min-h-screen w-full transition-all duration-500 ease-in-out",
-              expanded ? "md:mr-[500px]" : "mr-0"
-            )}
-          >
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="*" element={<Index />} />
-            </Routes>
-          </div>
-          <WalletSidebar />
-        </div>
-      </Router>
-    </div>
-  );
-}
-
-function App() {
+const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <div className="relative">
-          <Toaster className="z-[100]" />
-          <Sonner className="z-[100]" />
+          <div className="fixed top-4 right-4 z-[100]">
+            <Toaster />
+            <Sonner />
+          </div>
           <SidebarProvider defaultExpanded={false}>
             <AppContent />
           </SidebarProvider>
@@ -50,6 +29,6 @@ function App() {
       </TooltipProvider>
     </QueryClientProvider>
   );
-}
+};
 
 export default App;
