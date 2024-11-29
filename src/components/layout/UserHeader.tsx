@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { disconnectWalletConnect } from "@/lib/walletConnect/connection";
 import { UserProfileSection } from "@/components/UserProfileSection";
+import { clearStoredAlgorandKey } from "@/lib/storage/keyStorage";
 
 export const UserHeader = () => {
   const navigate = useNavigate();
@@ -19,6 +20,7 @@ export const UserHeader = () => {
   const handleLogout = async () => {
     try {
       await disconnectWalletConnect();
+      clearStoredAlgorandKey(); // Clear passkey data on logout
       await supabase.auth.signOut();
       toast({
         title: "Logged out",

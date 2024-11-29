@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { KeyRound, Shield, Copy } from "lucide-react";
 import { AuthenticationResult } from "@/lib/webauthn";
@@ -6,10 +6,11 @@ import { useToast } from "@/components/ui/use-toast";
 import { decodeUnsignedTransaction } from 'algosdk'
 import { TransactionDialog } from "./TransactionDialog";
 import * as algosdk from "algosdk";
-import { getStoredAlgorandKey } from "@/lib/storage/keyStorage";
+import { getStoredAlgorandKey, clearStoredAlgorandKey } from "@/lib/storage/keyStorage";
 import { AlgoBalance } from "./AlgoBalance";
 import { AddressQRCode } from "./AddressQRCode";
 import { ConnectedAppsList } from "./ConnectedAppsList";
+import { supabase } from "@/integrations/supabase/client";
 
 interface PasskeySectionProps {
   authResult: AuthenticationResult | null;
@@ -26,6 +27,20 @@ export const PasskeySection = ({ authResult, onRegister, onAuthenticate }: Passk
 
   // Only check stored key if we have an auth result
   const storedKey = authResult ? getStoredAlgorandKey() : null;
+
+  useEffect(() => {
+    // Listen for auth state changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'SIGNED_OUT') {
+        console.log("User signed out, clearing passkey data");
+        clearStoredAlgorandKey();
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
   
   const handleCopyAddress = () => {
     if (storedKey) {
