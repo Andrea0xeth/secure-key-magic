@@ -24,6 +24,7 @@ export const AppHeader = () => {
   }, []);
 
   const handleLoginClick = () => {
+    setExpanded(true); // Open sidebar when clicking login
     navigate('/auth');
   };
 
