@@ -3,10 +3,12 @@ import { Button } from "@/components/ui/button";
 import { ChevronRight, LogIn } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useSidebar } from "@/components/ui/sidebar";
+import { useNavigate } from "react-router-dom";
 
 export const AppHeader = () => {
   const { expanded, setExpanded } = useSidebar();
   const [session, setSession] = useState<any>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -21,6 +23,10 @@ export const AppHeader = () => {
     return () => subscription.unsubscribe();
   }, []);
 
+  const handleLoginClick = () => {
+    navigate('/auth');
+  };
+
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-artence-navy/80 backdrop-blur-sm border-b border-gray-200 dark:border-gray-800">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
@@ -28,20 +34,26 @@ export const AppHeader = () => {
           Artence Passkey
         </h1>
         
-        <Button 
-          variant="ghost" 
-          size="icon"
-          onClick={() => setExpanded(!expanded)}
-          className="transition-all duration-300 hover:bg-gray-100 dark:hover:bg-gray-800"
-        >
-          {session ? (
+        {session ? (
+          <Button 
+            variant="ghost" 
+            size="icon"
+            onClick={() => setExpanded(!expanded)}
+            className="transition-all duration-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+          >
             <ChevronRight 
               className={`h-6 w-6 text-gray-600 dark:text-gray-300 transition-all duration-300 ease-in-out transform ${expanded ? 'rotate-180' : ''}`} 
             />
-          ) : (
-            <LogIn className="h-6 w-6 text-gray-600 dark:text-gray-300" />
-          )}
-        </Button>
+          </Button>
+        ) : (
+          <Button 
+            onClick={handleLoginClick}
+            className="bg-artence-purple hover:bg-artence-purple/90 text-white transition-colors duration-300"
+          >
+            <LogIn className="mr-2 h-4 w-4" />
+            Login
+          </Button>
+        )}
       </div>
     </header>
   );
