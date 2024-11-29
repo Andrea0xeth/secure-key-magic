@@ -13,8 +13,8 @@ interface Event {
 
 export const EventCard = ({ event }: { event: Event }) => {
   return (
-    <Card className="group overflow-hidden transition-all duration-500 hover:shadow-xl bg-white dark:bg-black border-2 border-gray-100 dark:border-gray-800 h-[400px]">
-      <div className="relative h-3/4">
+    <Card className="group overflow-hidden transition-all duration-500 hover:shadow-xl bg-white dark:bg-black border-2 border-gray-100 dark:border-gray-800 aspect-square">
+      <div className="relative h-4/5">
         <img
           src={event.image_url}
           alt={event.title}
@@ -22,8 +22,8 @@ export const EventCard = ({ event }: { event: Event }) => {
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
       </div>
-      <div className="p-4 h-1/4 flex flex-col justify-between">
-        <h3 className="text-xl font-bold text-gray-900 dark:text-white truncate">
+      <div className="p-4 h-1/5 flex flex-col justify-between">
+        <h3 className="text-lg font-bold text-gray-900 dark:text-white truncate">
           {event.title}
         </h3>
         <Button 
