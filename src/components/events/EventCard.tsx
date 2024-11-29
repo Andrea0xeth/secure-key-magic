@@ -18,20 +18,20 @@ export const EventCard = ({ event }: { event: Event }) => {
 
   return (
     <Card className="group overflow-hidden transition-all duration-500 hover:shadow-xl bg-white dark:bg-black border-2 border-gray-100 dark:border-gray-800 aspect-square">
-      <div className="relative h-1/3">
+      <div className="relative h-2/5">
         <img
           src={event.image_url}
           alt={event.title}
           className="object-cover w-full h-full"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+        <div className="absolute inset-0 bg-gradient-radial from-transparent via-black/20 to-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
       </div>
-      <div className="p-3 h-2/3 flex flex-col justify-between space-y-2">
-        <div className="space-y-2">
+      <div className="p-4 h-3/5 flex flex-col justify-between">
+        <div className="space-y-3">
           <h3 className="text-lg font-bold text-gray-900 dark:text-white line-clamp-2">
             {event.title}
           </h3>
-          <div className="flex flex-col gap-1">
+          <div className="flex flex-col gap-2">
             <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
               <CalendarIcon className="w-4 h-4 mr-1.5 flex-shrink-0" />
               <span>{formattedDate}</span>
@@ -41,7 +41,7 @@ export const EventCard = ({ event }: { event: Event }) => {
               <span className="truncate">{event.location}</span>
             </div>
           </div>
-          <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-5">
+          <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-3">
             {event.description}
           </p>
         </div>
