@@ -44,7 +44,7 @@ export function Sidebar({ className, children, ...props }: SidebarProps) {
     <aside
       className={cn(
         "fixed top-0 right-0 h-screen will-change-transform z-[90]",
-        "bg-hendricks-dark/95 border-l border-hendricks-gold/20",
+        "bg-hendricks-dark border-l border-hendricks-gold/20",
         // Desktop styles
         "md:w-[500px]",
         // Mobile styles
