@@ -26,7 +26,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-gray-100 dark:from-artence-navy dark:to-gray-900 transition-colors duration-300">
       {session && <UserHeader />}
-      <div className="container max-w-7xl px-4 sm:px-6 pt-16 pb-8 animate-fade-in">
+      <div className="w-full px-2 pt-16 pb-8 animate-fade-in">
         {!session ? (
           <Card className="max-w-md mx-auto p-6 shadow-lg border-2 border-opacity-50 backdrop-blur-sm bg-white/90 dark:bg-artence-navy/90 dark:border-gray-700 transition-colors duration-300">
             <AuthForm />
