@@ -42,12 +42,14 @@ export function Sidebar({
       className={cn(
         "h-screen transition-all duration-300",
         "bg-gradient-radial from-artence-light via-white to-transparent dark:from-artence-navy dark:via-artence-dark/90 dark:to-artence-dark/50",
-        expanded ? "md:w-1/2 w-full" : "w-0 overflow-hidden",
+        expanded ? "md:w-[500px] w-full" : "w-0 overflow-hidden",
         className
       )}
     >
-      <div className="max-w-lg mx-auto px-4 sm:px-6 h-full">
-        {children}
+      <div className="h-full overflow-y-auto">
+        <div className="max-w-lg mx-auto px-4 sm:px-6 h-full">
+          {children}
+        </div>
       </div>
     </aside>
   )
