@@ -84,16 +84,6 @@ export function UserProfileSection() {
         <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
           Manage your personal information and customize your profile settings. Keep your details up to date to ensure smooth communication and better experience with our services.
         </p>
-        <div className="bg-artence-light dark:bg-artence-navy/50 p-4 rounded-lg">
-          <p className="text-sm text-gray-700 dark:text-gray-200">
-            ℹ️ Your profile information:
-          </p>
-          <ul className="mt-2 space-y-2 text-sm text-gray-600 dark:text-gray-300">
-            <li>• Is securely stored and protected</li>
-            <li>• Helps us provide personalized experiences</li>
-            <li>• Can be updated anytime</li>
-          </ul>
-        </div>
       </div>
 
       <div className="space-y-4">
