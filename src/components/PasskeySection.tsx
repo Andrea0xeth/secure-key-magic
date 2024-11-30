@@ -51,6 +51,11 @@ export const PasskeySection = ({ authResult, onRegister, onAuthenticate }: Passk
       });
     }
   };
+
+  const truncateAddress = (address: string) => {
+    if (!address) return '';
+    return `${address.slice(0, 5)}...${address.slice(-5)}`;
+  };
   
   if (authResult && storedKey) {
     return (
@@ -69,8 +74,8 @@ export const PasskeySection = ({ authResult, onRegister, onAuthenticate }: Passk
               Your Algorand address:
             </p>
             <div className="relative">
-              <code className="px-3 py-2 sm:px-4 sm:py-2 bg-gray-100 dark:bg-gray-800 rounded-lg text-xs sm:text-sm break-all block text-gray-800 dark:text-gray-200 transition-colors duration-300">
-                {storedKey}
+              <code className="px-3 py-2 sm:px-4 sm:py-2 bg-gray-100 dark:bg-gray-800 rounded-lg text-xs sm:text-sm block text-gray-800 dark:text-gray-200 transition-colors duration-300">
+                {truncateAddress(storedKey)}
               </code>
               <Button
                 variant="ghost"
