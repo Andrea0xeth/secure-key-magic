@@ -39,9 +39,10 @@ export const EventMintDialog: FC<EventMintDialogProps> = ({
   const { expanded } = useSidebar();
   const navigate = useNavigate();
 
-  // Close dialog when sidebar expands
+  // Close dialog when sidebar expands, but only on mobile
   useEffect(() => {
-    if (expanded) {
+    const isMobile = window.innerWidth < 768; // md breakpoint in Tailwind
+    if (expanded && isMobile) {
       onClose();
     }
   }, [expanded, onClose]);
@@ -69,7 +70,7 @@ export const EventMintDialog: FC<EventMintDialogProps> = ({
           : "Failed to mint NFT. Please try again.",
         variant: "destructive",
         action: error.message === "Please authenticate with your passkey first" 
-          ? <EventMintErrorAction setExpanded={setExpanded} />
+          ? <EventMintErrorAction />
           : undefined,
       });
     }
