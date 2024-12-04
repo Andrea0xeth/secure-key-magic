@@ -1,4 +1,4 @@
-import { FC } from "react";
+import { FC, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useSidebar } from "@/components/ui/sidebar";
 import { useNavigate } from "react-router-dom";
@@ -36,8 +36,15 @@ export const EventMintDialog: FC<EventMintDialogProps> = ({
   onClose,
 }) => {
   const { toast } = useToast();
-  const { setExpanded, expanded } = useSidebar();
+  const { expanded } = useSidebar();
   const navigate = useNavigate();
+
+  // Close dialog when sidebar expands
+  useEffect(() => {
+    if (expanded) {
+      onClose();
+    }
+  }, [expanded, onClose]);
 
   const handleSuccess = () => {
     onClose();
