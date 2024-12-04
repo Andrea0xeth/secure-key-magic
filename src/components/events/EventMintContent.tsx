@@ -7,8 +7,8 @@ import { useSidebar } from "@/components/ui/sidebar";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect } from "react";
 import { getStoredAlgorandKey } from "@/lib/storage/keyStorage";
-import { TransactionDialog } from "@/components/TransactionDialog";
 import { useToast } from "@/components/ui/use-toast";
+import { authenticateWithPasskey } from "@/lib/webauthn";
 
 interface Event {
   id: string;
@@ -35,7 +35,6 @@ export const EventMintContent: FC<EventMintContentProps> = ({
 }) => {
   const { setExpanded } = useSidebar();
   const [session, setSession] = useState<any>(null);
-  const [isTransactionDialogOpen, setIsTransactionDialogOpen] = useState(false);
   const { toast } = useToast();
   
   const formattedDate = format(new Date(event.date), "MMM d, yyyy");
@@ -63,24 +62,29 @@ export const EventMintContent: FC<EventMintContentProps> = ({
     setExpanded(true);
   };
 
-  const handleMintClick = () => {
-    setIsTransactionDialogOpen(true);
-  };
-
-  const handleTransactionSigned = async (signedTxn: Uint8Array) => {
+  const handleMintClick = async () => {
     try {
-      console.log("Transaction signed successfully, proceeding with minting...");
+      console.log("Starting NFT minting process...");
+      
+      // Authenticate with passkey to get the private key
+      const authResult = await authenticateWithPasskey();
+      if (!authResult) {
+        throw new Error("Failed to authenticate with passkey");
+      }
+      console.log("Passkey authentication successful");
+
+      // Use the private key from authentication to mint the NFT
       await onMint();
+      
       toast({
         title: "Success",
         description: "NFT minted successfully!",
       });
-      setIsTransactionDialogOpen(false);
     } catch (error) {
-      console.error("Error completing mint after signing:", error);
+      console.error("Error minting NFT:", error);
       toast({
         title: "Error",
-        description: "Failed to complete minting process",
+        description: "Failed to mint NFT",
         variant: "destructive",
       });
     }
@@ -151,16 +155,6 @@ export const EventMintContent: FC<EventMintContentProps> = ({
         </div>
         {renderActionButton()}
       </div>
-
-      <TransactionDialog
-        isOpen={isTransactionDialogOpen}
-        onClose={() => setIsTransactionDialogOpen(false)}
-        transaction={{
-          txn: "",
-          type: "mint"
-        }}
-        onSign={handleTransactionSigned}
-      />
     </div>
   );
 };
