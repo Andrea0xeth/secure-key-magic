@@ -21,6 +21,7 @@ export function WalletSidebar() {
   const navigate = useNavigate();
   const [authResult, setAuthResult] = useState<AuthenticationResult | null>(null);
   const [session, setSession] = useState<any>(null);
+  const [showSignUp, setShowSignUp] = useState(false);
   const { setExpanded } = useSidebar();
 
   useEffect(() => {
@@ -95,31 +96,58 @@ export function WalletSidebar() {
             <X className="h-5 w-5" />
           </Button>
           <div className="mt-8">
-            <h2 className="text-2xl font-semibold mb-6">Create an Account</h2>
-            <SignUpForm />
-            <div className="relative mt-8">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t dark:border-gray-800" />
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-white dark:bg-gray-900 px-2 text-gray-500 dark:text-gray-400">
-                  Or continue with passkey
-                </span>
-              </div>
-            </div>
-            <div className="mt-6">
-              <PasskeySection 
-                authResult={authResult}
-                onRegister={handleRegister}
-                onAuthenticate={handleAuthenticate}
-              />
-            </div>
+            {!showSignUp ? (
+              <>
+                <h2 className="text-2xl font-semibold mb-6">Welcome Back</h2>
+                <Auth
+                  supabaseClient={supabase}
+                  appearance={{
+                    theme: ThemeSupa,
+                    variables: {
+                      default: {
+                        colors: {
+                          brand: '#9b87f5',
+                          brandAccent: '#7C3AED',
+                        },
+                      },
+                    },
+                  }}
+                  view={showSignUp ? "sign_up" : "sign_in"}
+                  providers={[]}
+                />
+                <div className="mt-6 text-center">
+                  <p className="text-gray-600">
+                    Don't have an account?{" "}
+                    <button
+                      onClick={() => setShowSignUp(true)}
+                      className="text-artence-purple hover:underline"
+                    >
+                      Sign up
+                    </button>
+                  </p>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="flex items-center mb-6">
+                  <button
+                    onClick={() => setShowSignUp(false)}
+                    className="text-gray-600 hover:text-gray-900 mr-4"
+                  >
+                    ←
+                  </button>
+                  <h2 className="text-2xl font-semibold">Create an Account</h2>
+                </div>
+                <SignUpForm onSuccess={() => setShowSignUp(false)} />
+              </>
+            )}
           </div>
         </div>
       </Sidebar>
     );
   }
 
+  // After login, show wallet section with passkey option
   return (
     <Sidebar className="border-l">
       <div className="flex flex-col h-full">
@@ -128,7 +156,7 @@ export function WalletSidebar() {
             variant="ghost"
             size="icon"
             onClick={() => setExpanded(false)}
-            className="absolute right-4 top-4 rotate-animation"
+            className="absolute right-4 top-4"
           >
             <X className="h-5 w-5" />
           </Button>
@@ -167,7 +195,7 @@ export function WalletSidebar() {
               {!authResult && (
                 <>
                   <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
-                    Create a secure and easy-to-use wallet with passkeys - the modern way to manage your digital assets. Passkeys use your device's biometric security (like Face ID or fingerprint) to keep your wallet safe without the need for complex passwords.
+                    Create a secure and easy-to-use wallet with passkeys - the modern way to manage your digital assets.
                   </p>
                   <div className="bg-artence-light dark:bg-artence-navy/50 p-4 rounded-lg">
                     <p className="text-sm text-gray-700 dark:text-gray-200">

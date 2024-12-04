@@ -17,7 +17,11 @@ import { signUpSchema, SignUpFormData } from "./types";
 import { PasswordInput } from "./form/PasswordInput";
 import { NameFields } from "./form/NameFields";
 
-export function SignUpForm() {
+interface SignUpFormProps {
+  onSuccess?: () => void;
+}
+
+export function SignUpForm({ onSuccess }: SignUpFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
@@ -53,6 +57,8 @@ export function SignUpForm() {
         description: "Please check your email to verify your account.",
         variant: "success",
       });
+      
+      onSuccess?.();
     } catch (error) {
       console.error("Sign up error:", error);
       toast({
@@ -107,13 +113,6 @@ export function SignUpForm() {
         >
           {isLoading ? "Creating account..." : "Sign Up"}
         </Button>
-
-        <div className="text-center text-sm text-gray-500">
-          Already have an account?{" "}
-          <button type="button" className="text-artence-purple hover:underline">
-            Sign in
-          </button>
-        </div>
       </form>
     </Form>
   );
