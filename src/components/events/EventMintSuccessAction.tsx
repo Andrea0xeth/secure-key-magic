@@ -1,11 +1,9 @@
 import { FC } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { useToast } from "@/components/ui/use-toast";
 
 export const EventMintSuccessAction: FC = () => {
   const navigate = useNavigate();
-  const { toast } = useToast();
 
   const handleClick = () => {
     navigate('/my-nfts');
@@ -16,7 +14,7 @@ export const EventMintSuccessAction: FC = () => {
       variant="outline" 
       size="sm" 
       onClick={handleClick}
-      className="bg-success hover:bg-success/90 text-white border-success hover:border-success/90 font-medium"
+      className="bg-success hover:bg-success/90 text-white border-success hover:border-success/90 font-medium mt-4"
     >
       View My NFTs
     </Button>
