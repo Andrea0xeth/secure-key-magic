@@ -14,15 +14,24 @@ export const supabase = createClient<Database>(supabaseUrl, supabaseKey, {
   auth: {
     persistSession: true,
     autoRefreshToken: true,
-    detectSessionInUrl: false,
+    detectSessionInUrl: true,
     flowType: 'pkce',
+    storage: window.localStorage,
+    storageKey: 'supabase.auth.token',
     debug: true
   },
   global: {
     headers: {
-      'X-Client-Info': 'supabase-js-web',
-      'Access-Control-Allow-Origin': '*'
+      'X-Client-Info': 'supabase-js-web'
     }
+  }
+});
+
+// Initialize session recovery
+supabase.auth.onAuthStateChange((event, session) => {
+  console.log('Auth state changed:', event, session);
+  if (event === 'SIGNED_OUT') {
+    localStorage.removeItem('supabase.auth.token');
   }
 });
 

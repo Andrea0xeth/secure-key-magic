@@ -8,15 +8,36 @@ import { cn } from "@/lib/utils";
 import Index from "./pages/Index";
 import MyNFTs from "./pages/MyNFTs";
 import { WalletSidebar } from "./components/wallet/WalletSidebar";
+import { useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import "./App.css";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: false,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 function AppContent() {
   const { expanded } = useSidebar();
   const location = useLocation();
 
-  console.log('Current URL:', location.pathname + location.hash);
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_OUT' || event === 'USER_DELETED') {
+        // Clear any auth related storage
+        queryClient.clear();
+        localStorage.removeItem('supabase.auth.token');
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
 
   return (
     <div className="min-h-screen w-full">
