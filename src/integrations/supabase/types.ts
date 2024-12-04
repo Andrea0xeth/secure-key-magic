@@ -66,6 +66,38 @@ export type Database = {
         }
         Relationships: []
       }
+      user_nfts: {
+        Row: {
+          asset_id: string
+          event_id: string
+          id: string
+          minted_at: string
+          user_id: string
+        }
+        Insert: {
+          asset_id: string
+          event_id: string
+          id?: string
+          minted_at?: string
+          user_id: string
+        }
+        Update: {
+          asset_id?: string
+          event_id?: string
+          id?: string
+          minted_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_nfts_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

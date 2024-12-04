@@ -6,59 +6,65 @@ import { AppHeader } from "@/components/layout/AppHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { getStoredAlgorandKey } from "@/lib/storage/keyStorage";
+import { useQuery } from "@tanstack/react-query";
 
 interface NFTEvent {
-  title: string;
-  description: string;
-  image_url: string;
-  date: string;
-  location: string;
-  nft_asset_id: string;
+  events: {
+    title: string;
+    description: string;
+    image_url: string;
+    date: string;
+    location: string;
+    nft_asset_id: string;
+  };
+  asset_id: string;
+  minted_at: string;
 }
 
 const MyNFTs = () => {
   const navigate = useNavigate();
-  const [nfts, setNfts] = useState<NFTEvent[]>([]);
-  const [loading, setLoading] = useState(true);
 
   const fetchUserNFTs = async () => {
-    try {
-      setLoading(true);
-      const walletAddress = getStoredAlgorandKey();
-      
-      if (!walletAddress) {
-        console.log("No wallet address found");
-        return;
-      }
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error("Not authenticated");
 
-      console.log("Fetching NFTs for wallet:", walletAddress);
-      
-      const { data, error } = await supabase
-        .from('events')
-        .select('*')
-        .not('nft_asset_id', 'is', null);
+    console.log("Fetching NFTs for user:", user.id);
+    
+    const { data, error } = await supabase
+      .from('user_nfts')
+      .select(`
+        asset_id,
+        minted_at,
+        events (
+          title,
+          description,
+          image_url,
+          date,
+          location,
+          nft_asset_id
+        )
+      `)
+      .eq('user_id', user.id);
 
-      if (error) {
-        console.error("Error fetching NFTs:", error);
-        return;
-      }
-
-      console.log("Found NFTs:", data);
-      setNfts(data as NFTEvent[]);
-    } catch (error) {
-      console.error("Error in fetchUserNFTs:", error);
-    } finally {
-      setLoading(false);
+    if (error) {
+      console.error("Error fetching NFTs:", error);
+      throw error;
     }
+
+    console.log("Found NFTs:", data);
+    return data as NFTEvent[];
   };
+
+  const { data: nfts, isLoading, error, refetch } = useQuery({
+    queryKey: ['userNFTs'],
+    queryFn: fetchUserNFTs,
+  });
 
   useEffect(() => {
     const checkAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
         navigate('/');
-      } else {
-        fetchUserNFTs();
       }
     };
     
@@ -77,37 +83,44 @@ const MyNFTs = () => {
             <Button
               variant="outline"
               className="flex items-center gap-2 hover:bg-artence-purple/10"
-              onClick={fetchUserNFTs}
+              onClick={() => refetch()}
             >
               <RefreshCcw className="w-4 h-4" />
               Refresh
             </Button>
           </div>
           
-          {loading ? (
+          {isLoading ? (
             <div className="grid place-items-center min-h-[60vh]">
               <div className="animate-pulse">Loading NFTs...</div>
             </div>
-          ) : nfts.length > 0 ? (
+          ) : error ? (
+            <div className="grid place-items-center min-h-[60vh] text-red-500">
+              Error loading NFTs. Please try again.
+            </div>
+          ) : nfts && nfts.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {nfts.map((nft) => (
-                <Card key={nft.nft_asset_id} className="overflow-hidden hover:shadow-lg transition-shadow duration-300">
+                <Card key={nft.asset_id} className="overflow-hidden hover:shadow-lg transition-shadow duration-300">
                   <div className="aspect-video relative overflow-hidden">
                     <img 
-                      src={nft.image_url} 
-                      alt={nft.title}
+                      src={nft.events.image_url} 
+                      alt={nft.events.title}
                       className="object-cover w-full h-full"
                     />
                   </div>
                   <CardHeader className="space-y-1">
-                    <h3 className="text-xl font-semibold">{nft.title}</h3>
-                    <p className="text-sm text-muted-foreground">Asset ID: {nft.nft_asset_id}</p>
+                    <h3 className="text-xl font-semibold">{nft.events.title}</h3>
+                    <p className="text-sm text-muted-foreground">Asset ID: {nft.asset_id}</p>
+                    <p className="text-sm text-muted-foreground">
+                      Minted: {new Date(nft.minted_at).toLocaleDateString()}
+                    </p>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-sm text-muted-foreground mb-2">{nft.description}</p>
+                    <p className="text-sm text-muted-foreground mb-2">{nft.events.description}</p>
                     <div className="flex flex-col gap-1 text-sm">
-                      <p>📍 {nft.location}</p>
-                      <p>📅 {new Date(nft.date).toLocaleDateString()}</p>
+                      <p>📍 {nft.events.location}</p>
+                      <p>📅 {new Date(nft.events.date).toLocaleDateString()}</p>
                     </div>
                   </CardContent>
                 </Card>

@@ -6,7 +6,6 @@ import { EventShareButtons } from "./EventShareButtons";
 import { useToast } from "@/components/ui/use-toast";
 import { createSoulboundNFT } from "@/lib/algorand/soulboundNFT";
 import { supabase } from "@/integrations/supabase/client";
-import * as algosdk from "algosdk";
 import { getStoredAlgorandKey } from "@/lib/storage/keyStorage";
 import { useSidebar } from "@/components/ui/sidebar";
 import {
@@ -95,6 +94,17 @@ export const EventMintDialog: FC<EventMintDialogProps> = ({
         .eq('id', event.id);
 
       if (updateError) throw updateError;
+
+      // Save the NFT to user_nfts table
+      const { error: insertError } = await supabase
+        .from('user_nfts')
+        .insert({
+          user_id: user.id,
+          event_id: event.id,
+          asset_id: assetId.toString()
+        });
+
+      if (insertError) throw insertError;
 
       toast({
         title: "Success!",
