@@ -9,7 +9,6 @@ import { useEffect } from "react";
 import { getStoredAlgorandKey } from "@/lib/storage/keyStorage";
 import { TransactionDialog } from "@/components/TransactionDialog";
 import { useToast } from "@/components/ui/use-toast";
-import * as algosdk from "algosdk";
 
 interface Event {
   id: string;
@@ -37,7 +36,6 @@ export const EventMintContent: FC<EventMintContentProps> = ({
   const { setExpanded } = useSidebar();
   const [session, setSession] = useState<any>(null);
   const [isTransactionDialogOpen, setIsTransactionDialogOpen] = useState(false);
-  const [transaction, setTransaction] = useState<{ txn: string; type?: string } | null>(null);
   const { toast } = useToast();
   
   const formattedDate = format(new Date(event.date), "MMM d, yyyy");
@@ -65,43 +63,8 @@ export const EventMintContent: FC<EventMintContentProps> = ({
     setExpanded(true);
   };
 
-  const handleMintClick = async () => {
-    try {
-      console.log("Starting NFT minting process...");
-      
-      // Create a sample transaction for testing
-      const suggestedParams = {
-        fee: 1000,
-        firstRound: 1,
-        lastRound: 1000,
-        genesisID: 'testnet-v1.0',
-        genesisHash: 'SGO1GKSzyE7IEPItTxCByw9x8FmnrCDexi9/cOUJOiI=',
-      };
-
-      const txn = new algosdk.Transaction({
-        from: walletAddress,
-        to: walletAddress,
-        amount: 0,
-        suggestedParams
-      });
-
-      const encodedTxn = Buffer.from(algosdk.encodeUnsignedTransaction(txn)).toString('base64');
-      console.log("Created transaction:", encodedTxn);
-
-      setTransaction({
-        txn: encodedTxn,
-        type: 'pay'
-      });
-      setIsTransactionDialogOpen(true);
-
-    } catch (error) {
-      console.error("Error preparing mint transaction:", error);
-      toast({
-        title: "Error",
-        description: "Failed to prepare minting transaction",
-        variant: "destructive",
-      });
-    }
+  const handleMintClick = () => {
+    setIsTransactionDialogOpen(true);
   };
 
   const handleTransactionSigned = async (signedTxn: Uint8Array) => {
@@ -192,7 +155,10 @@ export const EventMintContent: FC<EventMintContentProps> = ({
       <TransactionDialog
         isOpen={isTransactionDialogOpen}
         onClose={() => setIsTransactionDialogOpen(false)}
-        transaction={transaction}
+        transaction={{
+          txn: "",
+          type: "mint"
+        }}
         onSign={handleTransactionSigned}
       />
     </div>
