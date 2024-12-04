@@ -12,6 +12,8 @@ import { useSidebar } from "@/components/ui/sidebar";
 import { WalletTabContent } from "./sidebar/WalletTabContent";
 import { TabNavigation } from "./sidebar/TabNavigation";
 import { AuthSection } from "./sidebar/AuthSection";
+import { Button } from "@/components/ui/button";
+import { X } from "lucide-react";
 
 export function WalletSidebar() {
   const { toast } = useToast();
