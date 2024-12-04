@@ -87,9 +87,9 @@ export const EventMintDialog: FC<EventMintDialogProps> = ({
         className={`
           sm:max-w-[425px] bg-white dark:bg-artence-navy border-artence-purple 
           sm:rounded-lg w-full sm:w-auto fixed top-[50%] translate-y-[-50%]
-          transition-all duration-500 ease-in-out z-[50]
+          transition-all duration-500 ease-in-out
           ${expanded ? 'md:left-[calc(50%-250px)]' : 'left-[50%]'}
-          translate-x-[-50%]
+          translate-x-[-50%] z-[100]
         `}
         onInteractOutside={onClose}
         onEscapeKeyDown={onClose}
