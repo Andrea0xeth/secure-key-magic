@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { KeyRound, Shield, Copy } from "lucide-react";
+import { KeyRound, Shield, Copy, Download } from "lucide-react";
 import { AuthenticationResult } from "@/lib/webauthn";
 import { useToast } from "@/components/ui/use-toast";
-import { decodeUnsignedTransaction } from 'algosdk'
+import { decodeUnsignedTransaction } from 'algosdk';
 import { TransactionDialog } from "./TransactionDialog";
 import * as algosdk from "algosdk";
 import { getStoredAlgorandKey, clearStoredAlgorandKey } from "@/lib/storage/keyStorage";
@@ -11,6 +11,17 @@ import { AlgoBalance } from "./AlgoBalance";
 import { AddressQRCode } from "./AddressQRCode";
 import { ConnectedAppsList } from "./ConnectedAppsList";
 import { supabase } from "@/integrations/supabase/client";
+import { authenticateWithPasskey } from "@/lib/webauthn";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface PasskeySectionProps {
   authResult: AuthenticationResult | null;
@@ -23,6 +34,7 @@ export const PasskeySection = ({ authResult, onRegister, onAuthenticate }: Passk
     txn: string;
     type?: string;
   } | null>(null);
+  const [showExportDialog, setShowExportDialog] = useState(false);
   const { toast } = useToast();
 
   // Only check stored key if we have an auth result
@@ -56,6 +68,42 @@ export const PasskeySection = ({ authResult, onRegister, onAuthenticate }: Passk
     if (!address) return '';
     return `${address.slice(0, 5)}...${address.slice(-5)}`;
   };
+
+  const handleExportPrivateKey = async () => {
+    try {
+      const authResult = await authenticateWithPasskey();
+      if (!authResult) {
+        throw new Error("Authentication failed");
+      }
+
+      // Create a Blob with the private key
+      const privateKeyBlob = new Blob([Buffer.from(authResult.privateKey).toString('hex')], { type: 'text/plain' });
+      const url = window.URL.createObjectURL(privateKeyBlob);
+      
+      // Create a temporary link and trigger download
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `private-key-${truncateAddress(authResult.address)}.txt`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+      setShowExportDialog(false);
+      toast({
+        title: "Private Key Exported",
+        description: "Your private key has been exported successfully.",
+        variant: "success",
+      });
+    } catch (error) {
+      console.error("Error exporting private key:", error);
+      toast({
+        title: "Export Failed",
+        description: "Failed to export private key. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
   
   if (authResult && storedKey) {
     return (
@@ -88,6 +136,18 @@ export const PasskeySection = ({ authResult, onRegister, onAuthenticate }: Passk
             </div>
           </div>
 
+          {/* Export Private Key Button */}
+          <div className="mb-6">
+            <Button
+              variant="outline"
+              onClick={() => setShowExportDialog(true)}
+              className="w-full border-artence-purple text-artence-purple hover:bg-artence-purple/10"
+            >
+              <Download className="mr-2 h-4 w-4" />
+              Export Private Key
+            </Button>
+          </div>
+
           {/* Balance Section */}
           <div className="mb-6">
             <p className="text-sm text-gray-600 dark:text-gray-300 mb-2 transition-colors duration-300">
@@ -108,6 +168,28 @@ export const PasskeySection = ({ authResult, onRegister, onAuthenticate }: Passk
             <ConnectedAppsList />
           </div>
         </div>
+
+        {/* Export Private Key Dialog */}
+        <AlertDialog open={showExportDialog} onOpenChange={setShowExportDialog}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Export Private Key</AlertDialogTitle>
+              <AlertDialogDescription>
+                You will need to authenticate with your passkey to export your private key. 
+                Keep this file secure and never share it with anyone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleExportPrivateKey}
+                className="bg-artence-purple hover:bg-artence-purple/90"
+              >
+                Continue with Passkey
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     );
   }
