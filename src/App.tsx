@@ -49,7 +49,7 @@ function AppContent() {
             // Push content left on desktop when sidebar is expanded
             expanded ? "md:mr-[500px]" : "mr-0",
             // Ensure content is below sidebar on mobile
-            "relative z-[1]"
+            "relative z-0"
           )}
         >
           <Routes>
