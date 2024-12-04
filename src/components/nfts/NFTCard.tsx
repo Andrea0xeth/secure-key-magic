@@ -30,23 +30,25 @@ export const NFTCard: FC<NFTCardProps> = ({ nft }) => {
         />
       </div>
       <CardHeader className="space-y-1">
-        <h3 className="text-xl font-semibold">{nft.events.title}</h3>
-        <a 
-          href={`https://testnet.explorer.perawallet.app/asset/${nft.asset_id}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-sm text-artence-purple hover:text-artence-purple/80 flex items-center gap-1"
-        >
-          Asset ID: {nft.asset_id}
-          <ExternalLink className="w-3 h-3" />
-        </a>
-        <p className="text-sm text-muted-foreground">
+        <h3 className="text-xl font-semibold text-center">{nft.events.title}</h3>
+        <div className="flex justify-center w-full">
+          <a 
+            href={`https://testnet.explorer.perawallet.app/asset/${nft.asset_id}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-sm text-artence-purple hover:text-artence-purple/80 flex items-center gap-1 justify-center"
+          >
+            Asset ID: {nft.asset_id}
+            <ExternalLink className="w-3 h-3" />
+          </a>
+        </div>
+        <p className="text-sm text-muted-foreground text-center">
           Minted: {new Date(nft.minted_at).toLocaleDateString()}
         </p>
       </CardHeader>
       <CardContent>
-        <p className="text-sm text-muted-foreground mb-2">{nft.events.description}</p>
-        <div className="flex flex-col gap-1 text-sm">
+        <p className="text-sm text-muted-foreground mb-2 text-center">{nft.events.description}</p>
+        <div className="flex flex-col gap-1 text-sm items-center">
           <p>📍 {nft.events.location}</p>
           <p>📅 {new Date(nft.events.date).toLocaleDateString()}</p>
         </div>
