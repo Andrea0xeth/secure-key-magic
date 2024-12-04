@@ -12,8 +12,8 @@ import { useSidebar } from "@/components/ui/sidebar";
 import { WalletTabContent } from "./sidebar/WalletTabContent";
 import { TabNavigation } from "./sidebar/TabNavigation";
 import { AuthSection } from "./sidebar/AuthSection";
-import { Button } from "@/components/ui/button";
-import { X } from "lucide-react";
+import { LoadingState } from "./sidebar/LoadingState";
+import { SidebarHeader } from "./sidebar/SidebarHeader";
 
 export function WalletSidebar() {
   const { toast } = useToast();
@@ -120,13 +120,7 @@ export function WalletSidebar() {
   };
 
   if (isLoading) {
-    return (
-      <Sidebar className="border-l">
-        <div className="flex items-center justify-center h-full">
-          <div className="animate-pulse text-gray-400">Loading...</div>
-        </div>
-      </Sidebar>
-    );
+    return <LoadingState />;
   }
 
   if (!session) {
@@ -140,16 +134,7 @@ export function WalletSidebar() {
   return (
     <Sidebar className="border-l">
       <div className="flex flex-col h-full">
-        <div className="relative">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setExpanded(false)}
-            className="absolute right-4 top-4 rotate-animation"
-          >
-            <X className="h-5 w-5" />
-          </Button>
-        </div>
+        <SidebarHeader onClose={() => setExpanded(false)} />
         <Tabs defaultValue="wallet" className="w-full mt-16">
           <TabNavigation onLogout={handleLogout} />
           <WalletTabContent
