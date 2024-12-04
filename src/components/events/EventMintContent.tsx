@@ -67,6 +67,7 @@ export const EventMintContent: FC<EventMintContentProps> = ({
     console.log("EventMintContent: Mint clicked");
     try {
       await onMint();
+      console.log("EventMintContent: Minting completed successfully");
     } catch (error) {
       console.error("EventMintContent: Error during minting:", error);
     }

@@ -30,7 +30,10 @@ export const TransactionDialog = ({ isOpen, onClose, transaction, onSign }: Tran
       setIsLoading(true);
       console.log("Starting transaction signing process");
       
+      console.log("Initiating passkey authentication...");
       const authResult = await authenticateWithPasskey();
+      console.log("Passkey authentication result:", authResult ? "Success" : "Failed");
+      
       if (!authResult) {
         throw new Error("Failed to authenticate with passkey");
       }
@@ -41,6 +44,7 @@ export const TransactionDialog = ({ isOpen, onClose, transaction, onSign }: Tran
         // Decode the transaction
         const txnBuffer = Buffer.from(transaction.txn, 'base64');
         const decodedTxn = algosdk.decodeUnsignedTransaction(txnBuffer);
+        console.log("Transaction decoded successfully");
         
         // Create the account using the private key
         const account = algosdk.mnemonicToSecretKey(algosdk.secretKeyToMnemonic(authResult.privateKey));
@@ -115,7 +119,7 @@ export const TransactionDialog = ({ isOpen, onClose, transaction, onSign }: Tran
         <DialogHeader>
           <DialogTitle>Sign Transaction</DialogTitle>
           <DialogDescription>
-            Review and sign the transaction with your passkey
+            Please review the transaction details below and sign with your passkey
           </DialogDescription>
         </DialogHeader>
         
@@ -129,7 +133,7 @@ export const TransactionDialog = ({ isOpen, onClose, transaction, onSign }: Tran
                   <span className="col-span-2 font-medium break-all">
                     {typeof value === 'object' ? JSON.stringify(value) : value.toString()}
                   </span>
-              </div>
+                </div>
               ))}
             </div>
           </div>
