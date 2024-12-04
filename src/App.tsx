@@ -46,7 +46,10 @@ function AppContent() {
           className={cn(
             "min-h-screen w-full will-change-transform",
             "transition-all duration-500 ease-in-out",
-            expanded ? "md:mr-[500px]" : "mr-0"
+            // Push content left on desktop when sidebar is expanded
+            expanded ? "md:mr-[500px]" : "mr-0",
+            // Ensure content is below sidebar on mobile
+            "relative z-0"
           )}
         >
           <Routes>

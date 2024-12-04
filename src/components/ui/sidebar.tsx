@@ -43,11 +43,13 @@ export function Sidebar({ className, children, ...props }: SidebarProps) {
   return (
     <aside
       className={cn(
-        "fixed top-0 right-0 h-screen will-change-transform z-[110]",
+        "fixed top-0 right-0 h-screen will-change-transform",
+        // Ensure sidebar is always on top of other components
+        "z-[9999]",
         "bg-gradient-radial from-artence-light via-white to-transparent dark:from-black dark:via-artence-dark/90 dark:to-artence-dark/50",
-        // Desktop styles
+        // Desktop styles - push content left when expanded
         "md:w-[500px]",
-        // Mobile styles
+        // Mobile styles - overlay on top of content
         "w-full",
         // Smooth transition
         "transition-transform duration-500 ease-in-out",
