@@ -46,12 +46,9 @@ export const ConnectedAppsList = () => {
     }
   };
 
+  // Only render if there's a connected app
   if (!connectedApp) {
-    return (
-      <div className="text-sm text-gray-500 dark:text-gray-400 text-center transition-colors duration-300">
-        No connected dApps
-      </div>
-    );
+    return null;
   }
 
   return (
