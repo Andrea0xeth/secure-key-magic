@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { getStoredAlgorandKey } from "@/lib/storage/keyStorage";
 import { format } from "date-fns";
 import { EventMintSuccessAction } from "@/components/events/EventMintSuccessAction";
+import { ToastAction } from "@/components/ui/toast";
 
 interface Event {
   id: string;
@@ -92,9 +93,14 @@ export const useMintNFT = (event: Event, onSuccess: () => void) => {
         title: "NFT Minted Successfully!",
         description: "Your NFT has been created and added to your collection.",
         variant: "success",
-        action: React.createElement(EventMintSuccessAction, {
-          onClose: () => toastInstance.dismiss()
-        })
+        action: (
+          <ToastAction altText="View NFTs" onClick={() => {
+            toastInstance.dismiss();
+            window.location.href = '/my-nfts';
+          }}>
+            View My NFTs
+          </ToastAction>
+        ),
       });
       
     } catch (error) {
