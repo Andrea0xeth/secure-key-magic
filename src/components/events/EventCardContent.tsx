@@ -14,7 +14,7 @@ export const EventCardContent: FC<EventCardContentProps> = ({
   onMintClick,
 }) => {
   return (
-    <div className="flex flex-col h-full justify-between space-y-2">
+    <div className="flex flex-col h-full justify-between space-y-2 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
       {/* Location section */}
       <div className="flex items-center space-x-2 text-xs sm:text-sm text-white/80">
         <MapPinIcon className="w-3 h-3 sm:w-4 sm:h-4" />
