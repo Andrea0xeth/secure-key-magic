@@ -1,12 +1,15 @@
-import { FC } from "react";
+import { FC, useState } from "react";
 import { format } from "date-fns";
 import { CalendarIcon, MapPinIcon, LogIn, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { EventShareButtons } from "./EventShareButtons";
 import { useSidebar } from "@/components/ui/sidebar";
 import { supabase } from "@/integrations/supabase/client";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { getStoredAlgorandKey } from "@/lib/storage/keyStorage";
+import { TransactionDialog } from "@/components/TransactionDialog";
+import { useToast } from "@/components/ui/use-toast";
+import * as algosdk from "algosdk";
 
 interface Event {
   id: string;
@@ -21,7 +24,7 @@ interface Event {
 interface EventMintContentProps {
   event: Event;
   isMinting: boolean;
-  onMint: () => void;
+  onMint: () => Promise<void>;
   onNavigateToNFTs: () => void;
 }
 
@@ -33,6 +36,10 @@ export const EventMintContent: FC<EventMintContentProps> = ({
 }) => {
   const { setExpanded } = useSidebar();
   const [session, setSession] = useState<any>(null);
+  const [isTransactionDialogOpen, setIsTransactionDialogOpen] = useState(false);
+  const [transaction, setTransaction] = useState<{ txn: string; type?: string } | null>(null);
+  const { toast } = useToast();
+  
   const formattedDate = format(new Date(event.date), "MMM d, yyyy");
   const walletAddress = getStoredAlgorandKey();
 
@@ -56,6 +63,64 @@ export const EventMintContent: FC<EventMintContentProps> = ({
 
   const handleConnectWalletClick = () => {
     setExpanded(true);
+  };
+
+  const handleMintClick = async () => {
+    try {
+      console.log("Starting NFT minting process...");
+      
+      // Create a sample transaction for testing
+      const suggestedParams = {
+        fee: 1000,
+        firstRound: 1,
+        lastRound: 1000,
+        genesisID: 'testnet-v1.0',
+        genesisHash: 'SGO1GKSzyE7IEPItTxCByw9x8FmnrCDexi9/cOUJOiI=',
+      };
+
+      const txn = new algosdk.Transaction({
+        from: walletAddress,
+        to: walletAddress,
+        amount: 0,
+        suggestedParams
+      });
+
+      const encodedTxn = Buffer.from(algosdk.encodeUnsignedTransaction(txn)).toString('base64');
+      console.log("Created transaction:", encodedTxn);
+
+      setTransaction({
+        txn: encodedTxn,
+        type: 'pay'
+      });
+      setIsTransactionDialogOpen(true);
+
+    } catch (error) {
+      console.error("Error preparing mint transaction:", error);
+      toast({
+        title: "Error",
+        description: "Failed to prepare minting transaction",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleTransactionSigned = async (signedTxn: Uint8Array) => {
+    try {
+      console.log("Transaction signed successfully, proceeding with minting...");
+      await onMint();
+      toast({
+        title: "Success",
+        description: "NFT minted successfully!",
+      });
+      setIsTransactionDialogOpen(false);
+    } catch (error) {
+      console.error("Error completing mint after signing:", error);
+      toast({
+        title: "Error",
+        description: "Failed to complete minting process",
+        variant: "destructive",
+      });
+    }
   };
 
   const renderActionButton = () => {
@@ -86,10 +151,10 @@ export const EventMintContent: FC<EventMintContentProps> = ({
     return (
       <Button 
         className="w-full bg-artence-purple hover:bg-white hover:text-artence-purple border-2 border-transparent hover:border-artence-purple transition-all duration-300"
-        onClick={onMint}
+        onClick={handleMintClick}
         disabled={isMinting}
       >
-        {isMinting ? "Minting..." : "Confirm Mint"}
+        {isMinting ? "Minting..." : "Mint NFT"}
       </Button>
     );
   };
@@ -123,6 +188,13 @@ export const EventMintContent: FC<EventMintContentProps> = ({
         </div>
         {renderActionButton()}
       </div>
+
+      <TransactionDialog
+        isOpen={isTransactionDialogOpen}
+        onClose={() => setIsTransactionDialogOpen(false)}
+        transaction={transaction}
+        onSign={handleTransactionSigned}
+      />
     </div>
   );
 };
