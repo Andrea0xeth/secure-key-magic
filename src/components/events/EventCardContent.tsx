@@ -19,11 +19,11 @@ export const EventCardContent: FC<EventCardContentProps> = ({
         <MapPinIcon className="w-4 h-4" />
         <span className="truncate">{location}</span>
       </div>
-      <div className="flex flex-col justify-end h-full space-y-4">
+      <div className="flex flex-col justify-between h-full space-y-6">
         <p className="text-sm text-white/90 line-clamp-3 overflow-hidden">
           {description}
         </p>
-        <div className="relative mt-2">
+        <div className="py-4">
           <Button 
             className="w-full bg-artence-purple hover:bg-white hover:text-artence-purple transition-colors duration-300"
             onClick={onMintClick}
