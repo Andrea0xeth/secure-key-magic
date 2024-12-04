@@ -21,7 +21,7 @@ interface Event {
 interface EventMintContentProps {
   event: Event;
   isMinting: boolean;
-  onMint: () => void;
+  onMint: () => Promise<void>;
   onNavigateToNFTs: () => void;
 }
 
@@ -37,13 +37,16 @@ export const EventMintContent: FC<EventMintContentProps> = ({
   const walletAddress = getStoredAlgorandKey();
 
   useEffect(() => {
+    console.log("EventMintContent: Initializing");
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log("EventMintContent: Initial session loaded:", session);
       setSession(session);
     });
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      console.log("EventMintContent: Auth state changed:", _event, session);
       setSession(session);
     });
 
@@ -51,11 +54,22 @@ export const EventMintContent: FC<EventMintContentProps> = ({
   }, []);
 
   const handleLoginClick = () => {
+    console.log("EventMintContent: Login clicked");
     setExpanded(true);
   };
 
   const handleConnectWalletClick = () => {
+    console.log("EventMintContent: Connect wallet clicked");
     setExpanded(true);
+  };
+
+  const handleMintClick = async () => {
+    console.log("EventMintContent: Mint clicked");
+    try {
+      await onMint();
+    } catch (error) {
+      console.error("EventMintContent: Error during minting:", error);
+    }
   };
 
   const renderActionButton = () => {
@@ -86,7 +100,7 @@ export const EventMintContent: FC<EventMintContentProps> = ({
     return (
       <Button 
         className="w-full bg-artence-purple hover:bg-white hover:text-artence-purple border-2 border-transparent hover:border-artence-purple transition-all duration-300"
-        onClick={onMint}
+        onClick={handleMintClick}
         disabled={isMinting}
       >
         {isMinting ? "Minting..." : "Confirm Mint"}
