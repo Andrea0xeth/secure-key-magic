@@ -41,8 +41,8 @@ export const EventMintDialog: FC<EventMintDialogProps> = ({
   const handleSuccess = () => {
     onClose();
     toast({
-      title: "Success",
-      description: "NFT minted successfully!",
+      title: "NFT Minted Successfully! 🎉",
+      description: "Your NFT has been added to your collection. Click below to view all your NFTs.",
       variant: "success",
       action: <EventMintSuccessAction />,
     });

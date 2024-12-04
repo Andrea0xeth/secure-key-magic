@@ -14,9 +14,9 @@ export const EventMintSuccessAction: FC = () => {
       variant="outline" 
       size="sm" 
       onClick={handleClick}
-      className="bg-success hover:bg-success/90 text-white border-success hover:border-success/90 font-medium mt-4"
+      className="bg-success hover:bg-success/90 text-white border-success hover:border-success/90 font-medium mt-4 w-full"
     >
-      View My NFTs
+      View My NFTs Collection
     </Button>
   );
 };
