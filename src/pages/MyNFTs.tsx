@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { ImageIcon, RefreshCcw } from "lucide-react";
+import { ImageIcon, RefreshCcw, ExternalLink } from "lucide-react";
 import { AppHeader } from "@/components/layout/AppHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -110,7 +110,15 @@ const MyNFTs = () => {
                   </div>
                   <CardHeader className="space-y-1">
                     <h3 className="text-xl font-semibold">{nft.events.title}</h3>
-                    <p className="text-sm text-muted-foreground">Asset ID: {nft.asset_id}</p>
+                    <a 
+                      href={`https://testnet.explorer.perawallet.app/asset/${nft.asset_id}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm text-artence-purple hover:text-artence-purple/80 flex items-center gap-1"
+                    >
+                      Asset ID: {nft.asset_id}
+                      <ExternalLink className="w-3 h-3" />
+                    </a>
                     <p className="text-sm text-muted-foreground">
                       Minted: {new Date(nft.minted_at).toLocaleDateString()}
                     </p>
