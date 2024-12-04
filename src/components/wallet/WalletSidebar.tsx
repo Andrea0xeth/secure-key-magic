@@ -21,50 +21,91 @@ export function WalletSidebar() {
   const [authResult, setAuthResult] = useState<AuthenticationResult | null>(null);
   const [session, setSession] = useState<any>(null);
   const { setExpanded } = useSidebar();
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const storedKey = getStoredAlgorandKey();
-    if (storedKey) {
-      setAuthResult({
-        address: storedKey,
-        publicKey: storedKey,
-        privateKey: new Uint8Array(),
-        addr: storedKey,
-        sk: new Uint8Array()
-      });
-    }
+    console.log("WalletSidebar: Initial mount");
+    const initializeWallet = async () => {
+      try {
+        // Check stored key first
+        const storedKey = getStoredAlgorandKey();
+        console.log("WalletSidebar: Stored key found:", storedKey);
+        
+        if (storedKey) {
+          setAuthResult({
+            address: storedKey,
+            publicKey: storedKey,
+            privateKey: new Uint8Array(),
+            addr: storedKey,
+            sk: new Uint8Array(),
+            mnemonic: ''
+          });
+        }
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-    });
+        // Get session
+        const { data: { session } } = await supabase.auth.getSession();
+        console.log("WalletSidebar: Session loaded:", session);
+        setSession(session);
+      } catch (error) {
+        console.error("WalletSidebar: Error initializing:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    initializeWallet();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      console.log("Auth state changed:", _event, session);
+      console.log("WalletSidebar: Auth state changed:", _event, session);
       setSession(session);
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      console.log("WalletSidebar: Cleanup");
+      subscription.unsubscribe();
+    };
   }, []);
 
   const handleRegister = async () => {
-    const result = await registerPasskey();
-    setAuthResult({
-      ...result,
-      privateKey: new Uint8Array(),
-      addr: result.address,
-      sk: new Uint8Array(),
-      mnemonic: ''  // This will be populated during authentication
-    });
+    try {
+      console.log("WalletSidebar: Starting registration");
+      const result = await registerPasskey();
+      setAuthResult({
+        ...result,
+        privateKey: new Uint8Array(),
+        addr: result.address,
+        sk: new Uint8Array(),
+        mnemonic: ''
+      });
+    } catch (error) {
+      console.error("WalletSidebar: Registration error:", error);
+      toast({
+        title: "Registration Failed",
+        description: "Failed to register passkey. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleAuthenticate = async () => {
-    const result = await authenticateWithPasskey();
-    setAuthResult(result);
+    try {
+      console.log("WalletSidebar: Starting authentication");
+      const result = await authenticateWithPasskey();
+      setAuthResult(result);
+    } catch (error) {
+      console.error("WalletSidebar: Authentication error:", error);
+      toast({
+        title: "Authentication Failed",
+        description: "Failed to authenticate with passkey. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleLogout = async () => {
     try {
       await supabase.auth.signOut();
+      setAuthResult(null);
       toast({
         title: "Logged out",
         description: "You have been successfully logged out",
@@ -79,6 +120,17 @@ export function WalletSidebar() {
       });
     }
   };
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <Sidebar className="border-l">
+        <div className="flex items-center justify-center h-full">
+          <div className="animate-pulse text-gray-400">Loading...</div>
+        </div>
+      </Sidebar>
+    );
+  }
 
   if (!session) {
     return (
