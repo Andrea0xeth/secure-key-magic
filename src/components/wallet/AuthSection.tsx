@@ -37,14 +37,6 @@ export const AuthSection = ({ showSignUp, setShowSignUp }: AuthSectionProps) => 
           />
           <div className="mt-6 text-center space-y-2">
             <p className="text-gray-600">
-              <button
-                onClick={() => {/* Handle forgot password */}}
-                className="text-artence-purple hover:underline"
-              >
-                Forgot your password?
-              </button>
-            </p>
-            <p className="text-gray-600">
               Don't have an account?{" "}
               <button
                 onClick={() => setShowSignUp(true)}
