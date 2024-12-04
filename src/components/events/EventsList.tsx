@@ -9,14 +9,21 @@ export const EventsList = () => {
   const { data: events, isLoading } = useQuery({
     queryKey: ["events"],
     queryFn: async () => {
+      console.log("Fetching events...");
       const { data, error } = await supabase
         .from("events")
         .select("*")
         .order("date", { ascending: true });
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching events:", error);
+        throw error;
+      }
+      console.log("Events fetched successfully:", data?.length || 0, "events");
       return data;
     },
+    staleTime: 1000 * 60 * 5, // Cache for 5 minutes
+    refetchOnMount: false,
   });
 
   const gridClassName = cn(
@@ -39,9 +46,17 @@ export const EventsList = () => {
     );
   }
 
+  if (!events?.length) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <p className="text-gray-500 dark:text-gray-400">No events found</p>
+      </div>
+    );
+  }
+
   return (
     <div className={gridClassName}>
-      {events?.map((event) => (
+      {events.map((event) => (
         <EventCard key={event.id} event={event} />
       ))}
     </div>
