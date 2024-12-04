@@ -4,6 +4,7 @@ import { createSoulboundNFT } from "@/lib/algorand/soulboundNFT";
 import { supabase } from "@/integrations/supabase/client";
 import { getStoredAlgorandKey } from "@/lib/storage/keyStorage";
 import { format } from "date-fns";
+import { EventMintSuccessAction } from "@/components/events/EventMintSuccessAction";
 
 interface Event {
   id: string;
@@ -87,8 +88,10 @@ export const useMintNFT = (event: Event, onSuccess: () => void) => {
       onSuccess();
       
       toast({
-        title: "Success",
-        description: "NFT minted successfully!",
+        title: "NFT Minted Successfully!",
+        description: "Your NFT has been created and added to your collection.",
+        variant: "success",
+        action: <EventMintSuccessAction onClose={() => toast.dismiss()} />,
       });
       
     } catch (error) {
