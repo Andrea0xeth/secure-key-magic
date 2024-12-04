@@ -42,6 +42,7 @@ export const EventMintDialog: FC<EventMintDialogProps> = ({
     toast({
       title: "Success!",
       description: "NFT minted successfully! You can view all your NFTs in your collection.",
+      variant: "success",
       action: (
         <Button 
           variant="outline" 
