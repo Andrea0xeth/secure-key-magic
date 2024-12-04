@@ -95,7 +95,7 @@ export const EventMintContent: FC<EventMintContentProps> = ({
   };
 
   return (
-    <div className="grid gap-6 py-4">
+    <div className="grid gap-6 py-4 relative z-[50]">
       <div className="aspect-video w-full overflow-hidden rounded-lg">
         <img
           src={event.image_url}
