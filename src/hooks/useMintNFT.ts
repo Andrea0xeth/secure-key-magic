@@ -27,6 +27,23 @@ export const useMintNFT = (event: Event, onSuccess: () => void) => {
         throw new Error("User not authenticated");
       }
 
+      // Check if user already has an NFT for this event
+      const { data: existingNFT } = await supabase
+        .from('user_nfts')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('event_id', event.id)
+        .single();
+
+      if (existingNFT) {
+        toast({
+          title: "NFT Already Minted",
+          description: "You have already minted an NFT for this event.",
+          variant: "destructive",
+        });
+        return;
+      }
+
       const walletAddress = getStoredAlgorandKey();
       if (!walletAddress) {
         throw new Error("Please authenticate with your passkey first");
@@ -69,9 +86,18 @@ export const useMintNFT = (event: Event, onSuccess: () => void) => {
       console.log("NFT saved to user_nfts table");
       onSuccess();
       
+      toast({
+        title: "Success",
+        description: "NFT minted successfully!",
+      });
+      
     } catch (error) {
       console.error("Error minting NFT:", error);
-      throw error;
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to mint NFT",
+        variant: "destructive",
+      });
     } finally {
       setIsMinting(false);
     }
