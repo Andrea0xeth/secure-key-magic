@@ -44,8 +44,8 @@ export function Sidebar({ className, children, ...props }: SidebarProps) {
     <aside
       className={cn(
         "fixed top-0 right-0 h-screen will-change-transform",
-        // Ensure sidebar is always on top of other components
-        "z-[9999]",
+        // Base z-index for sidebar - high but below modal
+        "z-50",
         "bg-gradient-radial from-artence-light via-white to-transparent dark:from-black dark:via-artence-dark/90 dark:to-artence-dark/50",
         // Desktop styles - push content left when expanded
         "md:w-[500px]",

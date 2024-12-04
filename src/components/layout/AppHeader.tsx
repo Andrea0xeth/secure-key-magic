@@ -37,7 +37,7 @@ export const AppHeader = () => {
   const isMyNFTsPage = location.pathname === '/my-nfts';
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-[100] bg-white/80 dark:bg-black/80 backdrop-blur-sm border-b border-gray-200 dark:border-gray-800">
+    <header className="fixed top-0 left-0 right-0 z-40 bg-white/80 dark:bg-black/80 backdrop-blur-sm border-b border-gray-200 dark:border-gray-800">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         <h1 
           onClick={() => navigate('/')} 
@@ -68,7 +68,7 @@ export const AppHeader = () => {
             variant="ghost" 
             size="icon"
             onClick={() => setExpanded(!expanded)}
-            className="transition-all duration-300 hover:bg-gray-100 dark:hover:bg-gray-800 z-50"
+            className="transition-all duration-300 hover:bg-gray-100 dark:hover:bg-gray-800"
           >
             <ChevronRight 
               className={cn(
