@@ -72,10 +72,19 @@ export const EventMintDialog: FC<EventMintDialogProps> = ({
     navigate('/my-nfts');
   };
 
+  const handleOpenChange = (open: boolean) => {
+    if (!open) {
+      // Ensure we clean up any modal state
+      document.body.style.pointerEvents = '';
+      document.body.style.overflow = '';
+      onClose();
+    }
+  };
+
   return (
-    <Dialog open={isOpen} onOpenChange={onClose} modal>
+    <Dialog open={isOpen} onOpenChange={handleOpenChange} modal>
       <DialogContent 
-        className="sm:max-w-[425px] bg-white dark:bg-artence-navy border-artence-purple sm:rounded-lg w-full sm:w-auto fixed top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] z-[100]"
+        className="sm:max-w-[425px] bg-white dark:bg-artence-navy border-artence-purple sm:rounded-lg w-full sm:w-auto fixed top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] z-[99]"
         onInteractOutside={onClose}
         onEscapeKeyDown={onClose}
       >
