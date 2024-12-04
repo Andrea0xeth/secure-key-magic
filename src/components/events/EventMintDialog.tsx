@@ -72,9 +72,21 @@ export const EventMintDialog: FC<EventMintDialogProps> = ({
     navigate('/my-nfts');
   };
 
+  const handleOpenChange = (open: boolean) => {
+    if (!open) {
+      onClose();
+    }
+  };
+
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px] bg-white dark:bg-artence-navy border-artence-purple sm:rounded-lg w-full sm:w-auto">
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
+      <DialogContent 
+        className="sm:max-w-[425px] bg-white dark:bg-artence-navy border-artence-purple sm:rounded-lg w-full sm:w-auto fixed z-[100]"
+        onInteractOutside={(e) => {
+          e.preventDefault();
+          onClose();
+        }}
+      >
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold">
             Mint Event NFT
