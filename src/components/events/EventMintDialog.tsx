@@ -1,11 +1,12 @@
 import { FC } from "react";
+import { Button } from "@/components/ui/button";
 import { useSidebar } from "@/components/ui/sidebar";
+import { useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
 import { useMintNFT } from "@/hooks/useMintNFT";
 import { EventMintContent } from "./EventMintContent";
 import { EventMintSuccessAction } from "./EventMintSuccessAction";
 import { EventMintErrorAction } from "./EventMintErrorAction";
-import { useNavigate } from "react-router-dom";
 import {
   Dialog,
   DialogContent,
