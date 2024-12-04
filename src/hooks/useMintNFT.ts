@@ -37,6 +37,7 @@ export const useMintNFT = (event: Event, onSuccess: () => void) => {
         sk: new Uint8Array(32)
       };
 
+      // Create the NFT
       const assetId = await createSoulboundNFT(
         account,
         event.title,
@@ -46,13 +47,18 @@ export const useMintNFT = (event: Event, onSuccess: () => void) => {
 
       console.log("NFT created with asset ID:", assetId);
 
+      // Update the event with the NFT asset ID
       const { error: updateError } = await supabase
         .from('events')
         .update({ nft_asset_id: assetId.toString() })
         .eq('id', event.id);
 
-      if (updateError) throw updateError;
+      if (updateError) {
+        console.error("Error updating event with NFT asset ID:", updateError);
+        throw updateError;
+      }
 
+      // Store the NFT in user_nfts table
       const { error: insertError } = await supabase
         .from('user_nfts')
         .insert({
@@ -66,7 +72,7 @@ export const useMintNFT = (event: Event, onSuccess: () => void) => {
         throw insertError;
       }
 
-      console.log("NFT saved to user_nfts table");
+      console.log("NFT successfully saved to database");
       onSuccess();
       
     } catch (error) {
