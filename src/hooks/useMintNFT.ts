@@ -4,6 +4,7 @@ import { createSoulboundNFT } from "@/lib/algorand/soulboundNFT";
 import { supabase } from "@/integrations/supabase/client";
 import { getStoredAlgorandKey } from "@/lib/storage/keyStorage";
 import { format } from "date-fns";
+import { authenticateWithPasskey } from "@/lib/webauthn";
 
 interface Event {
   id: string;
@@ -27,17 +28,26 @@ export const useMintNFT = (event: Event, onSuccess: () => void) => {
         throw new Error("User not authenticated");
       }
 
+      // Get passkey authentication to get the private key
+      console.log("Authenticating with passkey...");
+      const authResult = await authenticateWithPasskey();
+      if (!authResult) {
+        throw new Error("Failed to authenticate with passkey");
+      }
+      console.log("Passkey authentication successful");
+
       const walletAddress = getStoredAlgorandKey();
       if (!walletAddress) {
         throw new Error("Please authenticate with your passkey first");
       }
 
+      // Use the authenticated account with the correct private key
       const account = {
         addr: walletAddress,
-        sk: new Uint8Array(32)
+        sk: authResult.sk // Use the private key from passkey authentication
       };
 
-      // Create the NFT
+      console.log("Creating NFT with authenticated account...");
       const assetId = await createSoulboundNFT(
         account,
         event.title,
