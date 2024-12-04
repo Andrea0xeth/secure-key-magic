@@ -1,4 +1,5 @@
 import * as algosdk from "algosdk";
+import { authenticateWithPasskey } from "../webauthn";
 
 export async function createSoulboundNFT(
   creator: algosdk.Account,
@@ -32,8 +33,15 @@ export async function createSoulboundNFT(
     suggestedParams,
   });
 
-  // Sign the transaction
-  const signedTxn = txn.signTxn(creator.sk);
+  // Get passkey authentication and sign the transaction
+  console.log("Requesting passkey authentication for transaction signing...");
+  const authResult = await authenticateWithPasskey();
+  if (!authResult) {
+    throw new Error("Failed to authenticate with passkey");
+  }
+
+  // Sign the transaction with the authenticated account
+  const signedTxn = txn.signTxn(authResult.sk);
   console.log("Transaction signed successfully");
 
   // Submit the transaction

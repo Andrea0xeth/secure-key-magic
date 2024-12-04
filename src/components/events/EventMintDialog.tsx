@@ -7,7 +7,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { createSoulboundNFT } from "@/lib/algorand/soulboundNFT";
 import { supabase } from "@/integrations/supabase/client";
 import * as algosdk from "algosdk";
-import { getStoredMnemonic } from "@/lib/storage/keyStorage";
+import { getStoredAlgorandKey } from "@/lib/storage/keyStorage";
 import { useSidebar } from "@/components/ui/sidebar";
 import {
   Dialog,
@@ -53,9 +53,9 @@ export const EventMintDialog: FC<EventMintDialogProps> = ({
         throw new Error("User not authenticated");
       }
 
-      // Get the stored mnemonic from passkey authentication
-      const mnemonic = getStoredMnemonic();
-      if (!mnemonic) {
+      // Get the stored wallet address
+      const walletAddress = getStoredAlgorandKey();
+      if (!walletAddress) {
         toast({
           title: "Wallet Not Found",
           description: "Please authenticate with your passkey first",
@@ -74,11 +74,13 @@ export const EventMintDialog: FC<EventMintDialogProps> = ({
         return;
       }
 
-      // Create the account from the stored mnemonic
-      const account = algosdk.mnemonicToSecretKey(mnemonic);
-      console.log("Using account for minting:", account.addr);
+      // Create the account object (the private key will be provided through passkey authentication)
+      const account = {
+        addr: walletAddress,
+        sk: new Uint8Array(32) // This will be replaced with the actual key during signing
+      };
 
-      // Create the soulbound NFT
+      // Create the soulbound NFT - this will handle passkey authentication and signing
       const assetId = await createSoulboundNFT(
         account,
         event.title,
@@ -104,7 +106,7 @@ export const EventMintDialog: FC<EventMintDialogProps> = ({
       console.error("Error minting NFT:", error);
       toast({
         title: "Minting Failed",
-        description: "Failed to mint NFT. Please try again.",
+        description: error.message || "Failed to mint NFT. Please try again.",
         variant: "destructive",
       });
     } finally {
