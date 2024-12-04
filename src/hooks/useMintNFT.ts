@@ -41,15 +41,15 @@ export const useMintNFT = (event: Event, onSuccess: () => void) => {
         throw new Error("Please authenticate with your passkey first");
       }
 
-      // Use the authenticated account with the correct private key
-      const account = {
+      // Create the creator account object with address and private key
+      const creator = {
         addr: walletAddress,
         sk: authResult.sk // Use the private key from passkey authentication
       };
 
       console.log("Creating NFT with authenticated account...");
       const assetId = await createSoulboundNFT(
-        account,
+        creator,
         event.title,
         formattedDate,
         event.image_url

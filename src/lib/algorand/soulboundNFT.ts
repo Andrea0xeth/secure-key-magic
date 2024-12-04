@@ -17,7 +17,7 @@ export async function createSoulboundNFT(
   const truncatedAssetName = eventTitle.slice(0, 32);
   console.log("Using truncated asset name:", truncatedAssetName);
 
-  // Asset creation transaction
+  // Create the asset creation transaction
   const txn = algosdk.makeAssetCreateTxnWithSuggestedParamsFromObject({
     from: creator.addr,
     total: 1,
@@ -33,14 +33,14 @@ export async function createSoulboundNFT(
     suggestedParams,
   });
 
-  console.log("Created asset creation transaction");
+  console.log("Created asset creation transaction:", txn);
 
   // Sign the transaction with the creator's private key
   console.log("Signing transaction with private key...");
   const signedTxn = txn.signTxn(creator.sk);
   console.log("Transaction signed successfully");
 
-  // Submit the transaction
+  // Submit the transaction to the network
   console.log("Submitting transaction to network...");
   const { txId } = await algodClient.sendRawTransaction(signedTxn).do();
   console.log("Transaction submitted with ID:", txId);
