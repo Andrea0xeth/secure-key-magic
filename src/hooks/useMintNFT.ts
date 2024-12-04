@@ -83,10 +83,20 @@ export const useMintNFT = (event: Event, onSuccess: () => void) => {
       }
 
       console.log("NFT successfully saved to database");
+      toast({
+        title: "Success",
+        description: "NFT minted successfully!",
+      });
+      
       onSuccess();
       
     } catch (error) {
       console.error("Error minting NFT:", error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to mint NFT",
+        variant: "destructive",
+      });
       throw error;
     } finally {
       setIsMinting(false);
