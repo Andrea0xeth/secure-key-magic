@@ -1,12 +1,9 @@
-import React from "react";
 import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { createSoulboundNFT } from "@/lib/algorand/soulboundNFT";
 import { supabase } from "@/integrations/supabase/client";
 import { getStoredAlgorandKey } from "@/lib/storage/keyStorage";
 import { format } from "date-fns";
-import { EventMintSuccessAction } from "@/components/events/EventMintSuccessAction";
-import { ToastAction } from "@/components/ui/toast";
 
 interface Event {
   id: string;
@@ -89,18 +86,9 @@ export const useMintNFT = (event: Event, onSuccess: () => void) => {
       console.log("NFT saved to user_nfts table");
       onSuccess();
       
-      const toastInstance = toast({
-        title: "NFT Minted Successfully!",
-        description: "Your NFT has been created and added to your collection.",
-        variant: "success",
-        action: (
-          <ToastAction altText="View NFTs" onClick={() => {
-            toastInstance.dismiss();
-            window.location.href = '/my-nfts';
-          }}>
-            View My NFTs
-          </ToastAction>
-        ),
+      toast({
+        title: "Success",
+        description: "NFT minted successfully!",
       });
       
     } catch (error) {

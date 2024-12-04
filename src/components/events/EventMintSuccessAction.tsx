@@ -1,21 +1,25 @@
 import { FC } from "react";
-import { ToastAction } from "@/components/ui/toast";
+import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 
 interface EventMintSuccessActionProps {
-  altText?: string;
+  onClose: () => void;
 }
 
-export const EventMintSuccessAction: FC<EventMintSuccessActionProps> = ({ altText = "View NFTs" }) => {
+export const EventMintSuccessAction: FC<EventMintSuccessActionProps> = ({ onClose }) => {
   const navigate = useNavigate();
 
   return (
-    <ToastAction 
-      altText={altText}
-      onClick={() => navigate('/my-nfts')}
+    <Button 
+      variant="outline" 
+      size="sm" 
+      onClick={() => {
+        onClose();
+        navigate('/my-nfts');
+      }}
       className="bg-white hover:bg-gray-100 text-artence-purple border-artence-purple"
     >
       View My NFTs
-    </ToastAction>
+    </Button>
   );
 };

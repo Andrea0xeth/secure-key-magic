@@ -49,12 +49,11 @@ export function WalletSidebar() {
   const handleRegister = async () => {
     const result = await registerPasskey();
     setAuthResult({
-      address: result.address,
-      publicKey: result.publicKey,
+      ...result,
       privateKey: new Uint8Array(),
       addr: result.address,
       sk: new Uint8Array(),
-      mnemonic: result.mnemonic || '' // Use mnemonic from result or empty string
+      mnemonic: ''  // This will be populated during authentication
     });
   };
 
