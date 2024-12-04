@@ -44,7 +44,7 @@ export const AlgoBalance = ({ address }: AlgoBalanceProps) => {
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+      <div className="space-y-4">
         {[1, 2, 3].map((i) => (
           <div key={i} className="animate-pulse">
             <Card className="bg-gray-100 dark:bg-gray-800">
@@ -85,7 +85,7 @@ export const AlgoBalance = ({ address }: AlgoBalanceProps) => {
   ];
 
   return (
-    <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+    <div className="space-y-4">
       {balanceCards.map((card, index) => (
         <Card 
           key={index}
