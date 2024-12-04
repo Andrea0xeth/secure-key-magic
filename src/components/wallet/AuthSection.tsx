@@ -26,11 +26,24 @@ export const AuthSection = ({ showSignUp, setShowSignUp }: AuthSectionProps) => 
                   },
                 },
               },
+              // Hide the "Sign Up" link from Auth UI
+              className: {
+                anchor: 'hidden',
+                button: 'hidden',
+              },
             }}
             view={showSignUp ? "sign_up" : "sign_in"}
             providers={[]}
           />
-          <div className="mt-6 text-center">
+          <div className="mt-6 text-center space-y-2">
+            <p className="text-gray-600">
+              <button
+                onClick={() => {/* Handle forgot password */}}
+                className="text-artence-purple hover:underline"
+              >
+                Forgot your password?
+              </button>
+            </p>
             <p className="text-gray-600">
               Don't have an account?{" "}
               <button
