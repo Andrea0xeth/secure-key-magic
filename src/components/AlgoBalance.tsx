@@ -44,11 +44,11 @@ export const AlgoBalance = ({ address }: AlgoBalanceProps) => {
 
   if (isLoading) {
     return (
-      <div className="space-y-4">
+      <div className="space-y-2">
         {[1, 2, 3].map((i) => (
           <div key={i} className="animate-pulse">
             <Card className="bg-gray-100 dark:bg-gray-800">
-              <CardContent className="h-24" />
+              <CardContent className="h-16" />
             </Card>
           </div>
         ))}
@@ -85,26 +85,28 @@ export const AlgoBalance = ({ address }: AlgoBalanceProps) => {
   ];
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-2">
       {balanceCards.map((card, index) => (
         <Card 
           key={index}
           className={`transition-all duration-300 ${card.bgClass} border-none`}
         >
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between mb-2">
-              <h3 className="text-sm font-medium text-gray-600 dark:text-gray-300">
-                {card.title}
-              </h3>
-              <card.icon className={`h-5 w-5 ${card.iconClass}`} />
-            </div>
-            <div className="flex items-baseline">
-              <span className="text-2xl font-semibold text-gray-900 dark:text-white">
-                {card.value}
-              </span>
-              <span className="ml-2 text-sm text-gray-600 dark:text-gray-300">
-                ALGO
-              </span>
+          <CardContent className="py-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <card.icon className={`h-4 w-4 ${card.iconClass}`} />
+                <h3 className="text-sm font-medium text-gray-600 dark:text-gray-300">
+                  {card.title}
+                </h3>
+              </div>
+              <div className="flex items-baseline space-x-1">
+                <span className="text-sm font-semibold text-gray-900 dark:text-white">
+                  {card.value}
+                </span>
+                <span className="text-xs text-gray-600 dark:text-gray-300">
+                  ALGO
+                </span>
+              </div>
             </div>
           </CardContent>
         </Card>

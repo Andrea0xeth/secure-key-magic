@@ -29,40 +29,36 @@ export const WalletInfo = ({ address }: WalletInfoProps) => {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Address Section */}
+    <div className="space-y-4">
       <div className="relative">
-        <code className="px-3 py-2 sm:px-4 sm:py-2 bg-gray-100 dark:bg-gray-800 rounded-lg text-xs sm:text-sm block text-gray-800 dark:text-gray-200 transition-colors duration-300">
+        <code className="px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded text-xs block text-gray-800 dark:text-gray-200 transition-colors duration-300">
           {truncateAddress(address)}
         </code>
         <Button
           variant="ghost"
           size="icon"
-          className="absolute right-2 top-1/2 -translate-y-1/2 hover:bg-gray-200 dark:hover:bg-gray-700"
+          className="absolute right-1 top-1/2 -translate-y-1/2 h-6 w-6 hover:bg-gray-200 dark:hover:bg-gray-700"
           onClick={handleCopyAddress}
         >
-          <Copy className="h-4 w-4" />
+          <Copy className="h-3 w-3" />
         </Button>
       </div>
 
-      {/* Balance Section */}
       <div>
         <AlgoBalance address={address} />
       </div>
 
-      {/* QR Code Section */}
-      <div>
+      <div className="py-2">
         <AddressQRCode address={address} />
       </div>
 
-      {/* Export Seed Phrase Button */}
-      <div className="pt-4 border-t dark:border-gray-800">
+      <div className="pt-2 border-t dark:border-gray-800">
         <Button
           variant="outline"
           onClick={() => setShowExportDialog(true)}
-          className="w-full border-artence-purple text-artence-purple hover:bg-artence-purple/10"
+          className="w-full border-artence-purple text-artence-purple hover:bg-artence-purple/10 py-1 h-8 text-sm"
         >
-          <Download className="mr-2 h-4 w-4" />
+          <Download className="mr-2 h-3 w-3" />
           Export Seed Phrase
         </Button>
       </div>
