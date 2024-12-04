@@ -1,8 +1,11 @@
 import { FC } from "react";
 import { format } from "date-fns";
-import { CalendarIcon, MapPinIcon } from "lucide-react";
+import { CalendarIcon, MapPinIcon, LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { EventShareButtons } from "./EventShareButtons";
+import { useSidebar } from "@/components/ui/sidebar";
+import { supabase } from "@/integrations/supabase/client";
+import { useEffect, useState } from "react";
 
 interface Event {
   id: string;
@@ -27,7 +30,27 @@ export const EventMintContent: FC<EventMintContentProps> = ({
   onMint,
   onNavigateToNFTs,
 }) => {
+  const { setExpanded } = useSidebar();
+  const [session, setSession] = useState<any>(null);
   const formattedDate = format(new Date(event.date), "MMM d, yyyy");
+
+  useEffect(() => {
+    // Get initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+    });
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleLoginClick = () => {
+    setExpanded(true);
+  };
 
   return (
     <div className="grid gap-6 py-4">
@@ -56,13 +79,23 @@ export const EventMintContent: FC<EventMintContentProps> = ({
         <div className="flex justify-center">
           <EventShareButtons event={event} />
         </div>
-        <Button 
-          className="w-full bg-artence-purple hover:bg-white hover:text-artence-purple border-2 border-transparent hover:border-artence-purple transition-all duration-300"
-          onClick={onMint}
-          disabled={isMinting}
-        >
-          {isMinting ? "Minting..." : "Confirm Mint"}
-        </Button>
+        {session ? (
+          <Button 
+            className="w-full bg-artence-purple hover:bg-white hover:text-artence-purple border-2 border-transparent hover:border-artence-purple transition-all duration-300"
+            onClick={onMint}
+            disabled={isMinting}
+          >
+            {isMinting ? "Minting..." : "Confirm Mint"}
+          </Button>
+        ) : (
+          <Button 
+            className="w-full bg-artence-purple hover:bg-white hover:text-artence-purple border-2 border-transparent hover:border-artence-purple transition-all duration-300"
+            onClick={handleLoginClick}
+          >
+            <LogIn className="mr-2 h-4 w-4" />
+            Login to Mint NFT
+          </Button>
+        )}
       </div>
     </div>
   );

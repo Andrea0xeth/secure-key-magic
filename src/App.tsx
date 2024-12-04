@@ -27,7 +27,7 @@ function AppContent() {
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_OUT' || event === 'USER_DELETED') {
+      if (event === 'SIGNED_OUT') {
         // Clear any auth related storage
         queryClient.clear();
         localStorage.removeItem('supabase.auth.token');
