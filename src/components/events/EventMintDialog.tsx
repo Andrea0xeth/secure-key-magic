@@ -87,6 +87,8 @@ export const EventMintDialog: FC<EventMintDialogProps> = ({
         event.image_url
       );
 
+      console.log("NFT created with asset ID:", assetId);
+
       // Update the events table with the NFT asset ID
       const { error: updateError } = await supabase
         .from('events')
@@ -104,7 +106,12 @@ export const EventMintDialog: FC<EventMintDialogProps> = ({
           asset_id: assetId.toString()
         });
 
-      if (insertError) throw insertError;
+      if (insertError) {
+        console.error("Error saving NFT to user_nfts:", insertError);
+        throw insertError;
+      }
+
+      console.log("NFT saved to user_nfts table");
 
       toast({
         title: "Success!",

@@ -5,7 +5,6 @@ import { ImageIcon, RefreshCcw } from "lucide-react";
 import { AppHeader } from "@/components/layout/AppHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { getStoredAlgorandKey } from "@/lib/storage/keyStorage";
 import { useQuery } from "@tanstack/react-query";
 
 interface NFTEvent {
