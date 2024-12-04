@@ -8,6 +8,7 @@ import { createSoulboundNFT } from "@/lib/algorand/soulboundNFT";
 import { supabase } from "@/integrations/supabase/client";
 import * as algosdk from "algosdk";
 import { getStoredMnemonic } from "@/lib/storage/keyStorage";
+import { useSidebar } from "@/components/ui/sidebar";
 import {
   Dialog,
   DialogContent,
@@ -38,6 +39,7 @@ export const EventMintDialog: FC<EventMintDialogProps> = ({
 }) => {
   const [isMinting, setIsMinting] = useState(false);
   const { toast } = useToast();
+  const { setExpanded } = useSidebar();
   const formattedDate = format(new Date(event.date), "MMM d, yyyy");
 
   const handleMint = async () => {
@@ -58,6 +60,16 @@ export const EventMintDialog: FC<EventMintDialogProps> = ({
           title: "Wallet Not Found",
           description: "Please authenticate with your passkey first",
           variant: "destructive",
+          action: (
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => setExpanded(true)}
+              className="bg-white hover:bg-gray-100 text-red-600 border-red-200"
+            >
+              Open Wallet
+            </Button>
+          ),
         });
         return;
       }
