@@ -1,7 +1,6 @@
 import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { supabase } from "@/integrations/supabase/client";
-import { SignUpForm } from "../auth/SignUpForm";
 
 interface AuthSectionProps {
   showSignUp: boolean;
