@@ -26,22 +26,15 @@ function AppContent() {
   const location = useLocation();
 
   useEffect(() => {
-    console.log("Setting up auth state change listener");
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log("Auth state changed:", event, session);
-      if (event === 'SIGNED_OUT' || event === 'TOKEN_REFRESHED' || !session) {
-        console.log("Clearing session data");
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_OUT') {
         // Clear any auth related storage
         queryClient.clear();
         localStorage.removeItem('supabase.auth.token');
-        
-        // Force refresh the session
-        await supabase.auth.getSession();
       }
     });
 
     return () => {
-      console.log("Cleaning up auth state change listener");
       subscription.unsubscribe();
     };
   }, []);

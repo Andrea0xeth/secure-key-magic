@@ -4,7 +4,6 @@ import { createSoulboundNFT } from "@/lib/algorand/soulboundNFT";
 import { supabase } from "@/integrations/supabase/client";
 import { getStoredAlgorandKey } from "@/lib/storage/keyStorage";
 import { format } from "date-fns";
-import { authenticateWithPasskey } from "@/lib/webauthn";
 
 interface Event {
   id: string;
@@ -28,28 +27,18 @@ export const useMintNFT = (event: Event, onSuccess: () => void) => {
         throw new Error("User not authenticated");
       }
 
-      // Get passkey authentication to get the private key
-      console.log("Authenticating with passkey...");
-      const authResult = await authenticateWithPasskey();
-      if (!authResult) {
-        throw new Error("Failed to authenticate with passkey");
-      }
-      console.log("Passkey authentication successful");
-
       const walletAddress = getStoredAlgorandKey();
       if (!walletAddress) {
         throw new Error("Please authenticate with your passkey first");
       }
 
-      // Create the creator account object with address and private key
-      const creator = {
+      const account = {
         addr: walletAddress,
-        sk: authResult.sk // Use the private key from passkey authentication
+        sk: new Uint8Array(32)
       };
 
-      console.log("Creating NFT with authenticated account...");
       const assetId = await createSoulboundNFT(
-        creator,
+        account,
         event.title,
         formattedDate,
         event.image_url
@@ -57,18 +46,13 @@ export const useMintNFT = (event: Event, onSuccess: () => void) => {
 
       console.log("NFT created with asset ID:", assetId);
 
-      // Update the event with the NFT asset ID
       const { error: updateError } = await supabase
         .from('events')
         .update({ nft_asset_id: assetId.toString() })
         .eq('id', event.id);
 
-      if (updateError) {
-        console.error("Error updating event with NFT asset ID:", updateError);
-        throw updateError;
-      }
+      if (updateError) throw updateError;
 
-      // Store the NFT in user_nfts table
       const { error: insertError } = await supabase
         .from('user_nfts')
         .insert({
@@ -82,21 +66,11 @@ export const useMintNFT = (event: Event, onSuccess: () => void) => {
         throw insertError;
       }
 
-      console.log("NFT successfully saved to database");
-      toast({
-        title: "Success",
-        description: "NFT minted successfully!",
-      });
-      
+      console.log("NFT saved to user_nfts table");
       onSuccess();
       
     } catch (error) {
       console.error("Error minting NFT:", error);
-      toast({
-        title: "Error",
-        description: error.message || "Failed to mint NFT",
-        variant: "destructive",
-      });
       throw error;
     } finally {
       setIsMinting(false);

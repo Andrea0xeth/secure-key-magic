@@ -1,34 +1,84 @@
-import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { Event } from "@/lib/types/event";
+import { FC } from "react";
+import { useSidebar } from "@/components/ui/sidebar";
+import { useToast } from "@/components/ui/use-toast";
+import { useMintNFT } from "@/hooks/useMintNFT";
 import { EventMintContent } from "./EventMintContent";
+import { EventMintSuccessAction } from "./EventMintSuccessAction";
+import { EventMintErrorAction } from "./EventMintErrorAction";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+
+interface Event {
+  id: string;
+  title: string;
+  description: string;
+  image_url: string;
+  date: string;
+  location: string;
+  nft_asset_id?: string;
+}
 
 interface EventMintDialogProps {
   event: Event;
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  isMinting: boolean;
-  onMint: () => Promise<void>;
-  onNavigateToNFTs: () => void;
+  isOpen: boolean;
+  onClose: () => void;
 }
 
-export function EventMintDialog({
+export const EventMintDialog: FC<EventMintDialogProps> = ({
   event,
-  open,
-  onOpenChange,
-  isMinting,
-  onMint,
-  onNavigateToNFTs
-}: EventMintDialogProps) {
+  isOpen,
+  onClose,
+}) => {
+  const { toast } = useToast();
+  const { setExpanded } = useSidebar();
+
+  const handleSuccess = () => {
+    onClose();
+    toast({
+      title: "Success!",
+      description: "NFT minted successfully! You can view all your NFTs in your collection.",
+      variant: "success",
+      action: <EventMintSuccessAction onClose={onClose} />,
+    });
+  };
+
+  const { mintNFT, isMinting } = useMintNFT(event, handleSuccess);
+
+  const handleMint = async () => {
+    try {
+      await mintNFT();
+    } catch (error) {
+      toast({
+        title: "Minting Failed",
+        description: error.message === "Please authenticate with your passkey first"
+          ? error.message
+          : "Failed to mint NFT. Please try again.",
+        variant: "destructive",
+        action: error.message === "Please authenticate with your passkey first" 
+          ? <EventMintErrorAction setExpanded={setExpanded} />
+          : undefined,
+      });
+    }
+  };
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-[425px] bg-white dark:bg-artence-navy border-artence-purple sm:rounded-lg w-full sm:w-auto">
+        <DialogHeader>
+          <DialogTitle className="text-2xl font-bold">
+            Mint Event NFT
+          </DialogTitle>
+        </DialogHeader>
         <EventMintContent 
-          event={event} 
-          isMinting={isMinting} 
-          onMint={onMint}
-          onNavigateToNFTs={onNavigateToNFTs}
+          event={event}
+          isMinting={isMinting}
+          onMint={handleMint}
         />
       </DialogContent>
     </Dialog>
   );
-}
+};

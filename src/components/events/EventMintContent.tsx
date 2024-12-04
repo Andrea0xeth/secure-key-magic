@@ -1,14 +1,12 @@
-import { FC, useState } from "react";
+import { FC } from "react";
 import { format } from "date-fns";
 import { CalendarIcon, MapPinIcon, LogIn, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { EventShareButtons } from "./EventShareButtons";
 import { useSidebar } from "@/components/ui/sidebar";
 import { supabase } from "@/integrations/supabase/client";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { getStoredAlgorandKey } from "@/lib/storage/keyStorage";
-import { useToast } from "@/components/ui/use-toast";
-import { authenticateWithPasskey } from "@/lib/webauthn";
 
 interface Event {
   id: string;
@@ -23,7 +21,7 @@ interface Event {
 interface EventMintContentProps {
   event: Event;
   isMinting: boolean;
-  onMint: () => Promise<void>;
+  onMint: () => void;
   onNavigateToNFTs: () => void;
 }
 
@@ -35,8 +33,6 @@ export const EventMintContent: FC<EventMintContentProps> = ({
 }) => {
   const { setExpanded } = useSidebar();
   const [session, setSession] = useState<any>(null);
-  const { toast } = useToast();
-  
   const formattedDate = format(new Date(event.date), "MMM d, yyyy");
   const walletAddress = getStoredAlgorandKey();
 
@@ -60,34 +56,6 @@ export const EventMintContent: FC<EventMintContentProps> = ({
 
   const handleConnectWalletClick = () => {
     setExpanded(true);
-  };
-
-  const handleMintClick = async () => {
-    try {
-      console.log("Starting NFT minting process...");
-      
-      // Authenticate with passkey to get the private key
-      const authResult = await authenticateWithPasskey();
-      if (!authResult) {
-        throw new Error("Failed to authenticate with passkey");
-      }
-      console.log("Passkey authentication successful");
-
-      // Call the onMint function with the authentication result
-      await onMint();
-      
-      toast({
-        title: "Success",
-        description: "NFT minted successfully!",
-      });
-    } catch (error) {
-      console.error("Error minting NFT:", error);
-      toast({
-        title: "Error",
-        description: "Failed to mint NFT",
-        variant: "destructive",
-      });
-    }
   };
 
   const renderActionButton = () => {
@@ -118,10 +86,10 @@ export const EventMintContent: FC<EventMintContentProps> = ({
     return (
       <Button 
         className="w-full bg-artence-purple hover:bg-white hover:text-artence-purple border-2 border-transparent hover:border-artence-purple transition-all duration-300"
-        onClick={handleMintClick}
+        onClick={onMint}
         disabled={isMinting}
       >
-        {isMinting ? "Minting..." : "Mint NFT"}
+        {isMinting ? "Minting..." : "Confirm Mint"}
       </Button>
     );
   };
