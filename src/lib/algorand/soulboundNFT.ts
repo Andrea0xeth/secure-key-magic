@@ -12,12 +12,16 @@ export async function createSoulboundNFT(
   const algodClient = new algosdk.Algodv2("", "https://testnet-api.algonode.cloud", "");
   const suggestedParams = await algodClient.getTransactionParams().do();
 
+  // Truncate the asset name to stay within the 32-character limit
+  const truncatedAssetName = `${eventTitle} Attendance`.slice(0, 32);
+  console.log("Using truncated asset name:", truncatedAssetName);
+
   // Asset creation transaction
   const txn = algosdk.makeAssetCreateTxnWithSuggestedParamsFromObject({
     from: creator.addr,
     total: 1,
     decimals: 0,
-    assetName: `${eventTitle} Attendance`,
+    assetName: truncatedAssetName,
     unitName: "EVTNFT",
     assetURL: imageUrl,
     manager: creator.addr,
