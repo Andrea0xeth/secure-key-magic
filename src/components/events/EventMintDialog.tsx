@@ -5,6 +5,7 @@ import { useMintNFT } from "@/hooks/useMintNFT";
 import { EventMintContent } from "./EventMintContent";
 import { EventMintSuccessAction } from "./EventMintSuccessAction";
 import { EventMintErrorAction } from "./EventMintErrorAction";
+import { useNavigate } from "react-router-dom";
 import {
   Dialog,
   DialogContent,
@@ -35,6 +36,7 @@ export const EventMintDialog: FC<EventMintDialogProps> = ({
 }) => {
   const { toast } = useToast();
   const { setExpanded } = useSidebar();
+  const navigate = useNavigate();
 
   const handleSuccess = () => {
     onClose();
@@ -65,6 +67,10 @@ export const EventMintDialog: FC<EventMintDialogProps> = ({
     }
   };
 
+  const handleNavigateToNFTs = () => {
+    navigate('/my-nfts');
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[425px] bg-white dark:bg-artence-navy border-artence-purple sm:rounded-lg w-full sm:w-auto">
@@ -77,6 +83,7 @@ export const EventMintDialog: FC<EventMintDialogProps> = ({
           event={event}
           isMinting={isMinting}
           onMint={handleMint}
+          onNavigateToNFTs={handleNavigateToNFTs}
         />
       </DialogContent>
     </Dialog>

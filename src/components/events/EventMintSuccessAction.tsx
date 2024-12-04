@@ -1,10 +1,11 @@
 import { FC } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { toast } from "@/hooks/use-toast";
+import { useToast } from "@/components/ui/use-toast";
 
 export const EventMintSuccessAction: FC = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   return (
     <Button 

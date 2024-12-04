@@ -30,7 +30,8 @@ export function WalletSidebar() {
         publicKey: storedKey,
         privateKey: new Uint8Array(),
         addr: storedKey,
-        sk: new Uint8Array()
+        sk: new Uint8Array(),
+        mnemonic: ''
       });
     }
 
