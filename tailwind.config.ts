@@ -17,6 +17,9 @@ export default {
       },
     },
     extend: {
+      screens: {
+        'xs': '480px',
+      },
       backgroundImage: {
         'gradient-radial': 'radial-gradient(circle 1000px at center, var(--tw-gradient-stops))',
       },

@@ -59,3 +59,8 @@
     @apply bg-background text-foreground font-sans dark:bg-artence-navy;
   }
 }
+
+/* Add xs breakpoint */
+@screen xs {
+  /* Custom styles for xs breakpoint if needed */
+}
