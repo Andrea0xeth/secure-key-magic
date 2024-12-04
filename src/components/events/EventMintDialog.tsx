@@ -1,10 +1,10 @@
 import { FC } from "react";
-import { Button } from "@/components/ui/button";
 import { useSidebar } from "@/components/ui/sidebar";
-import { useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
 import { useMintNFT } from "@/hooks/useMintNFT";
 import { EventMintContent } from "./EventMintContent";
+import { EventMintSuccessAction } from "./EventMintSuccessAction";
+import { EventMintErrorAction } from "./EventMintErrorAction";
 import {
   Dialog,
   DialogContent,
@@ -35,7 +35,6 @@ export const EventMintDialog: FC<EventMintDialogProps> = ({
 }) => {
   const { toast } = useToast();
   const { setExpanded } = useSidebar();
-  const navigate = useNavigate();
 
   const handleSuccess = () => {
     onClose();
@@ -43,19 +42,7 @@ export const EventMintDialog: FC<EventMintDialogProps> = ({
       title: "Success!",
       description: "NFT minted successfully! You can view all your NFTs in your collection.",
       variant: "success",
-      action: (
-        <Button 
-          variant="outline" 
-          size="sm" 
-          onClick={() => {
-            onClose();
-            navigate('/my-nfts');
-          }}
-          className="bg-white hover:bg-gray-100 text-artence-purple border-artence-purple"
-        >
-          View My NFTs
-        </Button>
-      ),
+      action: <EventMintSuccessAction onClose={onClose} />,
     });
   };
 
@@ -71,16 +58,9 @@ export const EventMintDialog: FC<EventMintDialogProps> = ({
           ? error.message
           : "Failed to mint NFT. Please try again.",
         variant: "destructive",
-        action: error.message === "Please authenticate with your passkey first" ? (
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={() => setExpanded(true)}
-            className="bg-white hover:bg-gray-100 text-red-600 border-red-200"
-          >
-            Open Wallet
-          </Button>
-        ) : undefined,
+        action: error.message === "Please authenticate with your passkey first" 
+          ? <EventMintErrorAction setExpanded={setExpanded} />
+          : undefined,
       });
     }
   };
@@ -97,7 +77,6 @@ export const EventMintDialog: FC<EventMintDialogProps> = ({
           event={event}
           isMinting={isMinting}
           onMint={handleMint}
-          onNavigateToNFTs={() => navigate('/my-nfts')}
         />
       </DialogContent>
     </Dialog>
