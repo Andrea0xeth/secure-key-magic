@@ -1,5 +1,4 @@
 import { FC } from "react";
-import { useMintNFT } from "@/hooks/useMintNFT";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 
@@ -12,12 +11,12 @@ interface Event {
 
 interface EventMintContentProps {
   event: Event;
-  onClose: () => void;
+  isMinting: boolean;
+  onMint: () => void;
 }
 
-export const EventMintContent: FC<EventMintContentProps> = ({ event, onClose }) => {
+export const EventMintContent: FC<EventMintContentProps> = ({ event, isMinting, onMint }) => {
   const navigate = useNavigate();
-  const { mintNFT, isMinting } = useMintNFT(event, onClose);
 
   return (
     <div className="flex flex-col items-center justify-center space-y-4 p-4">
@@ -26,7 +25,7 @@ export const EventMintContent: FC<EventMintContentProps> = ({ event, onClose }) 
         You're about to mint an NFT for the event "{event.title}". This NFT will be added to your collection.
       </p>
       <Button
-        onClick={mintNFT}
+        onClick={onMint}
         disabled={isMinting}
         className="w-full"
       >

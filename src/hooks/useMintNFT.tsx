@@ -1,3 +1,4 @@
+import React from "react";
 import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { createSoulboundNFT } from "@/lib/algorand/soulboundNFT";
@@ -87,11 +88,13 @@ export const useMintNFT = (event: Event, onSuccess: () => void) => {
       console.log("NFT saved to user_nfts table");
       onSuccess();
       
-      toast({
+      const toastInstance = toast({
         title: "NFT Minted Successfully!",
         description: "Your NFT has been created and added to your collection.",
         variant: "success",
-        action: <EventMintSuccessAction onClose={() => toast.dismiss()} />,
+        action: React.createElement(EventMintSuccessAction, {
+          onClose: () => toastInstance.dismiss()
+        })
       });
       
     } catch (error) {

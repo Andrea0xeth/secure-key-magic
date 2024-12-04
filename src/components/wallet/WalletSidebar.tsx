@@ -53,7 +53,7 @@ export function WalletSidebar() {
       privateKey: new Uint8Array(),
       addr: result.address,
       sk: new Uint8Array(),
-      mnemonic: ''  // This will be populated during authentication
+      mnemonic: ''  // Add the missing mnemonic property
     });
   };
 
