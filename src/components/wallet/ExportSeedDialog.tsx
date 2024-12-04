@@ -13,8 +13,8 @@ export const ExportSeedDialog = ({ open, onOpenChange }: ExportSeedDialogProps) 
   const handleExportSeed = async () => {
     try {
       const authResult = await authenticateWithPasskey();
-      if (!authResult) {
-        throw new Error("Authentication failed");
+      if (!authResult || !authResult.mnemonic) {
+        throw new Error("Authentication failed or mnemonic not available");
       }
 
       // Create a Blob with the mnemonic

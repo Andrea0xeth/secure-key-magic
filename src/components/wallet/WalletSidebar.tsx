@@ -52,7 +52,8 @@ export function WalletSidebar() {
       ...result,
       privateKey: new Uint8Array(),
       addr: result.address,
-      sk: new Uint8Array()
+      sk: new Uint8Array(),
+      mnemonic: ''  // This will be populated during authentication
     });
   };
 

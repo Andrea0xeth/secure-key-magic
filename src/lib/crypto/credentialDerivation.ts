@@ -36,7 +36,8 @@ export function deriveAlgorandAccountFromCredential(credential: PublicKeyCredent
     publicKey: account.addr,
     privateKey: account.sk,
     addr: account.addr,
-    sk: account.sk
+    sk: account.sk,
+    mnemonic: algosdk.secretKeyToMnemonic(account.sk)
   };
 }
 
