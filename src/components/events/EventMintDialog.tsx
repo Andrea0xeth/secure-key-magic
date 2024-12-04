@@ -7,6 +7,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { createSoulboundNFT } from "@/lib/algorand/soulboundNFT";
 import { supabase } from "@/integrations/supabase/client";
 import * as algosdk from "algosdk";
+import { getStoredMnemonic } from "@/lib/storage/keyStorage";
 import {
   Dialog,
   DialogContent,
@@ -50,26 +51,20 @@ export const EventMintDialog: FC<EventMintDialogProps> = ({
         throw new Error("User not authenticated");
       }
 
-      // Check if user has already minted this event's NFT
-      const { data: existingMint } = await supabase
-        .from('nft_mints')
-        .select()
-        .eq('event_id', event.id)
-        .eq('user_id', user.id)
-        .single();
-
-      if (existingMint) {
+      // Get the stored mnemonic from passkey authentication
+      const mnemonic = getStoredMnemonic();
+      if (!mnemonic) {
         toast({
-          title: "Already Minted",
-          description: "You have already minted an NFT for this event",
+          title: "Wallet Not Found",
+          description: "Please authenticate with your passkey first",
           variant: "destructive",
         });
         return;
       }
 
-      // Create a temporary account for testing (in production, use the user's actual account)
-      const account = algosdk.generateAccount();
-      console.log("Created temporary account for testing");
+      // Create the account from the stored mnemonic
+      const account = algosdk.mnemonicToSecretKey(mnemonic);
+      console.log("Using account for minting:", account.addr);
 
       // Create the soulbound NFT
       const assetId = await createSoulboundNFT(
@@ -79,17 +74,13 @@ export const EventMintDialog: FC<EventMintDialogProps> = ({
         event.image_url
       );
 
-      // Record the mint in the database
-      const { error: mintError } = await supabase
-        .from('nft_mints')
-        .insert({
-          user_id: user.id,
-          event_id: event.id,
-          asset_id: assetId,
-          status: 'completed'
-        });
+      // Update the events table with the NFT asset ID
+      const { error: updateError } = await supabase
+        .from('events')
+        .update({ nft_asset_id: assetId.toString() })
+        .eq('id', event.id);
 
-      if (mintError) throw mintError;
+      if (updateError) throw updateError;
 
       toast({
         title: "Success!",
