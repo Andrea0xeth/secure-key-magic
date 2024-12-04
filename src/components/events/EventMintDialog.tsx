@@ -1,4 +1,4 @@
-import { FC, useEffect } from "react";
+import { FC } from "react";
 import { Button } from "@/components/ui/button";
 import { useSidebar } from "@/components/ui/sidebar";
 import { useNavigate } from "react-router-dom";
@@ -38,14 +38,6 @@ export const EventMintDialog: FC<EventMintDialogProps> = ({
   const { toast } = useToast();
   const { expanded, setExpanded } = useSidebar();
   const navigate = useNavigate();
-
-  // Close dialog when sidebar expands, but only on mobile
-  useEffect(() => {
-    const isMobile = window.innerWidth < 768; // md breakpoint in Tailwind
-    if (expanded && isMobile) {
-      onClose();
-    }
-  }, [expanded, onClose]);
 
   const handleSuccess = () => {
     onClose();
@@ -97,7 +89,7 @@ export const EventMintDialog: FC<EventMintDialogProps> = ({
           sm:rounded-lg w-full sm:w-auto fixed top-[50%] translate-y-[-50%]
           transition-all duration-500 ease-in-out
           ${expanded ? 'md:left-[calc(50%-250px)]' : 'left-[50%]'}
-          translate-x-[-50%] z-[101]
+          translate-x-[-50%] z-[51]
         `}
         onInteractOutside={onClose}
         onEscapeKeyDown={onClose}
