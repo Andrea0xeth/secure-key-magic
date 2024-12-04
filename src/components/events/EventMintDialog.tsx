@@ -38,6 +38,7 @@ export const EventMintDialog: FC<EventMintDialogProps> = ({
   const navigate = useNavigate();
 
   const handleSuccess = () => {
+    onClose();
     toast({
       title: "Success!",
       description: "NFT minted successfully! You can view all your NFTs in your collection.",
@@ -46,8 +47,8 @@ export const EventMintDialog: FC<EventMintDialogProps> = ({
           variant="outline" 
           size="sm" 
           onClick={() => {
-            navigate('/my-nfts');
             onClose();
+            navigate('/my-nfts');
           }}
           className="bg-white hover:bg-gray-100 text-artence-purple border-artence-purple"
         >
@@ -55,7 +56,6 @@ export const EventMintDialog: FC<EventMintDialogProps> = ({
         </Button>
       ),
     });
-    onClose();
   };
 
   const { mintNFT, isMinting } = useMintNFT(event, handleSuccess);
