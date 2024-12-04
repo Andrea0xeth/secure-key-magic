@@ -5,16 +5,7 @@ import { EventCardImage } from "./EventCardImage";
 import { EventCardHeader } from "./EventCardHeader";
 import { EventCardContent } from "./EventCardContent";
 import { EventMintDialog } from "./EventMintDialog";
-
-interface Event {
-  id: string;
-  title: string;
-  description: string;
-  image_url: string;
-  date: string;
-  location: string;
-  nft_asset_id?: string;
-}
+import { Event } from "@/lib/types/event";
 
 export const EventCard = ({ event }: { event: Event }) => {
   const navigate = useNavigate();
@@ -46,8 +37,11 @@ export const EventCard = ({ event }: { event: Event }) => {
 
       <EventMintDialog
         event={event}
-        isOpen={isDialogOpen}
-        onClose={handleCloseDialog}
+        open={isDialogOpen}
+        onOpenChange={handleCloseDialog}
+        isMinting={false}
+        onMint={async () => {}}
+        onNavigateToNFTs={() => {}}
       />
     </Card>
   );
