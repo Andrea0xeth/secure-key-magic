@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Copy, Download, Shield } from "lucide-react";
+import { Copy, Download } from "lucide-react";
 import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { AlgoBalance } from "../AlgoBalance";
@@ -50,7 +50,15 @@ export const WalletInfo = ({ address }: WalletInfoProps) => {
         <AlgoBalance address={address} />
       </div>
 
-      {/* Export Seed Phrase Button */}
+      {/* QR Code Section */}
+      <div>
+        <AddressQRCode address={address} />
+      </div>
+
+      {/* Connected Apps Section - Only show if there are connected apps */}
+      <ConnectedAppsList />
+
+      {/* Export Seed Phrase Button - Moved to bottom */}
       <Button
         variant="outline"
         onClick={() => setShowExportDialog(true)}
@@ -59,14 +67,6 @@ export const WalletInfo = ({ address }: WalletInfoProps) => {
         <Download className="mr-2 h-4 w-4" />
         Export Seed Phrase
       </Button>
-
-      {/* QR Code Section */}
-      <div>
-        <AddressQRCode address={address} />
-      </div>
-
-      {/* Connected Apps Section - Only show if there are connected apps */}
-      <ConnectedAppsList />
 
       <ExportSeedDialog 
         open={showExportDialog} 
