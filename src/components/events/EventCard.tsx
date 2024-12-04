@@ -26,7 +26,6 @@ export const EventCard = ({ event }: { event: Event }) => {
   const location = useLocation();
   const formattedDate = format(new Date(event.date), "MMM d, yyyy");
   
-  // Check if the current URL matches this event's mint dialog
   const isDialogOpen = location.hash === `#mint-${event.id}`;
 
   const handleOpenDialog = () => {
@@ -68,15 +67,17 @@ export const EventCard = ({ event }: { event: Event }) => {
             <MapPinIcon className="w-4 h-4" />
             <span className="truncate">{event.location}</span>
           </div>
-          <p className="text-sm text-white/90 line-clamp-3">
-            {event.description}
-          </p>
-          <Button 
-            className="w-full bg-artence-purple hover:bg-white hover:text-artence-purple transition-colors duration-300"
-            onClick={handleOpenDialog}
-          >
-            MINT NFT
-          </Button>
+          <div className="flex flex-col justify-end h-full space-y-4">
+            <p className="text-sm text-white/90 line-clamp-3 overflow-hidden">
+              {event.description}
+            </p>
+            <Button 
+              className="w-full bg-artence-purple hover:bg-white hover:text-artence-purple transition-colors duration-300"
+              onClick={handleOpenDialog}
+            >
+              MINT NFT
+            </Button>
+          </div>
         </div>
       </div>
 
