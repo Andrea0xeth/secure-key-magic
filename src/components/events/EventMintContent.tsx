@@ -1,6 +1,6 @@
 import { FC } from "react";
 import { format } from "date-fns";
-import { CalendarIcon, MapPinIcon, LogIn, Wallet } from "lucide-react";
+import { LogIn, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { EventShareButtons } from "./EventShareButtons";
 import { useSidebar } from "@/components/ui/sidebar";
@@ -8,8 +8,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
 import { getStoredAlgorandKey } from "@/lib/storage/keyStorage";
 import { TransactionDialog } from "@/components/TransactionDialog";
-import { createSoulboundNFT } from "@/lib/algorand/soulboundNFT";
 import { useToast } from "@/components/ui/use-toast";
+import { prepareNFTMintingTransaction } from "@/lib/algorand/transactionPreparation";
+import { EventDetails } from "./EventDetails";
 
 interface Event {
   id: string;
@@ -75,24 +76,14 @@ export const EventMintContent: FC<EventMintContentProps> = ({
       }
 
       console.log("EventMintContent: Creating NFT transaction...");
-      const account = {
-        addr: walletAddress,
-        sk: new Uint8Array(32) // This will be replaced with the actual private key from passkey
-      };
-
-      // Create the NFT transaction
-      const txn = await createSoulboundNFT(
-        account,
+      const txnBase64 = await prepareNFTMintingTransaction(
+        walletAddress,
         event.title,
         formattedDate,
         event.image_url
       );
 
-      // Convert transaction to base64 for signing
-      const txnBase64 = Buffer.from(txn.toByte()).toString('base64');
       console.log("EventMintContent: Transaction created:", txnBase64);
-
-      // Open transaction dialog for signing
       setTransactionToSign({ txn: txnBase64 });
       setIsTransactionDialogOpen(true);
 
@@ -172,20 +163,14 @@ export const EventMintContent: FC<EventMintContentProps> = ({
             className="w-full h-full object-cover"
           />
         </div>
-        <div className="space-y-2">
-          <h3 className="font-semibold text-lg">{event.title}</h3>
-          <div className="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400">
-            <CalendarIcon className="w-4 h-4" />
-            <span>{formattedDate}</span>
-          </div>
-          <div className="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400">
-            <MapPinIcon className="w-4 h-4" />
-            <span>{event.location}</span>
-          </div>
-          <p className="text-sm text-gray-600 dark:text-gray-300 mt-2">
-            {event.description}
-          </p>
-        </div>
+        
+        <EventDetails
+          title={event.title}
+          date={event.date}
+          location={event.location}
+          description={event.description}
+        />
+
         <div className="space-y-4">
           <div className="flex justify-center">
             <EventShareButtons event={event} />
