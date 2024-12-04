@@ -1,7 +1,7 @@
 import { AuthenticationResult } from "@/lib/types/auth";
 import { PasskeySection } from "../PasskeySection";
 import { Shield } from "lucide-react";
-import { Card } from "../ui/card";
+import { SignUpForm } from "./SignUpForm";
 
 interface AuthenticationSectionProps {
   authResult: AuthenticationResult | null;
@@ -16,11 +16,30 @@ export const AuthenticationSection = ({
 }: AuthenticationSectionProps) => {
   if (!authResult) {
     return (
-      <PasskeySection 
-        authResult={authResult}
-        onRegister={onRegister}
-        onAuthenticate={onAuthenticate}
-      />
+      <div className="space-y-8 max-w-md mx-auto">
+        <div className="text-center space-y-2">
+          <h1 className="text-2xl font-bold tracking-tight">Create an Account</h1>
+          <p className="text-gray-500 dark:text-gray-400">
+            Enter your details below to create your account
+          </p>
+        </div>
+        <SignUpForm />
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <span className="w-full border-t" />
+          </div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-background px-2 text-muted-foreground">
+              Or continue with passkey
+            </span>
+          </div>
+        </div>
+        <PasskeySection 
+          authResult={authResult}
+          onRegister={onRegister}
+          onAuthenticate={onAuthenticate}
+        />
+      </div>
     );
   }
 
