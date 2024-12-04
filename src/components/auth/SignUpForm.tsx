@@ -77,7 +77,11 @@ export function SignUpForm() {
             <FormItem>
               <FormLabel>Email</FormLabel>
               <FormControl>
-                <Input type="email" placeholder="john.doe@example.com" {...field} />
+                <Input 
+                  type="email" 
+                  placeholder="john.doe@example.com" 
+                  {...field} 
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -103,6 +107,13 @@ export function SignUpForm() {
         >
           {isLoading ? "Creating account..." : "Sign Up"}
         </Button>
+
+        <div className="text-center text-sm text-gray-500">
+          Already have an account?{" "}
+          <button type="button" className="text-artence-purple hover:underline">
+            Sign in
+          </button>
+        </div>
       </form>
     </Form>
   );

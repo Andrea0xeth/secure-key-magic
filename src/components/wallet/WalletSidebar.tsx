@@ -14,6 +14,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { useSidebar } from "@/components/ui/sidebar";
+import { SignUpForm } from "../auth/SignUpForm";
 
 export function WalletSidebar() {
   const { toast } = useToast();
@@ -54,7 +55,7 @@ export function WalletSidebar() {
       privateKey: new Uint8Array(),
       addr: result.address,
       sk: new Uint8Array(),
-      mnemonic: ''  // This will be populated during authentication
+      mnemonic: ''
     });
   };
 
@@ -89,26 +90,30 @@ export function WalletSidebar() {
             variant="ghost"
             size="icon"
             onClick={() => setExpanded(false)}
-            className="absolute right-4 top-4 rotate-animation"
+            className="absolute right-4 top-4"
           >
             <X className="h-5 w-5" />
           </Button>
-          <div className="mt-16">
-            <Auth
-              supabaseClient={supabase}
-              appearance={{
-                theme: ThemeSupa,
-                variables: {
-                  default: {
-                    colors: {
-                      brand: '#9b87f5',
-                      brandAccent: '#7C3AED',
-                    },
-                  },
-                },
-              }}
-              providers={[]}
-            />
+          <div className="mt-8">
+            <h2 className="text-2xl font-semibold mb-6">Create an Account</h2>
+            <SignUpForm />
+            <div className="relative mt-8">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t dark:border-gray-800" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-white dark:bg-gray-900 px-2 text-gray-500 dark:text-gray-400">
+                  Or continue with passkey
+                </span>
+              </div>
+            </div>
+            <div className="mt-6">
+              <PasskeySection 
+                authResult={authResult}
+                onRegister={handleRegister}
+                onAuthenticate={handleAuthenticate}
+              />
+            </div>
           </div>
         </div>
       </Sidebar>
