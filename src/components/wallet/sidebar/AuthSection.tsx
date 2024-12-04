@@ -12,14 +12,42 @@ interface AuthSectionProps {
 }
 
 export const AuthSection = ({ onClose }: AuthSectionProps) => {
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
+  const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  
+  // Sign up specific states
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  
   const { toast } = useToast();
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Successfully logged in",
+      });
+    } catch (error) {
+      console.error("Error logging in:", error);
+      toast({
+        title: "Error",
+        description: "Failed to log in. Please check your credentials.",
+        variant: "destructive",
+      });
+    }
+  };
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -72,114 +100,179 @@ export const AuthSection = ({ onClose }: AuthSectionProps) => {
         <X className="h-5 w-5" />
       </Button>
       <div className="mt-8 space-y-4">
-        <h2 className="text-2xl font-bold text-center mb-6">Create Account</h2>
-        <form onSubmit={handleSignUp} className="space-y-4">
-          <div>
-            <label htmlFor="firstName" className="block text-sm font-medium mb-1">
-              Name
-            </label>
-            <Input
-              id="firstName"
-              type="text"
-              value={firstName}
-              onChange={(e) => setFirstName(e.target.value)}
-              required
-              placeholder="Enter your name"
-            />
-          </div>
-
-          <div>
-            <label htmlFor="lastName" className="block text-sm font-medium mb-1">
-              Surname
-            </label>
-            <Input
-              id="lastName"
-              type="text"
-              value={lastName}
-              onChange={(e) => setLastName(e.target.value)}
-              required
-              placeholder="Enter your surname"
-            />
-          </div>
-
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium mb-1">
-              Email
-            </label>
-            <Input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              placeholder="Enter your email"
-            />
-          </div>
-
-          <div className="relative">
-            <label htmlFor="password" className="block text-sm font-medium mb-1">
-              Password
-            </label>
-            <div className="relative">
+        <h2 className="text-2xl font-bold text-center mb-6">
+          {isLogin ? "Login" : "Create Account"}
+        </h2>
+        
+        {isLogin ? (
+          <form onSubmit={handleLogin} className="space-y-4">
+            <div>
+              <label htmlFor="loginEmail" className="block text-sm font-medium mb-1">
+                Email
+              </label>
               <Input
-                id="password"
-                type={showPassword ? "text" : "password"}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                id="loginEmail"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 required
-                placeholder="Enter your password"
-                className="pr-10"
+                placeholder="Enter your email"
               />
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                className="absolute right-0 top-0 h-full px-3"
-                onClick={() => setShowPassword(!showPassword)}
-              >
-                {showPassword ? (
-                  <EyeOff className="h-4 w-4" />
-                ) : (
-                  <Eye className="h-4 w-4" />
-                )}
-              </Button>
             </div>
-          </div>
 
-          <div className="relative">
-            <label htmlFor="confirmPassword" className="block text-sm font-medium mb-1">
-              Confirm Password
-            </label>
             <div className="relative">
-              <Input
-                id="confirmPassword"
-                type={showConfirmPassword ? "text" : "password"}
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                required
-                placeholder="Confirm your password"
-                className="pr-10"
-              />
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                className="absolute right-0 top-0 h-full px-3"
-                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-              >
-                {showConfirmPassword ? (
-                  <EyeOff className="h-4 w-4" />
-                ) : (
-                  <Eye className="h-4 w-4" />
-                )}
-              </Button>
+              <label htmlFor="loginPassword" className="block text-sm font-medium mb-1">
+                Password
+              </label>
+              <div className="relative">
+                <Input
+                  id="loginPassword"
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  placeholder="Enter your password"
+                  className="pr-10"
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="absolute right-0 top-0 h-full px-3"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </Button>
+              </div>
             </div>
-          </div>
 
-          <Button type="submit" className="w-full bg-artence-purple hover:bg-artence-purple/90">
-            Sign Up
+            <Button type="submit" className="w-full bg-artence-purple hover:bg-artence-purple/90">
+              Login
+            </Button>
+          </form>
+        ) : (
+          <form onSubmit={handleSignUp} className="space-y-4">
+            <div>
+              <label htmlFor="firstName" className="block text-sm font-medium mb-1">
+                Name
+              </label>
+              <Input
+                id="firstName"
+                type="text"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                required
+                placeholder="Enter your name"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="lastName" className="block text-sm font-medium mb-1">
+                Surname
+              </label>
+              <Input
+                id="lastName"
+                type="text"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                required
+                placeholder="Enter your surname"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium mb-1">
+                Email
+              </label>
+              <Input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                placeholder="Enter your email"
+              />
+            </div>
+
+            <div className="relative">
+              <label htmlFor="password" className="block text-sm font-medium mb-1">
+                Password
+              </label>
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  placeholder="Enter your password"
+                  className="pr-10"
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="absolute right-0 top-0 h-full px-3"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </Button>
+              </div>
+            </div>
+
+            <div className="relative">
+              <label htmlFor="confirmPassword" className="block text-sm font-medium mb-1">
+                Confirm Password
+              </label>
+              <div className="relative">
+                <Input
+                  id="confirmPassword"
+                  type={showConfirmPassword ? "text" : "password"}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                  placeholder="Confirm your password"
+                  className="pr-10"
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="absolute right-0 top-0 h-full px-3"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                >
+                  {showConfirmPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </Button>
+              </div>
+            </div>
+
+            <Button type="submit" className="w-full bg-artence-purple hover:bg-artence-purple/90">
+              Sign Up
+            </Button>
+          </form>
+        )}
+
+        <div className="text-center mt-4">
+          <Button
+            variant="link"
+            onClick={() => setIsLogin(!isLogin)}
+            className="text-artence-purple hover:text-artence-purple/90"
+          >
+            {isLogin ? "Don't have an account? Sign up" : "Already have an account? Login"}
           </Button>
-        </form>
+        </div>
       </div>
     </div>
   );
