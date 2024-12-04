@@ -8,6 +8,7 @@ import { createSoulboundNFT } from "@/lib/algorand/soulboundNFT";
 import { supabase } from "@/integrations/supabase/client";
 import { getStoredAlgorandKey } from "@/lib/storage/keyStorage";
 import { useSidebar } from "@/components/ui/sidebar";
+import { useNavigate } from "react-router-dom";
 import {
   Dialog,
   DialogContent,
@@ -39,6 +40,7 @@ export const EventMintDialog: FC<EventMintDialogProps> = ({
   const [isMinting, setIsMinting] = useState(false);
   const { toast } = useToast();
   const { setExpanded } = useSidebar();
+  const navigate = useNavigate();
   const formattedDate = format(new Date(event.date), "MMM d, yyyy");
 
   const handleMint = async () => {
@@ -115,7 +117,20 @@ export const EventMintDialog: FC<EventMintDialogProps> = ({
 
       toast({
         title: "Success!",
-        description: "NFT minted successfully",
+        description: "NFT minted successfully! You can view all your NFTs in your collection.",
+        action: (
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => {
+              navigate('/my-nfts');
+              onClose();
+            }}
+            className="bg-white hover:bg-gray-100 text-artence-purple border-artence-purple"
+          >
+            View My NFTs
+          </Button>
+        ),
       });
 
       onClose();
