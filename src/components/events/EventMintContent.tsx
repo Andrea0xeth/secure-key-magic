@@ -73,7 +73,7 @@ export const EventMintContent: FC<EventMintContentProps> = ({
       }
       console.log("Passkey authentication successful");
 
-      // Use the private key from authentication to mint the NFT
+      // Call the onMint function with the authentication result
       await onMint();
       
       toast({
