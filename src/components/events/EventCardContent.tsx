@@ -14,17 +14,24 @@ export const EventCardContent: FC<EventCardContentProps> = ({
   onMintClick,
 }) => {
   return (
-    <div className="space-y-4 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-      <div className="flex items-center space-x-2 text-xs text-white/80">
-        <MapPinIcon className="w-4 h-4" />
+    <div className="flex flex-col h-full justify-between space-y-2">
+      {/* Location section */}
+      <div className="flex items-center space-x-2 text-xs sm:text-sm text-white/80">
+        <MapPinIcon className="w-3 h-3 sm:w-4 sm:h-4" />
         <span className="truncate">{location}</span>
       </div>
-      <div className="flex flex-col justify-end h-full space-y-4">
-        <p className="text-sm text-white/90 line-clamp-3 overflow-hidden">
+
+      {/* Description section with adaptive text size */}
+      <div className="flex-grow">
+        <p className="text-xs sm:text-sm md:text-base text-white/90 line-clamp-3">
           {description}
         </p>
+      </div>
+
+      {/* Button section - fixed at bottom */}
+      <div className="w-full mt-auto pt-2">
         <Button 
-          className="w-full bg-artence-purple hover:bg-white hover:text-artence-purple transition-colors duration-300"
+          className="w-full bg-artence-purple hover:bg-white hover:text-artence-purple transition-colors duration-300 text-xs sm:text-sm py-2"
           onClick={onMintClick}
         >
           MINT NFT
