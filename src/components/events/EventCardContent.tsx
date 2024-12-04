@@ -14,7 +14,7 @@ export const EventCardContent: FC<EventCardContentProps> = ({
   onMintClick,
 }) => {
   return (
-    <div className="space-y-4 opacity-0 group-hover:opacity-100 md:transition-opacity md:duration-500 opacity-100 md:opacity-0">
+    <div className="space-y-4 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
       <div className="flex items-center space-x-2 text-xs text-white/80">
         <MapPinIcon className="w-4 h-4" />
         <span className="truncate">{location}</span>
@@ -23,12 +23,14 @@ export const EventCardContent: FC<EventCardContentProps> = ({
         <p className="text-sm text-white/90 line-clamp-3 overflow-hidden">
           {description}
         </p>
-        <Button 
-          className="w-full bg-artence-purple hover:bg-white hover:text-artence-purple transition-colors duration-300 z-10"
-          onClick={onMintClick}
-        >
-          MINT NFT
-        </Button>
+        <div className="relative mt-2">
+          <Button 
+            className="w-full bg-artence-purple hover:bg-white hover:text-artence-purple transition-colors duration-300"
+            onClick={onMintClick}
+          >
+            MINT NFT
+          </Button>
+        </div>
       </div>
     </div>
   );
