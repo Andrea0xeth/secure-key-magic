@@ -35,7 +35,7 @@ export const AuthSection = ({ showSignUp, setShowSignUp }: AuthSectionProps) => 
             view={showSignUp ? "sign_up" : "sign_in"}
             providers={[]}
           />
-          <div className="mt-6 text-center space-y-2">
+          <div className="mt-6 text-center">
             <p className="text-gray-600">
               Don't have an account?{" "}
               <button
