@@ -21,7 +21,7 @@ serve(async (req) => {
     const imageUpdates = [
       {
         title: "Hendrick's Absinthe Launch Party",
-        image_url: "public/lovable-uploads/c56f407b-2e68-4abf-9a10-0de2010941ff.png"
+        image_url: "https://black-conceptual-hamster-950.mypinata.cloud/files/bafybeigbv34uxjhyoxx73ri5akwjmtfzoechboaj5cqv7eir7532rcu5sy?X-Algorithm=PINATA1&X-Date=1733501310&X-Expires=30&X-Method=GET&X-Signature=358ceabc636d21248764a08189db4e4ea514a4280918cfdd6153af8b28dfa81b"
       },
       {
         title: "Flora Adora Garden Experience",
