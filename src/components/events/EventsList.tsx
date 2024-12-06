@@ -15,7 +15,7 @@ export const EventsList = () => {
       const { data, error } = await supabase
         .from("events")
         .select("*")
-        .order("date", { ascending: true });
+        .order("date", { ascending: false }); // Modificato qui per mostrare prima gli eventi più recenti
 
       if (error) {
         console.error("Error fetching events:", error);
