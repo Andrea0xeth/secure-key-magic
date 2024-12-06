@@ -3,20 +3,31 @@ import { supabase } from "@/integrations/supabase/client";
 import { EventCard } from "./EventCard";
 import { useSidebar } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 export const EventsList = () => {
   const { expanded } = useSidebar();
-  const { data: events, isLoading } = useQuery({
+  const { data: events, isLoading, error } = useQuery({
     queryKey: ["events"],
     queryFn: async () => {
+      console.log("Fetching events from Supabase...");
+      
       const { data, error } = await supabase
         .from("events")
         .select("*")
         .order("date", { ascending: true });
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching events:", error);
+        toast.error("Failed to load events");
+        throw error;
+      }
+
+      console.log("Successfully fetched events:", data);
       return data;
     },
+    // Refresh data every minute
+    refetchInterval: 60000,
   });
 
   const gridClassName = cn(
@@ -25,6 +36,14 @@ export const EventsList = () => {
       ? "grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3"
       : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5"
   );
+
+  if (error) {
+    return (
+      <div className="flex justify-center items-center min-h-[50vh]">
+        <p className="text-red-500">Failed to load events. Please try again later.</p>
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (
@@ -39,9 +58,17 @@ export const EventsList = () => {
     );
   }
 
+  if (!events?.length) {
+    return (
+      <div className="flex justify-center items-center min-h-[50vh]">
+        <p className="text-gray-500">No events found.</p>
+      </div>
+    );
+  }
+
   return (
     <div className={gridClassName}>
-      {events?.map((event) => (
+      {events.map((event) => (
         <EventCard key={event.id} event={event} />
       ))}
     </div>
