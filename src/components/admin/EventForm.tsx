@@ -91,7 +91,7 @@ export const EventForm = () => {
         <FormField
           control={form.control}
           name="image"
-          render={({ field: { onChange, ...field } }) => (
+          render={({ field: { onChange, value, ...field } }) => (
             <FormItem>
               <FormLabel>Event Image</FormLabel>
               <FormControl>
