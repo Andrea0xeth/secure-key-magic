@@ -7,10 +7,10 @@ import { SidebarProvider, useSidebar } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 import Index from "./pages/Index";
 import MyNFTs from "./pages/MyNFTs";
+import Admin from "./pages/Admin";
 import { WalletSidebar } from "./components/wallet/WalletSidebar";
 import { useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import "./App.css";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -46,15 +46,14 @@ function AppContent() {
           className={cn(
             "min-h-screen w-full will-change-transform",
             "transition-all duration-500 ease-in-out",
-            // Push content left on desktop when sidebar is expanded
             expanded ? "md:mr-[500px]" : "mr-0",
-            // Ensure content is below sidebar on mobile
             "relative z-0"
           )}
         >
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/my-nfts" element={<MyNFTs />} />
+            <Route path="/admin" element={<Admin />} />
             <Route path="*" element={<Index />} />
           </Routes>
         </div>
