@@ -1,7 +1,1 @@
 project_id = "plyybasafokznfgjfxef"
-
-[functions.update-event-images]
-verify_jwt = false
-
-[functions.update-more-event-images]
-verify_jwt = false
