@@ -12,12 +12,14 @@ export default {
   theme: {
     container: {
       center: true,
-      padding: "2rem",
       screens: {
         "2xl": "1400px",
       },
     },
     extend: {
+      backgroundImage: {
+        'gradient-radial': 'radial-gradient(circle 1000px at center, var(--tw-gradient-stops))',
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -25,7 +27,7 @@ export default {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         primary: {
-          DEFAULT: "#7C3AED",
+          DEFAULT: "#9b87f5",
           foreground: "#ffffff",
         },
         secondary: {
@@ -46,9 +48,9 @@ export default {
         },
         artence: {
           purple: "#9b87f5",
-          dark: "#1A1F2C",
-          light: "#F1F0FB",
-          navy: "#161B33", // Added the new navy color
+          dark: "#1A1A1A",
+          light: "#E5DEFF",
+          navy: "#121212",
         },
       },
       fontFamily: {

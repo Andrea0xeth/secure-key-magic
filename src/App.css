@@ -1,7 +1,6 @@
 #root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
+  width: 100%;
+  margin: 0;
   text-align: center;
 }
 
@@ -31,6 +30,14 @@
   a:nth-of-type(2) .logo {
     animation: logo-spin infinite 20s linear;
   }
+}
+
+.rotate-animation {
+  transition: transform 0.3s ease;
+}
+
+.rotate-animation:hover {
+  transform: rotate(180deg);
 }
 
 .card {
