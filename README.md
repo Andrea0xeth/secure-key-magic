@@ -4,6 +4,8 @@
 
 A secure and user-friendly Algorand wallet that uses passkeys for authentication, providing a seamless and secure way to manage your Algorand assets.
 
+**🔗 Live Preview: [secure-key-magic.vercel.app](https://secure-key-magic.vercel.app)**
+
 ## Features
 
 - **Passkey Authentication**: Secure access to your wallet using WebAuthn passkeys
@@ -80,3 +82,17 @@ Follow the hosting provider's documentation for deployment instructions.
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Project Structure
+
+```
+├── src/
+│   ├── components/     # Reusable UI components
+│   ├── lib/           # Utility functions and configurations
+│   ├── hooks/         # Custom React hooks
+│   ├── pages/         # Page components
+│   ├── styles/        # Global styles and Tailwind config
+│   └── types/         # TypeScript type definitions
+├── public/            # Static assets
+└── tests/            # Test files
+```
