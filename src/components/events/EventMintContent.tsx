@@ -1,20 +1,12 @@
-import { FC, useEffect, useState } from "react";
+import { FC } from "react";
 import { format } from "date-fns";
 import { CalendarIcon, MapPinIcon, LogIn, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { EventShareButtons } from "./EventShareButtons";
 import { useSidebar } from "@/components/ui/sidebar";
 import { supabase } from "@/integrations/supabase/client";
+import { useEffect, useState } from "react";
 import { getStoredAlgorandKey } from "@/lib/storage/keyStorage";
-import { MintingOptions, TokenType } from "@/components/MintingOptions";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 
 interface Event {
   id: string;
@@ -29,7 +21,7 @@ interface Event {
 interface EventMintContentProps {
   event: Event;
   isMinting: boolean;
-  onMint: (tokenType: TokenType) => void;
+  onMint: () => void;
   onNavigateToNFTs: () => void;
 }
 
@@ -40,8 +32,7 @@ export const EventMintContent: FC<EventMintContentProps> = ({
   onNavigateToNFTs,
 }) => {
   const { setExpanded } = useSidebar();
-  const [session, setSession] = useState<{ user: any } | null>(null);
-  const [showMintDialog, setShowMintDialog] = useState(false);
+  const [session, setSession] = useState<any>(null);
   const formattedDate = format(new Date(event.date), "MMM d, yyyy");
   const walletAddress = getStoredAlgorandKey();
 
@@ -65,11 +56,6 @@ export const EventMintContent: FC<EventMintContentProps> = ({
 
   const handleConnectWalletClick = () => {
     setExpanded(true);
-  };
-
-  const handleMintSelection = async (tokenType: TokenType) => {
-    await onMint(tokenType);
-    setShowMintDialog(false);
   };
 
   const renderActionButton = () => {
@@ -98,28 +84,13 @@ export const EventMintContent: FC<EventMintContentProps> = ({
     }
 
     return (
-      <Dialog open={showMintDialog} onOpenChange={setShowMintDialog}>
-        <DialogTrigger asChild>
-          <Button 
-            className="w-full bg-artence-purple hover:bg-white hover:text-artence-purple border-2 border-transparent hover:border-artence-purple transition-all duration-300"
-            disabled={isMinting}
-          >
-            {isMinting ? "Minting..." : "Mint NFT"}
-          </Button>
-        </DialogTrigger>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Mint NFT per {event.title}</DialogTitle>
-            <DialogDescription>
-              Scegli il tipo di NFT che desideri mintare per questo evento
-            </DialogDescription>
-          </DialogHeader>
-          <MintingOptions 
-            onSelect={handleMintSelection}
-            isLoading={isMinting}
-          />
-        </DialogContent>
-      </Dialog>
+      <Button 
+        className="w-full bg-artence-purple hover:bg-white hover:text-artence-purple border-2 border-transparent hover:border-artence-purple transition-all duration-300"
+        onClick={onMint}
+        disabled={isMinting}
+      >
+        {isMinting ? "Minting..." : "Confirm Mint"}
+      </Button>
     );
   };
 

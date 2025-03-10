@@ -7,7 +7,6 @@ import { useMintNFT } from "@/hooks/useMintNFT";
 import { EventMintContent } from "./EventMintContent";
 import { EventMintSuccessAction } from "./EventMintSuccessAction";
 import { EventMintErrorAction } from "./EventMintErrorAction";
-import { TokenType } from "@/components/MintingOptions";
 import {
   Dialog,
   DialogContent,
@@ -72,9 +71,9 @@ export const EventMintDialog: FC<EventMintDialogProps> = ({
 
   const { mintNFT, isMinting } = useMintNFT(event, handleSuccess);
 
-  const handleMint = async (tokenType: TokenType) => {
+  const handleMint = async () => {
     try {
-      await mintNFT(tokenType);
+      await mintNFT();
     } catch (error) {
       toast({
         title: "Minting Failed",
